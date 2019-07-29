@@ -8,6 +8,15 @@ tic = time.time()
 peers = utils.prs
 names = utils.names
 
+
+def update_all(verbose):
+    for host in peers:
+        name = names[host]
+        pwrd = utils.retrieve_credentials(host)
+        cmd = 'cd ~/Desktop/RAXion; sudo git pull origin'
+        utils.ssh_command(host,name,pwrd,cmd,verbose)
+
+
 ''' RAXION Distributed Computing Architecture: 
 
 _________ - (3) Machine Types - __________
@@ -20,17 +29,13 @@ _________ - (3) Machine Types - __________
 ==========================================
 '''
 
-for host in peers:
-    uname = names[host]
-    pw = utils.retrieve_credentials(host)
-    comp_bench = 'python client.py bench_compute 500'
-    utils.ssh_command(host,uname,pw,comp_bench,True)
+if 'init' in sys.argv:
+    for host in peers:
+        uname = names[host]
+        pw = utils.retrieve_credentials(host)
+        comp_bench = 'cd ~/Desktop/RAXion/code; python compbench.py'
+        utils.ssh_command(host, uname, pw, comp_bench, True)
 
-if 'bench_compute' in sys.argv and len(sys.argv) >= 2:
-    N = int(sys.argv[2])
-    result = 0
-    for i in range(N):
-        for j in range(N):
-            if i > 0 and i % 3 == 0:
-                result += 1
-    print 'Result: %d\n%ss Elapsed' % (result, str(time.time()-tic))
+if 'update_all' in sys.argv:
+    update_all()
+
