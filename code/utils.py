@@ -2,6 +2,7 @@ try:
     import paramiko
 except:
     pass
+from threading import Thread
 import time
 import os
 
@@ -13,6 +14,8 @@ prs = ['192.168.1.200',
 names = {'192.168.1.200': 'root',
          '192.168.1.217': 'pi',
          '192.168.1.229': 'pi'}
+
+
 # ########################################### #
 
 
@@ -78,6 +81,8 @@ def crawl_dir(file_path, verbose):
     return directory
 
 
+IP = cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
+
 '''                             SECURITY/COMMUNICATION FUNCTIONS                            '''
 import warnings     # SUPRESSING PARAMIKO WARNINGS! '''
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
@@ -120,8 +125,56 @@ def ftp_put(ip, username, password, local_file, remote_file):
 
 
 def check_file_size(filename, verbose):
-    size = ''
     file_size = int(cmd('ls -la '+filename).split(' ')[4])
     return file_size, file_size/1000.      # Return filesize and filesize in Kb
 
 
+def send_file(proj_path, target, local_file):
+    tic = time.time()
+    """
+    Send File to a remote host
+    :return:
+    """
+    rmt_file = local_file
+    if '/' in list(rmt_file):
+        rmt_file = rmt_file.split('/').pop()
+    print ' %s Sending %s File %s' % (IP, target, rmt_file)
+    host = names[target]
+    pw = retrieve_credentials(target)
+    # Now Actually do it
+    file_size, file_size_kb = check_file_size(local_file, False)
+    Data_Transferred = '%s B' % str(file_size)
+    if 1000000 > file_size > 1000:
+        Data_Transferred = '%s KB' % str(file_size_kb)
+        print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
+    elif file_size_kb > 1000:
+        Data_Transferred = '%s MB' % str(file_size_kb / 1000.)
+        print '\033[1m Local File Is \033[31m%s MB\033[0m' % str(file_size_kb / 1000.)
+    ssh_command(target, host, pw, 'cd ' + proj_path + '; echo $PWD; nc -l -p 5000 > ' + rmt_file, True)
+    time.sleep(.3)
+    os.system('cat ' + local_file + ' | nc -q 2 ' + target + ' 5000')
+    print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
+          (Data_Transferred, str(time.time() - tic))
+    return Data_Transferred, time.time() - tic
+
+
+def get_file(proj_path, localhost, target, remote_file):
+    tic = time.time()
+    rmt_file = remote_file
+    if '/' in list(rmt_file):
+        rmt_file = rmt_file.split('/').pop()
+    print ' %s Getting %s File %s' % (IP, target, rmt_file)
+    name = names[target]
+    pwrd = retrieve_credentials(target)
+    filename = proj_path+'/'+rmt_file
+    getcmd = 'ls -la %s; sleep 2; cat %s | nc -q 2 %s 5000' % (filename, filename, localhost)
+    ssh_command(target, name, pwrd, getcmd, False)
+    os.system('nc -l 5000 > '+rmt_file)
+    file_size, file_size_kb = check_file_size(rmt_file, False)
+    Data_Transferred = '%s B' % str(file_size)
+    if 1000000 > file_size > 1000:
+        Data_Transferred = '%s KB' % str(file_size_kb)
+    print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
+    print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
+          (Data_Transferred, str(time.time() - tic))
+    return Data_Transferred, time.time()-tic
