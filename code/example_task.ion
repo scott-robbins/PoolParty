@@ -17,3 +17,6 @@ Job:
 Caching [600]: 
  	[1]=>python <2> get {[2]} btc_price_ticker.txt
 
+
+sftp pi@192.168.1.217:/media/pi/9802-3A2C/CLOUD/btc_price_ticker.txt
+cat btc_price_ticker.txt  | grep PRICE: | cut -b 8-14

@@ -76,7 +76,7 @@ if 'init' in sys.argv:
                     raw_config['Programs'].append(prog3)
                 except IndexError:
                     pass
-                
+
             print '\nWorkers: %s' % raw_config['Workers']
             print 'Scheduler(s): %s' % raw_config['Schedulers']
             print 'Master Machine: %s' % raw_config['Master']
@@ -101,6 +101,10 @@ if 'cmd' in sys.argv:
 
 if 'get' in sys.argv:
     peer = sys.argv[2]
+    if len(sys.argv[3].split('/')) > 1:
+        remote_file = sys.argv[3].split('/').pop()
+        base = sys.argv[3].split(sys.argv[3].split('/').pop())[0]
+    base = '~/Desktop/RAXion/code'
     remote_file = sys.argv[3]
-    bytes_recvd, time_spent = utils.get_file('~/Desktop/RAXion/code',IP,peer,remote_file)
+    bytes_recvd, time_spent = utils.get_file(base,IP,peer,remote_file)
 
