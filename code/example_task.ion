@@ -6,12 +6,13 @@ Machines:
 [3]: 192.168.1.200, 192.168.1.217
 
 ProgramFiles:
-	<1> whoami.sh;
-	<2> client.py
-	<3> analyze.py
+	<1> ~/Desktop/RAXion/code/whoami.sh;
+	<2> ~/Desktop/RAXion/code/client.py
+	<3>
 
 Job: 
-	[2]=>sh <1> username
+	[3]=>sh <1> username
+	[2]=>python <2> get {[3]} shared.txt
 
 
 Caching [600]: 

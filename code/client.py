@@ -66,7 +66,7 @@ def construct_operation(config):
                 if lang == 'python':
                     program.append(lang)
                 if lang == 'sh':
-                    program.append('sh ./')
+                    program.append('sh')
         arguments = []
         if len(execute) == 2:
             arguments.append(execute[1])
