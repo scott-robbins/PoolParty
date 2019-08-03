@@ -12,7 +12,7 @@ ProgramFiles:
 Job: 
 	[3]=>python <1> collect
 	[2]=>python <2> get {[3]} btc_price_ticker.txt
-	[2]=> python <3> btc_price_ticker.txt
+	[2]=>python <3> btc_price_ticker.txt
 
 Caching [600]: 
  	[1]=>python <2> get {[2]} btc_price_ticker.txt
