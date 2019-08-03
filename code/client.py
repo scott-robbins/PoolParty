@@ -40,14 +40,16 @@ if 'init' in sys.argv:
         pw = utils.retrieve_credentials(host)
         comp_bench = 'cd ~/Desktop/RAXion/code; python compbench.py'
         utils.ssh_command(host, uname, pw, comp_bench, False)
-        utils.ssh_command(host, uname, pw, 'ping -c 1 1.1.1.1', False)
+        utils.ssh_command(host, uname, pw, 'ping -c 1 1.1.1.1', False) # TODO: Display results (optional)
         # TODO Use Results to Determine Machines [2] and rest [3]
     for filename in os.listdir(os.getcwd()):
         if 'ion' in filename.split('.'):
             print '*\033[3m Configuration Model Found \033[0m\033[1m< %s >\033[0m' % filename
             # LOAD CONFIGURATION DATA
-            raw_config = {'Master':'', 'Schedulers': [], 'Workers': [],
-                          'Programs': []}
+            raw_config = {'Master': '', 'Schedulers': [], 'Workers': [],
+                          'Programs': [], 'Jobs': []}
+            seek_jobs = False
+            cache_flag = False
             for line in utils.swap(filename, False):
                 try:
                     raw_config['Master'] = line.split('[1]: ')[1]    # Master Machine
@@ -76,13 +78,28 @@ if 'init' in sys.argv:
                     raw_config['Programs'].append(prog3)
                 except IndexError:
                     pass
+                try:
+                    if seek_jobs and not cache_flag:
+                        tasks = line.split('=>').pop()
+                        jobid = line.split('=>')[0].split('\t')[0]
+                        raw_config['Jobs'].append([jobid, tasks])
+                except IndexError:
+                    pass
 
-            print '\nWorkers: %s' % raw_config['Workers']
+                if len(line.split('Job')) == 2:
+                    seek_jobs = True
+                if len(line.split('Caching')) >= 2:
+                    cache_flag = True
+            print '====================================================='
+            print 'Workers: %s' % raw_config['Workers']
             print 'Scheduler(s): %s' % raw_config['Schedulers']
             print 'Master Machine: %s' % raw_config['Master']
             print 'Programs In ION:'
             for prog in raw_config['Programs']:
                 print '* %s ' % prog
+            print '\tJobs to run:'
+            for job in raw_config['Jobs']:
+                print job
 
 if 'update_all' in sys.argv:
     update_all(True)
