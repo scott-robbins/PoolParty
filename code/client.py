@@ -1,3 +1,4 @@
+from threading import Thread
 import utils
 import time
 import sys
@@ -23,6 +24,14 @@ _________ - (3) Machine Types - __________
     - Best Computing speeds 
 ==========================================
 '''
+
+
+def run(host_name, command):
+    CMD = 'python client.py cmd %s "%s"' % (host_name, command)
+    try:
+        os.system(CMD)
+    except KeyboardInterrupt:
+        print '\033[1m\033[31m KILLING THREAD! \033[0m'
 
 
 def update_all(verbose):
@@ -53,13 +62,17 @@ def construct_operation(config):
         # Get Language type for command
         for lang in known_languages:
             if lang in op[1].split('<')[0].split(' ')[0]:
-                program.append(lang)
+                # TODO: Handle each language condition
+                if lang == 'python':
+                    program.append(lang)
+                if lang == 'sh':
+                    program.append('sh ./')
         arguments = []
         if len(execute) == 2:
             arguments.append(execute[1])
         elif len(execute) > 2:
             for e in execute[1:]:
-                arguments.append(e)# TODO: Complex args w/ machine refs {[n]}
+                arguments.append(e)
         operations.append({'hosts': cmd, 'prog': program, 'args': arguments})
     return operations, machine_ids
 
@@ -120,16 +133,14 @@ def parse_config(filename):
 
 
 def distributed_computation():
-    Master = IP
-    Delegators = ['192.168.1.229']
-    Workers = ['192.168.1.217', '192.168.1.200']
+
     for host in peers:
         uname = names[host]
         pw = utils.retrieve_credentials(host)
         comp_bench = 'cd ~/Desktop/RAXion/code; python compbench.py'
         utils.ssh_command(host, uname, pw, comp_bench, False)
         utils.ssh_command(host, uname, pw, 'ping -c 1 1.1.1.1', False)  # TODO: Display results (optional)
-        # TODO Use Results to Determine Machines [2] and rest [3]
+    commands = []
     for filename in os.listdir(os.getcwd()):
         if 'ion' in filename.split('.'):
             print '*\033[3m Configuration Model Found \033[0m\033[1m< %s >\033[0m' % filename
@@ -147,13 +158,26 @@ def distributed_computation():
                         if len(arg.split('{['))>1:
                             N = int(arg.split('{[')[1].split(']}')[0])
                             for host in machines[N]:
-                                arg = ' ' + host
-                        arg.replace('  ', ' ')
+                                arg = ' ' + host.replace(' ','')
+                        arg.replace('  ', '')
                         cmd += ' ' + arg
                 elif len(code['args'])==1:
                     cmd += ' ' + code['args'][0]
-                print 'Running \033[1m\033[32m%s\033[0m on peer machine(s) \033[1m%s\033[0m' %\
-                      (cmd, str(code['hosts']))
+                # print 'Running \033[1m\033[32m%s\033[0m on peer machine(s) \033[1m%s\033[0m' %\
+                #       (cmd, str(code['hosts']))
+                for host in code['hosts']:
+                    # print '\033[31m\033[1m%s:~/\033[0m$ %s ' % (host.replace(' ',''), cmd)
+                    CMD = 'python client.py cmd %s "%s"' % (host, cmd)
+                    print CMD
+                    # TODO: THIS IS DEVELOPMENT ONLY FIRST TRY IMPLEMENTATION
+                    event = Thread(target=run, args = (host, cmd, ))
+                    event.start()
+                    event.join()
+                    time.sleep(1)
+                    ''' ^^ PROBABLBY NEEDS IMPROVEMENET ^^ '''
+                    commands.append(CMD)
+    print '====================================================='
+    return commands
 
 
 if __name__ == '__main__':

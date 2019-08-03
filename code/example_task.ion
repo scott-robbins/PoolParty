@@ -6,15 +6,15 @@ Machines:
 [3]: 192.168.1.200, 192.168.1.217
 
 ProgramFiles:
-	<1> btc.py
+	<1> whoami.sh;
 	<2> client.py
 	<3> analyze.py
+
 Job: 
-	[3]=>python <1> collect
-	[2]=>python <2> get {[3]} btc_price_ticker.txt
-	[2]=>python <3> btc_price_ticker.txt
+	[2]=>sh <1> username
+
 
 Caching [600]: 
- 	[1]=>python <2> get {[2]} btc_price_ticker.txt
+ 	[3]=>sh <1> get {[2]} log.txt
 
 
