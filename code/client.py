@@ -13,7 +13,7 @@ names = utils.names
 known_languages = ['python', 'java', 'sh', 'c', 'asm']
 
 
-''' RAXION Distributed Computing Architecture: 
+''' PoolParty Distributed Computing Architecture: 
 
 _________ - (3) Machine Types - __________
 [1] Master [Single instance]
