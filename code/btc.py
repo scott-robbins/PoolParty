@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from threading import Thread
 import numpy as np
 import urllib
 import utils
@@ -21,7 +22,37 @@ def update_ticker_data(log):
     if log:
         open('btc_price_ticker.txt','a').write(content)
     else:
-        print '%$%s\t[%s - %s]' % (str(data), stamp[1], stamp[0])
+        print '$%s\t[%s - %s]' % (str(data), stamp[1], stamp[0])
     return data, stamp
+
+
+timeout = 200
+running = True
+tic = time.time()
+
+print '** Starting BTC Data Collection **'
+price_data = []
+mavg = []   # Moving Average
+dmavg = []  # Delta from Moving Average at each moment
+
+
+while running and (time.time() - tic)<=timeout:
+
+    print '\033[1m\033[32mBTC PRICE\t\033[31mTIME\033[0m'
+    current_price, timestamp = update_ticker_data(False)
+    price_data.append(np.float(current_price))
+    print price_data
+    avgp = np.array(price_data).mean()
+    davg = float(current_price) - avgp
+    mavg.append(avgp)
+    dmavg.append(davg)
+    if davg > 0.5:
+        print '+$%s from Avg. $%s' % (str(davg), avgp)
+    elif davg < 0.5:
+        print '-$%s from Avg. $%s' % (str(davg), avgp)
+    else:
+        print 'Price is AT Avg. $%s' % str(avgp)
+    time.sleep(15)
+    os.system('clear')
 
 
