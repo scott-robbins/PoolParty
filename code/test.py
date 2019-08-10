@@ -102,6 +102,13 @@ def listener(timeout):
                 worker_data = utils.swap('workers.txt', True)
                 # TODO: If length of worker data is nonzero, a message is
                 #  waiting. Handle different messages accordingly.
+                if len(worker_data) > 1:
+                    for line in worker_data:
+                        try:
+                            msg = line.split('DATA READY ')[1]
+                            print msg
+                        except IndexError:
+                            pass
         except KeyboardInterrupt:
             running = False
     kill_cmd = 'ps aux | grep "nc -l" | cut -b 10-15 | while read n; do kill -9 $n; done'
@@ -121,12 +128,17 @@ if 'run_btc' in sys.argv:
 
         if n_pts > 1 and n_pts%refresh_rate == 0:
             if utils.get_local_ip(True) in peers:
-                socket_msgr('DATA READY', '192.168.1.153')
+                file_path = os.getcwd()+'/btc_price_ticker.txt'
+                socket_msgr('DATA READY %s', '192.168.1.153')
         time.sleep(30)
 
 if 'btc_master' in sys.argv:
+    listener(60)
+    print 'Activating Distributed Workers'
     for peer in peers:
         pw = utils.retrieve_credentials(peer)
         name = utils.names[peer]
-        utils.ssh_command(peer,name,pw,"python -c 'import os; print os.getcwd()'",True)
-    #listener(10)
+        # utils.ssh_command(peer,name,pw,"python -c 'import os; print os.getcwd()'",True)
+        cmd = 'cd ~/Desktop/PoolParty/code/;python test.py run_btc'
+        utils.ssh_command(peer, name, pw,cmd, True)
+
