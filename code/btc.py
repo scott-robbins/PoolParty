@@ -34,14 +34,14 @@ print '** Starting BTC Data Collection **'
 price_data = []
 mavg = []   # Moving Average
 dmavg = []  # Delta from Moving Average at each moment
-
+p0, t0 = update_ticker_data(False)
+open('btc_prices.txt', 'w').write('START %s\nCurrent\tavg\tdelta\tTime' % t0[0])
 
 while running and (time.time() - tic)<=timeout:
 
     print '\033[1m\033[32mBTC PRICE\t\033[31mTIME\033[0m'
     current_price, timestamp = update_ticker_data(False)
     price_data.append(np.float(current_price))
-    print price_data
     avgp = np.array(price_data).mean()
     davg = float(current_price) - avgp
     mavg.append(avgp)
@@ -52,6 +52,9 @@ while running and (time.time() - tic)<=timeout:
         print '-$%s from Avg. $%s' % (str(davg), avgp)
     else:
         print 'Price is AT Avg. $%s' % str(avgp)
+    line = '$%s\t$%s\t$%s\t[%s - %s]' % \
+           (str(current_price), str(avgp), str(davg), timestamp[1], timestamp[0])
+    open('btc_prices.txt', 'a').write(line)
     time.sleep(15)
     os.system('clear')
 
