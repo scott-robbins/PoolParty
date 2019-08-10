@@ -35,7 +35,7 @@ price_data = []
 mavg = []   # Moving Average
 dmavg = []  # Delta from Moving Average at each moment
 p0, t0 = update_ticker_data(False)
-open('btc_prices.txt', 'w').write('START %s\nCurrent\tavg\tdelta\tTime' % t0[0])
+open('btc_prices.txt', 'w').write('START %s\nCurrent\tavg\tdelta\tTime\n' % t0[0])
 
 while running and (time.time() - tic) <= timeout:
     print '\033[1m\033[32mBTC PRICE\t\033[31mTIME\033[0m'
@@ -53,7 +53,7 @@ while running and (time.time() - tic) <= timeout:
         print 'Price is AT Avg. $%s' % str(avgp)
     line = '$%s\t$%s\t$%s\t[%s - %s]' % \
            (str(current_price), str(avgp), str(davg), timestamp[1], timestamp[0])
-    open('btc_prices.txt', 'a').write(line)
+    open('btc_prices.txt', 'a').write(line+'\n')
     time.sleep(15)
     os.system('clear')
 
