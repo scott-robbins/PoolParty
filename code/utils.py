@@ -186,3 +186,9 @@ def get_local_ip(verbose):
     if verbose:
         print '\033[1mLocal IP:\033[3m %s\033[0m' % ip
     return ip
+
+
+def start_listener(file_name, port):
+    if os.name != 'nt':
+        cmd = 'nc -l -k %d >> %s' % (port, file_name)
+        os.system(cmd)

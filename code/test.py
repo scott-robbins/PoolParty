@@ -1,5 +1,6 @@
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
+from threading import Thread
 import numpy as np
 import urllib
 import base64
@@ -87,6 +88,26 @@ def encrypt(text, key):
     return aes.EncodeAES(c, text)
 
 
+def listener(timeout):
+    refresh = 20
+    running = True
+    tic = time.time()
+    listen = Thread(target=utils.start_listener,args=('workers.txt', 6666, ))
+    listen.start()
+    listen.join()
+    while time.time()-tic <= timeout and running:
+        try:
+            dt  = time.time()-tic
+            if dt > 1 and int(dt) % refresh == 0:
+                worker_data = utils.swap('workers.txt', True)
+                # TODO: If length of worker data is nonzero, a message is
+                #  waiting. Handle different messages accordingly.
+        except KeyboardInterrupt:
+            running = False
+    kill_cmd = 'ps aux | grep "nc -l" | cut -b 10-15 | while read n; do kill -9 $n; done'
+    os.system(kill_cmd)
+
+
 if 'run_btc' in sys.argv:
     refresh_rate = 2
     runnning = True
@@ -102,3 +123,10 @@ if 'run_btc' in sys.argv:
             if utils.get_local_ip(True) in peers:
                 socket_msgr('DATA READY', '192.168.1.153')
         time.sleep(30)
+
+if 'btc_master' in sys.argv:
+    for peer in peers:
+        pw = utils.retrieve_credentials(peer)
+        name = utils.names[peer]
+        utils.ssh_command(peer,name,pw,"python -c 'import os; print os.getcwd()'",True)
+    #listener(10)
