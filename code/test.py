@@ -78,9 +78,10 @@ if 'run_btc' in sys.argv:
     n_pts = 0
     while runnning:
         price, stamp = update_ticker_data(False)
+        print '$%s [%s - %s]' % (str(price), stamp[1], stamp[0])
         price_data.append(price)
         n_pts = len(price_data)
-        if n_pts >1 and n_pts%refresh_rate==0:
+        if n_pts > 1 and n_pts%refresh_rate == 0:
             print '\t\t~ PHONE HOME ~'
             # SEND PRICE DATA BACK TO MOTHERSHIP
             pword = utils.retrieve_credentials(home)
