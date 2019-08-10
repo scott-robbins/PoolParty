@@ -1,7 +1,6 @@
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
 from threading import Thread
-import numpy as np
 import urllib
 import base64
 import socket
@@ -12,7 +11,6 @@ import sys
 import os
 
 peers = ['192.168.1.200', '192.168.1.217', '192.168.1.229']
-btc_ticker = 'https://blockchain.info/ticker'
 tic = time.time()
 
 
@@ -29,7 +27,6 @@ def socket_msgr(message, friend):
     except KeyboardInterrupt:
         pass
     return reply
-
 
 
 def create_timestamp():
@@ -72,14 +69,6 @@ def add_host(ip):
     os.system('cat key.txt >> Hosts/%s; rm key.txt' % kname)
 
 
-if 'add' in sys.argv:
-    if len(sys.argv) >= 3:
-        add_host(sys.argv[2])
-    else:
-        print '\033[31m\033[1m\033[3mIncorrect Usage!\033[0m'
-        exit()
-
-
 def encrypt(text, key):
     if key:
         c = AES.new(key)
@@ -115,30 +104,10 @@ def listener(timeout):
     os.system(kill_cmd)
 
 
-if 'run_btc' in sys.argv:
-    refresh_rate = 2
-    runnning = True
-    price_data = []
-    n_pts = 0
-    while runnning:
-        price, stamp = update_ticker_data(False)
-        print '$%s [%s - %s]' % (str(price), stamp[1], stamp[0])
-        price_data.append(price)
-        n_pts = len(price_data)
-
-        if n_pts > 1 and n_pts%refresh_rate == 0:
-            if utils.get_local_ip(True) in peers:
-                file_path = os.getcwd()+'/btc_price_ticker.txt'
-                socket_msgr('DATA READY %s', '192.168.1.153')
-        time.sleep(30)
-
-if 'btc_master' in sys.argv:
-    listener(60)
-    print 'Activating Distributed Workers'
-    for peer in peers:
-        pw = utils.retrieve_credentials(peer)
-        name = utils.names[peer]
-        # utils.ssh_command(peer,name,pw,"python -c 'import os; print os.getcwd()'",True)
-        cmd = 'cd ~/Desktop/PoolParty/code/;python test.py run_btc'
-        utils.ssh_command(peer, name, pw,cmd, True)
+if 'add' in sys.argv:
+    if len(sys.argv) >= 3:
+        add_host(sys.argv[2])
+    else:
+        print '\033[31m\033[1m\033[3mIncorrect Usage!\033[0m'
+        exit()
 
