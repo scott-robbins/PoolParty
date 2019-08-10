@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if 'send' in sys.argv and len(sys.argv) == 4:
         peer = sys.argv[2]
         file_in = sys.argv[3]
-        bytes_sent, time_elapsed = utils.send_file('~/Desktop/RAXion/code', peer, file_in)
+        bytes_sent, time_elapsed = utils.send_file(os.getcwd(), peer, file_in)
 
     if 'cmd' in sys.argv:
         peer = sys.argv[2]
@@ -206,7 +206,7 @@ if __name__ == '__main__':
         if len(sys.argv[3].split('/')) > 1:
             remote_file = sys.argv[3].split('/').pop()
             base = sys.argv[3].split(sys.argv[3].split('/').pop())[0]
-        base = '~/Desktop/RAXion/code'
+        base = os.getcwd()
         remote_file = sys.argv[3]
         bytes_recvd, time_spent = utils.get_file(base, IP, peer, remote_file)
 
