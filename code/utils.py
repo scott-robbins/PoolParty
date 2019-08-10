@@ -178,3 +178,11 @@ def get_file(proj_path, localhost, target, remote_file):
     print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
           (Data_Transferred, str(time.time() - tic))
     return Data_Transferred, time.time()-tic
+
+
+def get_local_ip(verbose):
+    os.system('ifconfig | grep broadcast | cut -b 14-28 >> ip.txt')
+    ip = swap('ip.txt', True).pop().replace(' ','')
+    if verbose:
+        print '\033[1mLocal IP:\033[3m %s\033[0m' % ip
+    return ip

@@ -3,6 +3,7 @@ from Crypto.Cipher import AES
 import numpy as np
 import urllib
 import base64
+import socket
 import utils
 import time
 import aes
@@ -12,6 +13,22 @@ import os
 peers = ['192.168.1.200', '192.168.1.217', '192.168.1.229']
 btc_ticker = 'https://blockchain.info/ticker'
 tic = time.time()
+
+
+def socket_msgr(message, friend):
+    timeout = 10
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((friend, 6666))
+    s.send(message)
+    tic = time.time()
+    reply = ''
+    try:
+        while (time.time()-tic) <= timeout:
+            reply = s.recv(1024)
+    except KeyboardInterrupt:
+        pass
+    return reply
+
 
 
 def create_timestamp():
@@ -71,7 +88,6 @@ def encrypt(text, key):
 
 
 if 'run_btc' in sys.argv:
-    home = peers[0]
     refresh_rate = 2
     runnning = True
     price_data = []
@@ -81,8 +97,8 @@ if 'run_btc' in sys.argv:
         print '$%s [%s - %s]' % (str(price), stamp[1], stamp[0])
         price_data.append(price)
         n_pts = len(price_data)
+
         if n_pts > 1 and n_pts%refresh_rate == 0:
-            print '\t\t~ PHONE HOME ~'
-            # SEND PRICE DATA BACK TO MOTHERSHIP
-            pword = utils.retrieve_credentials(home)
-            utils.ftp_put(home,'root',pword,'btc_price_ticker.txt','~/Desktop/PoolParty/code/btcprices.txt')
+            if utils.get_local_ip(True) in peers:
+                socket_msgr('DATA READY', '192.168.1.153')
+        time.sleep(30)
