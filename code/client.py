@@ -208,5 +208,6 @@ if __name__ == '__main__':
             base = sys.argv[3].split(sys.argv[3].split('/').pop())[0]
         base = os.getcwd()
         remote_file = sys.argv[3]
-        bytes_recvd, time_spent = utils.get_file(base, IP, peer, remote_file)
+
+        bytes_recvd, time_spent = utils.get_file(IP, peer, remote_file)
 

@@ -7,11 +7,13 @@ import time
 import os
 
 # ##### USERS/NODES HARDCODED FOR NOW ##### #
-prs = ['192.168.1.200',
+prs = ['192.168.1.153',
+       '192.168.1.200',
        '192.168.1.217',
        '192.168.1.229']
 
-names = {'192.168.1.200': 'root',
+names = {'192.168.1.153':'tylersdurden'
+         '192.168.1.200': 'root',
          '192.168.1.217': 'pi',
          '192.168.1.229': 'pi'}
 
@@ -158,7 +160,7 @@ def send_file(proj_path, target, local_file):
     return Data_Transferred, time.time() - tic
 
 
-def get_file(proj_path, localhost, target, remote_file):
+def get_file(localhost, target, remote_file):
     tic = time.time()
     rmt_file = remote_file
     if '/' in list(rmt_file):
@@ -166,7 +168,7 @@ def get_file(proj_path, localhost, target, remote_file):
     print ' %s Getting %s File %s' % (IP, target, rmt_file)
     name = names[target]
     pwrd = retrieve_credentials(target)
-    filename = proj_path+'/'+rmt_file
+    filename = rmt_file
     getcmd = 'ls -la %s; sleep 2; cat %s | nc -q 2 %s 5000' % (filename, filename, localhost)
     ssh_command(target, name, pwrd, getcmd, False)
     os.system('nc -l 5000 > '+rmt_file)
