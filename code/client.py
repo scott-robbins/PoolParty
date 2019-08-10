@@ -209,5 +209,5 @@ if __name__ == '__main__':
         base = os.getcwd()
         remote_file = sys.argv[3]
 
-        bytes_recvd, time_spent = utils.get_file(IP, peer, remote_file)
+        data = utils.get_file_untrusted(peer,names[peer],utils.retrieve_credentials(peer),remote_file,True)
 

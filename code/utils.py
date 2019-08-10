@@ -101,7 +101,7 @@ def ssh_command(ip, user, passwd, command, verbose):
         if ssh_session.active:
             ssh_session.exec_command(command)
             if verbose:
-                response = ssh_session.recv(1024)
+                response = ssh_session.recv(65535)
                 print '%s@%s:~$ %s [Executed]' % (user, ip, command)
                 print '%s@%s:~$ %s' % (user, ip, response)
                 return response
@@ -109,6 +109,38 @@ def ssh_command(ip, user, passwd, command, verbose):
     except paramiko.ssh_exception.NoValidConnectionsError:
         print "Could not connect to %s" % ip
     return response
+
+
+def get_file_untrusted(ip,user,password,file_name,verbose):
+    tic = time.time()
+    if len(list(file_name.split('/'))) > 1:
+        local_file = list(file_name.split('/')).pop()
+    else:
+        local_file = file_name
+    cmd = 'cat '+file_name
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    response = ''
+    try:
+        client.connect(ip, username=user, password=password)
+        ssh_session = client.get_transport().open_session()
+        response = ''
+        if ssh_session.active:
+            ssh_session.exec_command(cmd)
+            if verbose:
+                response = ssh_session.recv(65535)
+    except paramiko.ssh_exception.NoValidConnectionsError:
+        print "Could not connect to %s" % ip
+    open(local_file, 'w').write(response)
+    if verbose:
+        file_size, file_size_kb = check_file_size(local_file, False)
+        Data_Transferred = '%s B' % str(file_size)
+        if 1000000 > file_size > 1000:
+            Data_Transferred = '%s KB' % str(file_size_kb)
+        print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
+        print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
+              (Data_Transferred, str(time.time() - tic))
+
 
 
 def retrieve_credentials(node):
