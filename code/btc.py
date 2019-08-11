@@ -23,6 +23,25 @@ canvas = FigureCanvasTkAgg(f, master=root)
 
 btc_ticker = 'https://blockchain.info/ticker'
 t0 = time.time()
+prices = []
+moving_avg = []
+deltas = []
+stamps = []
+for line in utils.swap('btc_prices.txt', False):
+    try:
+        price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
+        aprice = float(line.split('\t')[1].replace('$', '').replace(' ', ''))
+        delta = float(line.split('\t')[2].replace('$', '').replace(' ', ''))
+        dates = line.split('\t')[3].replace('$', '').split(' - ')[1]
+        stamps.append(dates)
+        prices.append(price)
+        moving_avg.append(aprice)
+        deltas.append(delta)
+    except IndexError:
+        pass
+
+pdata = np.array(prices)
+padata = np.array(moving_avg)
 
 
 def update_ticker_data(log):
@@ -57,14 +76,18 @@ def update_logs():
 
     pdata = np.array(prices)
     padata = np.array(moving_avg)
-
+    a.cla()
+    a.plot(pdata, color='red', linestyle=':', label='Price')
+    a.plot(padata, color='blue', linestyle='-.', label='Moving Average')
+    a.legend()
+    a.set_ylabel('Price $ [USD]')
     a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
     a.plot(pdata, color='red', linestyle=':', label='Price')
     a.plot(padata, color='blue', linestyle='-.', label='Moving Average')
     return a
 
 
-timeout = 200
+timeout = 20000000
 running = True
 tic = time.time()
 update = Tk.Button(master=root, text='Update', command=update_logs)
@@ -100,10 +123,6 @@ if 'run' in sys.argv:
         os.system('clear')
 
 if 'read' in sys.argv:
-    prices = []
-    moving_avg = []
-    deltas = []
-    stamps = []
     if not os.path.isfile(os.getcwd()+'/btc_prices.txt'):
         print '\033[1mBTC Price Data Log \033[3mis NOT present!\033[0m'
         host = raw_input('Enter Name of Host \033[1mWith\033[0m btc_prices.txt: ')
@@ -111,21 +130,6 @@ if 'read' in sys.argv:
             cmd = 'python client.py get %s %s' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
             os.system(cmd)
 
-    for line in utils.swap('btc_prices.txt', False):
-         try:
-             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
-             aprice = float(line.split('\t')[1].replace('$','').replace(' ', ''))
-             delta = float(line.split('\t')[2].replace('$','').replace(' ', ''))
-             dates = line.split('\t')[3].replace('$','').split(' - ')[1]
-             stamps.append(dates)
-             prices.append(price)
-             moving_avg.append(aprice)
-             deltas.append(delta)
-         except IndexError:
-             pass
-
-    pdata = np.array(prices)
-    padata = np.array(moving_avg)
 
     a.grid()
     a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates)-1]))
