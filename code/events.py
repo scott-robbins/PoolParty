@@ -10,6 +10,8 @@ import os
 
 tic = time.time()
 btc_ticker = 'https://blockchain.info/ticker'
+Width = 800
+Height = 1200
 
 
 def update_logs():
@@ -45,8 +47,8 @@ def update_logs():
 
     a.grid()
     canvas.draw()
-    canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
-    canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+    canvas.get_tk_widget().place(x=0,y=100,relwidth=0.8,relheight=0.8)
+    canvas._tkcanvas.place(x=0,y=100,relwidth=0.8,relheight=0.8)
     plt.show()
 
 
@@ -56,13 +58,12 @@ if 'run' in sys.argv:
     f = Figure(figsize=(5, 4), dpi=100)
     a = f.add_subplot(111)
     button = Tk.Button(master=root, text='Quit', command=sys.exit)
-    button.pack(side=Tk.BOTTOM)
+    button.place(x=0,y=0,relwidth=0.1,relheight=0.1)
     update = Tk.Button(master=root, text='Update', command=update_logs)
-    update.pack(side=Tk.BOTTOM)
+    update.place(x=100,y=0,relwidth=0.1,relheight=0.1)
 
     # a tk.DrawingArea
     canvas = FigureCanvasTkAgg(f, master=root)
-
 
     t0 = time.time()
     prices = []
@@ -100,7 +101,7 @@ if 'run' in sys.argv:
     plt.show()
 
     canvas.draw()
-    canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
-    canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+    canvas.get_tk_widget().place(x=0,y=100,relwidth=0.9,relheight=0.8)
+    canvas._tkcanvas.place(x=0,y=100,relwidth=0.9,relheight=0.8)
 
     Tk.mainloop()
