@@ -14,6 +14,10 @@ btc_ticker = 'https://blockchain.info/ticker'
 
 def update_logs():
     plt.close()
+    prices = []
+    moving_avg = []
+    deltas = []
+    stamps = []
     os.system("python client.py get 192.168.1.200 '/root/Desktop/PoolParty/code/btc_prices.txt'")
     for line in utils.swap('btc_prices.txt', False):
          try:
@@ -38,8 +42,13 @@ def update_logs():
     a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
     a.plot(pdata, color='red', linestyle=':', label='Price')
     a.plot(padata, color='blue', linestyle='-.', label='Moving Average')
-    return a
 
+    a.grid()
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+    canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+    plt.show()
+    
 
 if 'run' in sys.argv:
     root = Tk.Tk()
