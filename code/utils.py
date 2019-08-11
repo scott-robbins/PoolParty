@@ -214,6 +214,13 @@ def get_file(localhost, target, remote_file):
     return Data_Transferred, time.time()-tic
 
 
+def get_file_2(local_file, rmt_file):
+    cmd = "rm btc_prices.txt; nc -l 6666 >> %s & " \
+          "python client.py cmd 192.168.1.200 'sleep 1; " \
+          "cat %s | nc -q 2 192.168.1.153 6666'" % (local_file, rmt_file)
+    os.system(cmd)
+    return swap(cmd, False)
+
 def get_local_ip(verbose):
     os.system('ifconfig | grep broadcast | cut -b 14-28 >> ip.txt')
     ip = swap('ip.txt', True).pop().replace(' ','')

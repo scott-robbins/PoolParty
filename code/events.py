@@ -31,7 +31,9 @@ def update_logs():
     moving_avg = []
     deltas = []
     stamps = []
-    os.system("python client.py get 192.168.1.200 '/root/Desktop/PoolParty/code/btc_prices.txt'")
+    os.system("rm btc_prices.txt; nc -l 6666 >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
+              " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 6666'")
+
     for line in utils.swap('btc_prices.txt', False):
          try:
              price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
@@ -105,7 +107,8 @@ if 'run' in sys.argv:
     deltas = []
     stamps = []
     if not os.path.isfile('btc_prices.txt'):
-        os.system("python client.py get 192.168.1.200 '/root/Desktop/PoolParty/code/btc_prices.txt'")
+        os.system("rm btc_prices.txt; nc -l 6666 >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
+                  " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 6666'")
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
