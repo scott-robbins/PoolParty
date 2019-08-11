@@ -54,6 +54,8 @@ def update_logs():
         if file already exists:
          - log next guess, error of preview guess, etc.'''
     estimate = moving_avg.pop()+np.array(deltas).mean()
+    print 'PRICE: $%s' % str(prices.pop())
+    print 'GUESS = $%s' % str(estimate)
     a.cla()
     a.plot(pdata, color='red', linestyle=':', label='Price')
     a.plot(padata, color='blue', linestyle='-.', label='Moving Average')
@@ -62,7 +64,6 @@ def update_logs():
     a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
     a.plot(pdata, color='red', linestyle=':', label='Price')
     a.plot(padata, color='blue', linestyle='-.', label='Moving Average')
-    a.plot(estimate, color='blue', linestyle='-.', label='GUESS')
     a.plot(setpoint * np.ones((len(pdata), 1)), color='green', label='Target Price')
     a.grid()
     canvas.draw()
@@ -126,12 +127,12 @@ if 'run' in sys.argv:
         if host in utils.names:
             cmd = 'python client.py get %s %s' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
             os.system(cmd)
-    estimate = moving_avg.pop() + np.array(deltas).mean()
+    estimate = moving_avg.pop() + np.array(np.diff(pdata)).mean()
+    print 'PRICE: $%s' % str(prices.pop())
     print 'GUESS = $%s' % str(estimate)
     a.grid()
     a.plot(pdata, color='red', linestyle=':', label='Price')
     a.plot(padata,color='blue', linestyle='-.',label='Moving Average')
-    a.plot(estimate, color='blue', linestyle='-', label='GUESS')
     a.plot(setpoint*np.ones((len(pdata),1)), color='green', label='Target Price')
     a.legend()
     a.set_ylabel('Price $ [USD]')
@@ -144,7 +145,7 @@ if 'run' in sys.argv:
     f.canvas.callbacks.connect('button_press_event', on_click)
     basic_logic()
 
-    if time.time()-tic > 1 and int(time.time()-tic) % 60 == 0:
+    if time.time()-tic > 1 and int(time.time()-tic) % 30 == 0:
         update_logs()
 
     Tk.mainloop()
