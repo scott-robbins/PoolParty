@@ -1,4 +1,6 @@
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import Tkinter as Tk
@@ -15,7 +17,6 @@ Height = 800
 
 
 def on_click(event):
-    date, timestamp  = utils.create_timestamp()
     if event.inaxes is not None:
         setpoint = event.ydata
         print 'SETPOINT \033[32m\033[1m$%s\033[0m' % str(setpoint)
@@ -23,6 +24,7 @@ def on_click(event):
     else:
         'Clicked ouside bounds!'
     update_logs()
+
 
 def update_logs():
     basic_logic()
@@ -51,28 +53,41 @@ def update_logs():
     padata = np.array(moving_avg)
     setpoint = float(open('setpoint.txt', 'r').readlines().pop())
 
-    ''' Calculate a Guess, 
-        Write it to a file, 
-        if file already exists:
-         - log next guess, error of preview guess, etc.'''
-    estimate = moving_avg.pop()+np.array(deltas).mean()
+    ''' MODEL_1: Linear Regression '''
+    x = np.array(range(len(prices)))
+    lr = LinearRegression()
+    lr.fit(x[:, np.newaxis], pdata)
+
+    estimate = lr.predict(x[:, np.newaxis])[len(x)-1]
+    error = price - estimate
     print 'PRICE: $%s' % str(prices.pop())
     print 'GUESS = $%s' % str(estimate)
+    print '* Error: %s' % str(error)
+    open('error.txt', 'a').write(str(error)+'\n')
+    fit = lr.predict(x[:, np.newaxis]) + error
+
+    '''     MODEL_2: Decision Tree Regressor    '''
+    regr_1 = DecisionTreeRegressor(max_depth=4)
+    X = x[:, np.newaxis]
+    y = pdata
+    regr_1.fit(X, y)
+    y_1 = regr_1.predict(X)
+
     a.cla()
-    a.plot(pdata, color='red', linestyle=':', label='Price')
-    a.plot(padata, color='blue', linestyle='-.', label='Moving Average')
-    a.legend()
     a.set_ylabel('Price $ [USD]')
     a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
-    a.plot(pdata, color='yellow', linestyle=':', label='Price')
-    a.plot(padata, color='orange', linestyle='-.', label='Moving Average')
-    a.plot(setpoint * np.ones((len(pdata), 1)), color='green', label='Target Price')
+    a.plot(pdata, color='red', linestyle=':', label='Price')
+    a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
+    a.plot(setpoint * np.ones((len(pdata), 1)), color='white', label='Target Price')
+    a.plot(x, fit, 'b-',label='Linear Fit')
+    a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=2)
     a.grid()
+    a.legend()
+
     canvas.draw()
     canvas.get_tk_widget().place(x=0,y=100,relwidth=1,relheight=0.8)
     canvas._tkcanvas.place(x=0,y=100,relwidth=1,relheight=0.8)
     plt.show()
-    print 'GUESS = $%s' % str(estimate)
 
 
 def basic_logic():
