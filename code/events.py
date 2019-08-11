@@ -18,9 +18,13 @@ Height = 800
 
 def on_click(event):
     if event.inaxes is not None:
-        setpoint = event.ydata
-        print 'SETPOINT \033[32m\033[1m$%s\033[0m' % str(setpoint)
-        open('setpoint.txt','w').write(str(setpoint))
+        sp = event.ydata
+        print 'SETPOINT \033[32m\033[1m$%s\033[0m' % str(sp)
+        try:
+            open('setpoint.txt', 'w').write(str(sp))
+        except IOError:
+            print '** Setpoint Unchanged **'
+            pass
     else:
         'Clicked ouside bounds!'
     update_logs()
@@ -39,9 +43,9 @@ def update_logs():
     for line in utils.swap('btc_prices.txt', False):
          try:
              price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
-             aprice = float(line.split('\t')[1].replace('$','').replace(' ', ''))
-             delta = float(line.split('\t')[2].replace('$','').replace(' ', ''))
-             dates = line.split('\t')[3].replace('$','').split(' - ')[1]
+             aprice = float(line.split('\t')[1].replace('$', '').replace(' ', ''))
+             delta = float(line.split('\t')[2].replace('$', '').replace(' ', ''))
+             dates = line.split('\t')[3].replace('$', '').split(' - ')[1]
              stamps.append(dates)
              prices.append(price)
              moving_avg.append(aprice)
@@ -51,7 +55,7 @@ def update_logs():
 
     pdata = np.array(prices)
     padata = np.array(moving_avg)
-    setpoint = float(open('setpoint.txt', 'r').readlines().pop())
+    setpoint = float(utils.swap('setpoint.txt', True).pop())
 
     ''' MODEL_1: Linear Regression '''
     x = np.array(range(len(prices)))
@@ -76,17 +80,17 @@ def update_logs():
     a.cla()
     a.set_ylabel('Price $ [USD]')
     a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
-    a.plot(pdata, color='red', linestyle=':', label='Price')
+    a.plot(pdata, color='red', linestyle='--', label='Price')
     a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
-    a.plot(setpoint * np.ones((len(pdata), 1)), color='white', label='Target Price')
+    a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':',color='orange', label='Target Price')
     a.plot(x, fit, 'b-',label='Linear Fit')
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=2)
     a.grid()
     a.legend()
 
     canvas.draw()
-    canvas.get_tk_widget().place(x=0,y=100,relwidth=1,relheight=0.8)
-    canvas._tkcanvas.place(x=0,y=100,relwidth=1,relheight=0.8)
+    canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
+    canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
     plt.show()
 
 
@@ -109,7 +113,7 @@ if 'run' in sys.argv:
     f = Figure(figsize=(5, 4), dpi=100)
     a = f.add_subplot(111)
     button = Tk.Button(master=root, text='Quit', command=sys.exit)
-    button.place(x=0,y=0,relwidth=0.1,relheight=0.1)
+    button.place(x=0, y=0, relwidth=0.1, relheight=0.1)
     update = Tk.Button(master=root, text='Update', command=update_logs)
     update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
 
@@ -151,16 +155,16 @@ if 'run' in sys.argv:
     print 'PRICE: $%s' % str(prices.pop())
     print 'GUESS = $%s' % str(estimate)
     a.grid()
-    a.plot(pdata, color='yellow', linestyle=':', label='Price')
-    a.plot(padata,color='orange', linestyle='-.',label='Moving Average')
-    a.plot(setpoint*np.ones((len(pdata),1)), color='green', label='Target Price')
+    a.plot(pdata, color='red', linestyle='--', label='Price')
+    a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
+    a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
     a.legend()
     a.set_ylabel('Price $ [USD]')
     plt.show()
 
     canvas.draw()
-    canvas.get_tk_widget().place(x=0,y=100,relwidth=1,relheight=0.8)
-    canvas._tkcanvas.place(x=0,y=100,relwidth=1,relheight=0.8)
+    canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
+    canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
 
     f.canvas.callbacks.connect('button_press_event', on_click)
     basic_logic()
