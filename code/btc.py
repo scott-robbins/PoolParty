@@ -10,6 +10,7 @@ import time
 import sys
 import os
 
+btc_ticker = 'https://blockchain.info/ticker'
 
 def update_ticker_data(log):
     data = ''
@@ -99,7 +100,7 @@ if 'read' in sys.argv:
     # a tk.DrawingArea
     canvas = FigureCanvasTkAgg(f, master=root)
 
-    btc_ticker = 'https://blockchain.info/ticker'
+
     t0 = time.time()
     prices = []
     moving_avg = []
