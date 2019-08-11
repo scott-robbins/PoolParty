@@ -104,6 +104,8 @@ if 'run' in sys.argv:
     moving_avg = []
     deltas = []
     stamps = []
+    if not os.path.isfile('btc_prices.txt'):
+        os.system("python client.py get 192.168.1.200 '/root/Desktop/PoolParty/code/btc_prices.txt'")
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))

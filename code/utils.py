@@ -101,7 +101,7 @@ def ssh_command(ip, user, passwd, command, verbose):
         if ssh_session.active:
             ssh_session.exec_command(command)
             if verbose:
-                response = ssh_session.recv(65535)
+                response = ssh_session.recv(16777216)   # needed for file sharing
                 print '%s@%s:~$ %s [Executed]' % (user, ip, command)
                 print '%s@%s:~$ %s' % (user, ip, response)
                 return response
@@ -128,7 +128,7 @@ def get_file_untrusted(ip,user,password,file_name,verbose):
         if ssh_session.active:
             ssh_session.exec_command(cmd)
             if verbose:
-                response = ssh_session.recv(65535)
+                response = ssh_session.recv(16777216)
     except paramiko.ssh_exception.NoValidConnectionsError:
         print "Could not connect to %s" % ip
     open(local_file, 'w').write(response)
