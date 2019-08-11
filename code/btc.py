@@ -1,8 +1,3 @@
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-from threading import Thread
-import Tkinter as Tk
 import numpy as np
 import urllib
 import utils

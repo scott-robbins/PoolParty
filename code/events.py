@@ -48,7 +48,7 @@ def update_logs():
     canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
     canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
     plt.show()
-    
+
 
 if 'run' in sys.argv:
     root = Tk.Tk()
