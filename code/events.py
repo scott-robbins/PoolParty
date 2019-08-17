@@ -57,20 +57,33 @@ def update_logs():
     padata = np.array(moving_avg)
     setpoint = float(utils.swap('setpoint.txt', False).pop())
 
+    a.cla()
+    a.set_ylabel('Price $ [USD]')
+    a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
+    a.plot(pdata, color='red', linestyle='--', label='Price')
+    a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
+    a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
+
     ''' MODEL_1: Linear Regression 
     (should probably be refitted (or create new fit) after 1k points.
     '''
+    if len(prices) > 10000:
+        print 'Using %d LinearRegression Models in Series' % int(len(prices)/10000.)
+        # TODO: How to do this iteratively?
+
+
     x = np.array(range(len(prices)))
     lr = LinearRegression()
     lr.fit(x[:, np.newaxis], pdata)
 
-    estimate = lr.predict(x[:, np.newaxis])[len(x)-1]
+    estimate = lr.predict(x[:, np.newaxis])[len(x) - 1]
     error = price - estimate
     print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
     print '\033[1mGUESS = $%s\033[0m' % str(estimate)
     print '\033[3m* Error: %s\033[0m' % str(error)
-    open('error.txt', 'a').write(str(error)+'\n')
+    open('error.txt', 'a').write(str(error) + '\n')
     fit = lr.predict(x[:, np.newaxis]) + error
+    a.plot(x, fit, 'b-', label='Linear Fit')
 
     '''     MODEL_2: Decision Tree Regressor    '''
     regr_1 = DecisionTreeRegressor(max_depth=4)
@@ -78,14 +91,6 @@ def update_logs():
     y = pdata
     regr_1.fit(X, y)
     y_1 = regr_1.predict(X)
-
-    a.cla()
-    a.set_ylabel('Price $ [USD]')
-    a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
-    a.plot(pdata, color='red', linestyle='--', label='Price')
-    a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
-    a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':',color='orange', label='Target Price')
-    a.plot(x, fit, 'b-',label='Linear Fit')
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=2)
     a.grid()
     a.legend()
