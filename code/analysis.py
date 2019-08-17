@@ -39,6 +39,7 @@ def analyze(show):
     X = x[:, np.newaxis]
     y = pdata
 
+    # TODO: Need a fit for every 1k points
     lr.fit(X, pdata)
     dtr.fit(X, y)
     y0 = lr.predict(X)

@@ -57,7 +57,9 @@ def update_logs():
     padata = np.array(moving_avg)
     setpoint = float(utils.swap('setpoint.txt', False).pop())
 
-    ''' MODEL_1: Linear Regression '''
+    ''' MODEL_1: Linear Regression 
+    (should probably be refitted (or create new fit) after 1k points.
+    '''
     x = np.array(range(len(prices)))
     lr = LinearRegression()
     lr.fit(x[:, np.newaxis], pdata)
