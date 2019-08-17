@@ -181,7 +181,7 @@ def distributed_computation():
 
 
 if __name__ == '__main__':
-
+    verbose = True
     if 'init' in sys.argv:
         print '\033[1m\t\t< Initializing >\033[1m'
         distributed_computation()
@@ -195,13 +195,17 @@ if __name__ == '__main__':
         bytes_sent, time_elapsed = utils.send_file(os.getcwd(), peer, file_in)
 
     if 'cmd' in sys.argv:
+        if '-q' in sys.argv:
+            verbose = False
         peer = sys.argv[2]
         cmd = sys.argv[3]
         name = names[peer]  # TODO: Can raise error if unknown peer
         pwrd = utils.retrieve_credentials(peer)
-        utils.ssh_command(peer, name, pwrd, cmd, True)
+        utils.ssh_command(peer, name, pwrd, cmd, verbose)
 
     if 'get' in sys.argv:
+        if '-q' in sys.argv:
+            verbose = False
         peer = sys.argv[2]
         if len(sys.argv[3].split('/')) > 1:
             remote_file = sys.argv[3].split('/').pop()
@@ -209,5 +213,5 @@ if __name__ == '__main__':
         base = os.getcwd()
         remote_file = sys.argv[3]
 
-        data = utils.get_file_untrusted(peer,names[peer],utils.retrieve_credentials(peer),remote_file,True)
+        data = utils.get_file_untrusted(peer,names[peer],utils.retrieve_credentials(peer),remote_file,verbose)
 

@@ -55,7 +55,7 @@ def update_logs():
 
     pdata = np.array(prices)
     padata = np.array(moving_avg)
-    setpoint = float(utils.swap('setpoint.txt', True).pop())
+    setpoint = float(utils.swap('setpoint.txt', False).pop())
 
     ''' MODEL_1: Linear Regression '''
     x = np.array(range(len(prices)))
@@ -64,9 +64,9 @@ def update_logs():
 
     estimate = lr.predict(x[:, np.newaxis])[len(x)-1]
     error = price - estimate
-    print 'PRICE: $%s' % str(prices.pop())
-    print 'GUESS = $%s' % str(estimate)
-    print '* Error: %s' % str(error)
+    print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
+    print '\033[1mGUESS = $%s\033[0m' % str(estimate)
+    print '\033[3m* Error: %s\033[0m' % str(error)
     open('error.txt', 'a').write(str(error)+'\n')
     fit = lr.predict(x[:, np.newaxis]) + error
 
@@ -102,7 +102,7 @@ def basic_logic():
     if setpoint > prices.pop():
         print 'Setpoint is above current price'
     if prices.pop() < moving_avg.pop():
-        print '033[1mPrice is \033[31mBELOW \033m0m\033[1m Moving Average !!\033[0m'
+        print '\033[1mPrice is \033[31mBELOW \033m0m\033[1m Moving Average !!\033[0m'
     if prices.pop() == pdata.max():
         print '** 033[1mPrice is at an \033[32mAT ALL TIME HIGH \033m0m\033[1m Moving Average **\033[0m'
 
@@ -149,11 +149,11 @@ if 'run' in sys.argv:
         print '\033[1mBTC Price Data Log \033[3mis NOT present!\033[0m'
         host = raw_input('Enter Name of Host \033[1mWith\033[0m btc_prices.txt: ')
         if host in utils.names:
-            cmd = 'python client.py get %s %s' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
+            cmd = 'python client.py get %s %s -q' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
             os.system(cmd)
     estimate = moving_avg.pop() + np.array(np.diff(pdata)).mean()
-    print 'PRICE: $%s' % str(prices.pop())
-    print 'GUESS = $%s' % str(estimate)
+    print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
+    print '\033[1mGUESS = $%s\033[0m' % str(estimate)
     a.grid()
     a.plot(pdata, color='red', linestyle='--', label='Price')
     a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
@@ -171,5 +171,5 @@ if 'run' in sys.argv:
 
     if time.time()-tic > 1 and int(time.time()-tic) % 30 == 0:
         update_logs()
-
+    os.system('python analysis.py -q')
     Tk.mainloop()

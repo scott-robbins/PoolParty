@@ -6,7 +6,7 @@ import sys
 import os
 
 btc_ticker = 'https://blockchain.info/ticker'
-timeout = 20000000
+timeout = 20000000  # ~231 Days...
 tic = time.time()
 running = True
 
