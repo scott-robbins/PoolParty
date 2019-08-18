@@ -14,8 +14,9 @@ def analyze(show):
     moving_avg = []
     deltas = []
     stamps = []
-    os.system("rm btc_prices.txt; nc -l 6666 >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
-              " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 6666'")
+    port = np.random.random_integers(4000,65000,1)[0]
+    os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
+              " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
@@ -28,7 +29,8 @@ def analyze(show):
             deltas.append(delta)
         except IndexError:
             pass
-    print '\033[1mCurrent Price: \033[32m$%s\033[0m' % price
+    if price:
+    	print '\033[1mCurrent Price: \033[32m$%s\033[0m' % price
     pdata = np.array(prices)
     padata = np.array(moving_avg)
     setpoint = float(open('setpoint.txt', 'r').readlines().pop())

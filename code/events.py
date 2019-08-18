@@ -37,8 +37,9 @@ def update_logs():
     moving_avg = []
     deltas = []
     stamps = []
-    os.system("rm btc_prices.txt; nc -l 6666 >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
-              " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 6666'")
+    port = np.random.random_integers(4000,65000,1)[0]
+    os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
+              " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
 
     for line in utils.swap('btc_prices.txt', False):
          try:
@@ -133,8 +134,9 @@ if 'run' in sys.argv:
     deltas = []
     stamps = []
     if not os.path.isfile('btc_prices.txt'):
-        os.system("rm btc_prices.txt; nc -l 6666 >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
-                  " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 6666'")
+    	port = np.random.random_integers(4000,65000,1)[0]
+        os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
+                  " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port,port))
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
@@ -158,7 +160,7 @@ if 'run' in sys.argv:
         if host in utils.names:
             cmd = 'python client.py get %s %s -q' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
             os.system(cmd)
-    estimate = moving_avg.pop() + np.array(np.diff(pdata)).mean()
+    estimate = padata.mean() + np.array(np.diff(pdata)).mean()
     print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
     print '\033[1mGUESS = $%s\033[0m' % str(estimate)
     a.grid()
