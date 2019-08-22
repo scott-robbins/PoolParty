@@ -72,21 +72,48 @@ def update_logs():
         print 'Using %d LinearRegression Models in Series' % int(len(prices)/10000.)
         # TODO: How to do this iteratively?
 
+        lr = LinearRegression()
+        ii = 0
+        N = 10
 
-    x = np.array(range(len(prices)))
-    lr = LinearRegression()
-    lr.fit(x[:, np.newaxis], pdata)
+        # A fit for every 1k points
+        dd = np.linspace(0, len(prices), N)
+        for dx in np.linspace(0, len(prices), N):
+            if ii > 0:
+                xx = np.arange(dd[ii - 1], dd[ii], 1)
+                X = xx[:, np.newaxis]
+                y = prices[int(dd[ii - 1]):int(dd[ii])]
+                try:
 
-    estimate = lr.predict(x[:, np.newaxis])[len(x) - 1]
-    error = price - estimate
+                    xx = np.arange(dd[ii - 1], dd[ii], 1)
+                    X = xx[:, np.newaxis] + dx
+                    if np.array(y).shape[0] != xx.shape[0]:
+                        y = prices[int(dd[ii - 1]):int(dd[ii]) + 1]
+                    else:
+                        y = prices[int(dd[ii - 1]): int(dd[ii])]
+                    lr.fit(X, y)
+                except ValueError:
+                    lr.fit(X, y)
+
+                fit = lr.predict(X)
+                a.plot(xx, fit, '--')
+            ii += 1
+
+    # x = np.array(range(len(prices)))
+    # lr = LinearRegression()
+    # lr.fit(x[:, np.newaxis], pdata)
+    # estimate = lr.predict(x[:, np.newaxis])[len(x) - 1]
+
+    error = price - fit
     print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
     print '\033[1mGUESS = $%s\033[0m' % str(estimate)
     print '\033[3m* Error: %s\033[0m' % str(error)
     open('error.txt', 'a').write(str(error) + '\n')
-    fit = lr.predict(x[:, np.newaxis]) + error
-    a.plot(x, fit, 'b-', label='Linear Fit')
+    # fit = lr.predict(xx[:, np.newaxis]) + error
+    # a.plot(xx, fit, 'b-', label='Linear Fit')
 
     '''     MODEL_2: Decision Tree Regressor    '''
+    x = np.array(range(len(prices)))
     regr_1 = DecisionTreeRegressor(max_depth=4)
     X = x[:, np.newaxis]
     y = pdata
@@ -94,7 +121,7 @@ def update_logs():
     y_1 = regr_1.predict(X)
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=2)
     a.grid()
-    a.legend()
+    #a.legend()
 
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
