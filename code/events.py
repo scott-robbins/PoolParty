@@ -60,7 +60,7 @@ def update_logs():
 
     a.cla()
     a.set_ylabel('Price $ [USD]')
-    a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps[len(dates) - 1]))
+    a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
     a.plot(pdata, color='red', linestyle='--', label='Price')
     a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
     a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
