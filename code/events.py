@@ -14,6 +14,7 @@ tic = time.time()
 btc_ticker = 'https://blockchain.info/ticker'
 Width = 600
 Height = 800
+scroll_speed = 85
 
 
 def on_click(event):
@@ -28,6 +29,12 @@ def on_click(event):
     else:
         'Clicked ouside bounds!'
     update_logs()
+
+
+def tick():
+    tick.msg = tick.msg[1:] + tick.msg[0]
+    ticker_tape.set(tick.msg)
+    root.after(scroll_speed, tick)
 
 
 def update_logs():
@@ -75,7 +82,7 @@ def update_logs():
         ii = 0
         N = 10
 
-        # A fit for every 1k points
+        ''' Generate fit iteratively for every 1k points '''
         dd = np.linspace(0, len(prices), N)
         for dx in np.linspace(0, len(prices), N):
             if ii > 0:
@@ -99,8 +106,7 @@ def update_logs():
             ii += 1
 
     error = price - fit
-    print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
-    print '\033[1mGUESS = $%s\033[0m' % str(estimate)
+    print '\033[1mPRICE: $%s  GUESS = $%s\033[0m' % (str(prices.pop()), str(estimate))
     print '\033[3m* Error: %s\033[0m' % str(error)
     open('error.txt', 'a').write(str(error) + '\n')
 
@@ -113,8 +119,22 @@ def update_logs():
     y_1 = regr_1.predict(X)
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
     a.grid()
-    # a.legend()
 
+    tick.msg = '    DATE: '+stamps.pop().replace(']', '')+'   BTC PRICE: $'+str(price)
+    tick()
+    ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
+    ticker.place(x=400, y=0, relwidth=0.1, relheight=0.1)
+
+    if price > aprice: # Price is above Moving Average
+        mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
+    elif price < aprice: # Price is below moving average
+        mkt_state = Tk.label(root, text='MARKET STATE [-$]', bg='#ff0000')
+    else:
+        mkt_state = Tk.label(root, text='MARKET STATE', bg='#0000ff')
+    mkt_state.place(x=750,y=0,relwidth=0.1, relheight=0.1)
+    print '\n\033[1m\033[31m*'
+    print fit
+    print '\033[0m'
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
@@ -189,6 +209,23 @@ if 'run' in sys.argv:
     a.legend()
     a.set_ylabel('Price $ [USD]')
     plt.show()
+
+    if price > aprice: # Price is above Moving Average
+        mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
+    elif price < aprice: # Price is below moving average
+        mkt_state = Tk.label(root, text='MARKET STATE [-$]', bg='#ff0000')
+    else:
+        mkt_state = Tk.label(root, text='MARKET STATE', bg='#0000ff')
+    mkt_state.place(x=750,y=0,relwidth=0.1, relheight=0.1)
+
+    scroll_speed = 150
+    ticker_tape = Tk.StringVar()
+    tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '   BTC PRICE: $' + str(price)
+    tick()
+    ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
+    ticker.place(x=400, y=0, relwidth=0.1, relheight=0.1)
+
+
 
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
