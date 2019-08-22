@@ -70,7 +70,6 @@ def update_logs():
     '''
     if len(prices) > 10000:
         print 'Using %d LinearRegression Models in Series' % int(len(prices)/10000.)
-        # TODO: How to do this iteratively?
 
         lr = LinearRegression()
         ii = 0
@@ -99,29 +98,22 @@ def update_logs():
                 a.plot(xx, fit, '--')
             ii += 1
 
-    # x = np.array(range(len(prices)))
-    # lr = LinearRegression()
-    # lr.fit(x[:, np.newaxis], pdata)
-    # estimate = lr.predict(x[:, np.newaxis])[len(x) - 1]
-
     error = price - fit
     print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
     print '\033[1mGUESS = $%s\033[0m' % str(estimate)
     print '\033[3m* Error: %s\033[0m' % str(error)
     open('error.txt', 'a').write(str(error) + '\n')
-    # fit = lr.predict(xx[:, np.newaxis]) + error
-    # a.plot(xx, fit, 'b-', label='Linear Fit')
 
     '''     MODEL_2: Decision Tree Regressor    '''
     x = np.array(range(len(prices)))
     regr_1 = DecisionTreeRegressor(max_depth=4)
     X = x[:, np.newaxis]
-    y = pdata
+    y = prices
     regr_1.fit(X, y)
     y_1 = regr_1.predict(X)
-    a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=2)
+    a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
     a.grid()
-    #a.legend()
+    # a.legend()
 
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
