@@ -14,7 +14,7 @@ tic = time.time()
 btc_ticker = 'https://blockchain.info/ticker'
 Width = 600
 Height = 800
-scroll_speed = 85
+scroll_speed = 500
 
 
 def on_click(event):
@@ -102,13 +102,13 @@ def update_logs():
                     lr.fit(X, y)
 
                 fit = lr.predict(X)
-                a.plot(xx, fit, '--')
+                a.plot(xx, fit, '--', c="y")
             ii += 1
 
     error = price - fit
     print '\033[1mPRICE: $%s' % str(prices.pop())
     print '\033[3m* Error: %s\033[0m' % str(error)
-    open('error.txt', 'a').write(str(error) + '\n')
+    # open('error.txt', 'a').write(str(error) + '\n')
 
     '''     MODEL_2: Decision Tree Regressor    '''
     x = np.array(range(len(prices)))
@@ -133,11 +133,20 @@ def update_logs():
         mkt_state = Tk.label(root, text='MARKET STATE', bg='#0000ff')
     mkt_state.place(x=750,y=0,relwidth=0.1, relheight=0.1)
 
+    date, ts = utils.create_timestamp()
+    print ts
+
+    if os.path.isfile('guess.txt'):
+        error = float(open('guess.txt').readlines().pop())-price
+        open('error.txt', 'a').write('%s - %s\tPredictionError: $%s' % (date,ts,str(error)))
     fit_slope = np.diff(np.array(fit)).mean()
     PREDICTION = fit_slope*20 +price
-    GUESS = Tk.Label(root, text='5 Min. Prediction: $%s' % str(PREDICTION), bg='#7c00a7')
-    GUESS.place(x=0, y=750, relwidth=0.2, relheight=0.1)  # SHOW WHAT Latest Linear Model Predicts
+    GUESS = Tk.Label(root, text='5min. Prediction: $%s  [%s]' % (str(PREDICTION),ts), bg='#7c00a7', font=("Futura", 16),fg='white')
+    GUESS.place(x=400, y=775, relwidth=0.5, relheight=0.12)  # SHOW WHAT Latest Linear Model Predicts
+    open('guess.txt', 'w').write(str(price))
 
+    if os.path.isfile('error.txt'):
+        open('error.txt', 'a').write(str(error) + '\n')
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)

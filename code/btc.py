@@ -53,3 +53,11 @@ if 'run' in sys.argv:
         open('btc_prices.txt', 'a').write(line + '\n')
         time.sleep(15)
         os.system('clear')
+
+if 'get' in sys.argv:
+    stamp = utils.create_timestamp()
+    for line in urllib.urlopen(btc_ticker).readlines():
+        if "USD" in line:
+            data = line.split(':')[2].split(',')[0].replace(' ', '')
+    content = 'PRICE:\t' + data + '\tTIME:' + stamp[0] + '\t' + stamp[1] + '\n'
+    print '\033[1m' + content + '\033[0m'
