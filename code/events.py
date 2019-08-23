@@ -106,7 +106,7 @@ def update_logs():
             ii += 1
 
     error = price - fit
-    print '\033[1mPRICE: $%s  GUESS = $%s\033[0m' % (str(prices.pop()), str(estimate))
+    print '\033[1mPRICE: $%s' % str(prices.pop())
     print '\033[3m* Error: %s\033[0m' % str(error)
     open('error.txt', 'a').write(str(error) + '\n')
 
@@ -132,9 +132,12 @@ def update_logs():
     else:
         mkt_state = Tk.label(root, text='MARKET STATE', bg='#0000ff')
     mkt_state.place(x=750,y=0,relwidth=0.1, relheight=0.1)
-    print '\n\033[1m\033[31m*'
-    print fit
-    print '\033[0m'
+
+    fit_slope = np.diff(np.array(fit)).mean()
+    PREDICTION = fit_slope*20 +price
+    GUESS = Tk.Label(root, text='5 Min. Prediction: $%s' % str(PREDICTION), bg='#7c00a7')
+    GUESS.place(x=0, y=750, relwidth=0.2, relheight=0.1)  # SHOW WHAT Latest Linear Model Predicts
+
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
@@ -173,7 +176,7 @@ if 'run' in sys.argv:
     deltas = []
     stamps = []
     if not os.path.isfile('btc_prices.txt'):
-    	port = np.random.random_integers(4000,65000,1)[0]
+        port = np.random.random_integers(4000,65000,1)[0]
         os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
                   " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port,port))
     for line in utils.swap('btc_prices.txt', False):
@@ -224,8 +227,6 @@ if 'run' in sys.argv:
     tick()
     ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
     ticker.place(x=400, y=0, relwidth=0.1, relheight=0.1)
-
-
 
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
