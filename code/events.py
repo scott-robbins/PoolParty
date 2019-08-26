@@ -14,7 +14,7 @@ tic = time.time()
 btc_ticker = 'https://blockchain.info/ticker'
 Width = 600
 Height = 800
-scroll_speed = 500
+scroll_speed = 200
 
 
 def on_click(event):
@@ -44,7 +44,7 @@ def update_logs():
     moving_avg = []
     deltas = []
     stamps = []
-    port = np.random.random_integers(4000,65000,1)[0]
+    port = np.random.random_integers(4000, 65000, 1)[0]   # Randomized Port Helps prevent socket creation errs
     os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
               " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
 
@@ -80,7 +80,7 @@ def update_logs():
 
         lr = LinearRegression()
         ii = 0
-        N = 10
+        N = 12
 
         ''' Generate fit iteratively for every 1k points '''
         dd = np.linspace(0, len(prices), N)
@@ -104,8 +104,16 @@ def update_logs():
                 fit = lr.predict(X)
                 a.plot(xx, fit, '--', c="y")
             ii += 1
+    # TODO Plot Prediction?
 
     error = price - fit
+    guess = np.diff(np.array(prices[len(prices)-121:len(prices)]))+price
+    domain = np.array(range(len(prices),len(prices)+120))[:, np.newaxis]
+    lr.fit(domain, guess)
+    domain = np.array(range(len(prices)-500, len(prices) + 1000))[:, np.newaxis]
+    a.plot(domain, lr.predict(domain), '-', c="white",label='Prediction')
+    #a.plot(np.array(range(len(prices), len(prices) + 1000, 1)), guess, '-', c="g")
+
     print '\033[1mPRICE: $%s' % str(prices.pop())
     print '\033[3m* Error: %s\033[0m' % str(error)
     # open('error.txt', 'a').write(str(error) + '\n')
@@ -119,39 +127,44 @@ def update_logs():
     y_1 = regr_1.predict(X)
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
     a.grid()
+    a.legend()
 
     tick.msg = '    DATE: '+stamps.pop().replace(']', '')+'   BTC PRICE: $'+str(price)
     tick()
     ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
-    ticker.place(x=400, y=0, relwidth=0.1, relheight=0.1)
+    ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
 
+    ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
     if price > aprice: # Price is above Moving Average
         mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
     elif price < aprice: # Price is below moving average
-        mkt_state = Tk.label(root, text='MARKET STATE [-$]', bg='#ff0000')
+        mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
     else:
-        mkt_state = Tk.label(root, text='MARKET STATE', bg='#0000ff')
-    mkt_state.place(x=750,y=0,relwidth=0.1, relheight=0.1)
+        mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
+    mkt_state.place(x=550,y=0,relwidth=0.15, relheight=0.1)
 
     date, ts = utils.create_timestamp()
     print ts
 
+    ''' Log Predictions and their errors over time (use for creating better models?) '''
     if os.path.isfile('guess.txt'):
         error = float(open('guess.txt').readlines().pop())-price
-        open('error.txt', 'a').write('%s - %s\tPredictionError: $%s' % (date,ts,str(error)))
+        open('error.txt', 'a').write('%s - %s\tPredictionError: $%s\n' % (date,ts,str(error)))
     fit_slope = np.diff(np.array(fit)).mean()
-    PREDICTION = fit_slope*20 +price
-    GUESS = Tk.Label(root, text='5min. Prediction: $%s  [%s]' % (str(PREDICTION),ts), bg='#7c00a7', font=("Futura", 16),fg='white')
-    GUESS.place(x=400, y=775, relwidth=0.5, relheight=0.12)  # SHOW WHAT Latest Linear Model Predicts
+    PREDICTION = fit_slope*20 + price
+    GUESS = Tk.Label(root, text='5min. Prediction: $%s (%s)[%s]' %
+                                (str(PREDICTION), str(PREDICTION-price), ts),
+                                 bg='#7c00a7', font=("Futura", 16), fg='white')
+    GUESS.place(x=100, y=775, relwidth=0.9, relheight=0.12)  # SHOW WHAT Latest Linear Model Predicts
     open('guess.txt', 'w').write(str(price))
 
-    if os.path.isfile('error.txt'):
-        open('error.txt', 'a').write(str(error) + '\n')
+    ''' Update the Tk Figure Window '''
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
     plt.show()
-
+    # TODO: Automatically update the display every 30 seconds?
+    
 
 def basic_logic():
 
@@ -225,17 +238,16 @@ if 'run' in sys.argv:
     if price > aprice: # Price is above Moving Average
         mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
     elif price < aprice: # Price is below moving average
-        mkt_state = Tk.label(root, text='MARKET STATE [-$]', bg='#ff0000')
+        mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
     else:
-        mkt_state = Tk.label(root, text='MARKET STATE', bg='#0000ff')
-    mkt_state.place(x=750,y=0,relwidth=0.1, relheight=0.1)
+        mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
+    mkt_state.place(x=550,y=0,relwidth=0.15, relheight=0.1)
 
-    scroll_speed = 150
     ticker_tape = Tk.StringVar()
     tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '   BTC PRICE: $' + str(price)
     tick()
     ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
-    ticker.place(x=400, y=0, relwidth=0.1, relheight=0.1)
+    ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
 
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
@@ -247,4 +259,5 @@ if 'run' in sys.argv:
     if time.time()-tic > 1 and int(time.time()-tic) % 30 == 0:
         update_logs()
     os.system('python analysis.py -q')
+
     Tk.mainloop()
