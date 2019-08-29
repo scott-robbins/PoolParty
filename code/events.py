@@ -164,7 +164,7 @@ def update_logs():
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
     plt.show()
     # TODO: Automatically update the display every 30 seconds?
-    
+
 
 def basic_logic():
 
