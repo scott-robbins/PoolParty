@@ -1,2 +1,4 @@
 8/29/2019 - 19:7:5	PredictionError: $8.16
 8/29/2019 - 19:7:55	PredictionError: $-4.42
+8/29/2019 - 19:44:33	PredictionError: $-12.29
+8/29/2019 - 19:44:39	PredictionError: $0.0

@@ -20,9 +20,11 @@ mean 8 Raspberry Pi's (*of course these would also scale in processing
 power*) in 2 years would likely continue to outperform many laptops I 
 *would be looking to buy 2 years from now*! 
 
-Raspberry Pi 3: 1.2 GHz CPU, 1GB RAM, 2.4 GHz Wireless
-Raspberry Pi 3B+ 1.4 GHz CPU, 1GB RAM, 2.4-5 GHz Wireless, Gigabit Ethernet   
-Raspberry Pi 4A+ 1.5 GHz CPU, 2GB RAM, 2.4-5 GHz Wireless, Gb Eth., Dual HDMI 
+* Raspberry Pi 3: 1.2 GHz CPU, 1GB RAM, 2.4 GHz Wireless
+
+* Raspberry Pi 3B+ 1.4 GHz CPU, 1GB RAM, 2.4-5 GHz Wireless, Gigabit Ethernet   
+
+* Raspberry Pi 4A+ 1.5 GHz CPU, 2GB RAM, 2.4-5 GHz Wireless, Gb Eth., Dual HDMI 
 
 Utilizing the capacity of a growing fleet of Pis, for price cheaper than a 
 netflix subscription, you can control an increasingly powerful network of 
