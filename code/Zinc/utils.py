@@ -68,7 +68,7 @@ def popup_examples(msg):
     os.system('notify-send "'+str(msg)+'"')
 
 
-def crawl_dir(file_path, verbose):
+def crawl_dir(file_path, h, verbose):
     directory = {'dir': [], 'file': []}
     hash = {}
     folders = [file_path]
@@ -80,7 +80,8 @@ def crawl_dir(file_path, verbose):
             if os.path.isfile(direct + '/' + item):
                 file_name = direct + "/" + item
                 directory['file'].append(file_name)
-                hash[file_name] = get_sha256_sum(file_name, False)
+                if h:
+                    hash[file_name] = get_sha256_sum(file_name, False)
                 if verbose:
                     print '\033[3m- %s Added to Shared Folder\033[0m' % file_name
             else:
@@ -104,8 +105,8 @@ def get_sha256_sum(file_name, verbose):
     return sum_data
 
 
-'''                             SECURITY/COMMUNICATION FUNCTIONS                            '''
-import warnings     # SUPRESSING PARAMIKO WARNINGS! '''
+'''                            COMMUNICATION FUNCTIONS                            '''
+import warnings                                       # SUPRESSING PARAMIKO WARNINGS!
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 IP = cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
 

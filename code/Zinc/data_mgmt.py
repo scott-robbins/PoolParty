@@ -9,9 +9,8 @@ if __name__ == '__main__':
         print '[*] Creating Shared-Sync Folder'
         os.mkdir('Shared')
     else:
-        # TODO: Catalogue all files in shared folder structure
-        shared_data, file_ids = utils.crawl_dir('Shared', True)
-        file_tracker = {}
+        # Catalogue all files in shared folder structure
+        shared_data, hashes = utils.crawl_dir('Shared', True, True)
         print '[*] %d Directories Read' % len(shared_data['dir'])
-        print '[*] %d Files Indexed' % len(file_ids)
+        print '[*] %d Files Indexed' % len(shared_data['dir'])
     print '[%ss Elapsed]' % str(time.time()-tic)
