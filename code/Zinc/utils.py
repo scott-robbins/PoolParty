@@ -70,6 +70,7 @@ def popup_examples(msg):
 
 def crawl_dir(file_path, verbose):
     directory = {'dir': [], 'file': []}
+    hash = {}
     folders = [file_path]
     while len(folders) > 0:
         direct = folders.pop()
@@ -77,21 +78,36 @@ def crawl_dir(file_path, verbose):
             print 'Exploring %s' % direct
         for item in os.listdir(direct):
             if os.path.isfile(direct + '/' + item):
-                file_name = direct + '/' + item
+                file_name = direct + "/" + item
                 directory['file'].append(file_name)
+                hash[file_name] = get_sha256_sum(file_name, False)
                 if verbose:
                     print '\033[3m- %s Added to Shared Folder\033[0m' % file_name
             else:
                 directory['dir'].append(direct + '/' + item)
                 folders.append(direct + '/' + item)
-    return directory
+    return directory, hash
 
 
-IP = cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
+def get_sha256_sum(file_name, verbose):
+    if len(file_name.split("'"))>=2:
+        file_name = ("{!r:}".format(file_name))
+        os.system("sha256sum "+file_name + ' >> out.txt')
+    else:
+        os.system("sha256sum '%s' >> out.txt" % file_name)
+    try:
+        sum_data = swap('out.txt', True).pop().split(' ')[0]
+    except:
+        print file_name
+    if verbose:
+        print sum_data
+    return sum_data
+
 
 '''                             SECURITY/COMMUNICATION FUNCTIONS                            '''
 import warnings     # SUPRESSING PARAMIKO WARNINGS! '''
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+IP = cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
 
 
 def ssh_command(ip, user, passwd, command, verbose):
@@ -144,7 +160,6 @@ def get_file_untrusted(ip,user,password,file_name,verbose):
         print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
         print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
               (Data_Transferred, str(time.time() - tic))
-
 
 
 def retrieve_credentials(node):
@@ -224,6 +239,7 @@ def get_file_2(local_file, rmt_file):
           "cat %s | nc -q 2 192.168.1.153 6666'" % (local_file, rmt_file)
     os.system(cmd)
     return swap(cmd, False)
+
 
 def get_local_ip(verbose):
     os.system('ifconfig | grep broadcast | cut -b 14-28 >> ip.txt')
