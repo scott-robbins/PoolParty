@@ -104,7 +104,6 @@ def update_logs():
                 fit = lr.predict(X)
                 a.plot(xx, fit, '--', c="y")
             ii += 1
-    # TODO Plot Prediction?
 
     error = price - fit
     guess = np.diff(np.array(prices[len(prices)-121:len(prices)]))+price
@@ -164,6 +163,10 @@ def update_logs():
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
     plt.show()
     # TODO: Automatically update the display every 30 seconds?
+
+
+def resize_window():
+    print 'RESIZE'
 
 
 def basic_logic():
