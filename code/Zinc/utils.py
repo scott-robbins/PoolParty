@@ -7,13 +7,11 @@ import time
 import os
 
 # ##### USERS/NODES HARDCODED FOR NOW ##### #
-prs = ['192.168.1.153',
-       '192.168.1.200',
+prs = ['192.168.1.200',
        '192.168.1.217',
        '192.168.1.229']
 
-names = {'192.168.1.153':'tylersdurden',
-         '192.168.1.200': 'root',
+names = {'192.168.1.200': 'root',
          '192.168.1.217': 'pi',
          '192.168.1.229': 'pi'}
 
@@ -167,7 +165,8 @@ def retrieve_credentials(node):     # TODO: Keys must be kept in KEYS/ dir
     os.system('cp KEYS/' + node.replace('.', '') + '.txt encrypted.txt')
     os.system('cp KEYS/' + node.replace('.', '') + '.key key.txt')
     os.system('python aes.py -d >> data.txt; rm encrypted.txt key.txt')
-    pw = swap('data.txt', True).pop().split('Result: ')[1].replace(' ', '')
+    ln = swap('data.txt', True).pop()
+    pw = ln.split('Result: ')[1].replace(' ', '')
     return pw
 
 
