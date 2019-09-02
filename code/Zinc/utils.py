@@ -24,6 +24,10 @@ def cmd(command):
     return str_builder(swap('cmd.txt',True))
 
 
+def get_local_ip():
+    return cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
+
+
 def create_timestamp():
     date = time.localtime(time.time())
     mo = str(date.tm_mon)
@@ -79,7 +83,7 @@ def crawl_dir(file_path, h, verbose):
                 file_name = direct + "/" + item
                 directory['file'].append(file_name)
                 if h:
-                    hash[file_name] = get_sha256_sum(file_name, False)
+                    hash['"'+file_name+'"'] = get_sha256_sum(file_name, False)
                 if verbose:
                     print '\033[3m- %s Added to Shared Folder\033[0m' % file_name
             else:
@@ -239,14 +243,6 @@ def get_file_2(local_file, rmt_file):
           "cat %s | nc -q 2 192.168.1.153 6666'" % (local_file, rmt_file)
     os.system(cmd)
     return swap(cmd, False)
-
-
-def get_local_ip(verbose):
-    os.system('ifconfig | grep broadcast | cut -b 14-28 >> ip.txt')
-    ip = swap('ip.txt', True).pop().replace(' ','')
-    if verbose:
-        print '\033[1mLocal IP:\033[3m %s\033[0m' % ip
-    return ip
 
 
 def start_listener(file_name, port):

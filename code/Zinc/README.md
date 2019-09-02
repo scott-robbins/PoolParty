@@ -22,3 +22,14 @@ Add Peers (Machines you want to share files with)
 ``PoolParty/code$ python engine.py add ``
 
 ## File Sharing 
+First we want to create a folder of shared resources that all registered
+peers can synchronize with. To do this, locally create folder in the 
+directory where you've installed Zinc called 'Shared'.
+
+By running a DFS through this Shared Folder file structure, the first part
+of synchronization will be to link a hash of every file with it's name. 
+Once we have the complete set, or rather for every instance we see a complete
+set, of files in the shared folder we can determine how to allocate them among
+peers. 
+
+ 

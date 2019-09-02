@@ -1,9 +1,12 @@
+import numpy as np
 import utils
+import time
 import sys
 import os
 
 peers = []
 names = {}
+tic = time.time()
 
 
 def add_peers():
@@ -30,27 +33,109 @@ def add_peers():
                 print '[*] %s' % p
 
 
-if os.path.isdir('KEYS/'):
-    print ''
-else:
-    print 'You Have NO Peers Registered Yet.'
-    os.mkdir('KEYS/')
-    add_peers()
-if 'add' in sys.argv:
-    add_peers()
+def test_connectivity():
+    # Test Network Connectivity
+    connections = {}
+    for addr in utils.prs:
+        connections[addr] = []
+    print 'Testing Network Connectivity '
+    for p in utils.prs:
+        if p in utils.names.keys():
+            uname = utils.names[p]
+            utils.cmd('ls KEYS/*.txt | while read n; do echo $n >> peers.txt; done')
+            print '\033[1m\033[35mTesting %s\033[0m' % p
+            for n in utils.swap('peers.txt', True):
+                name = 'KEYS/' + p.replace('.', '') + '.txt'
+                if name == n:
+                    pw = utils.retrieve_credentials(p)
+                    for node in utils.prs:
+                        if node != p:
+                            cmd = 'ping -c 1 %s >> ping.txt' % node
+                            utils.ssh_command(p, uname, pw, cmd, True)
+                            utils.get_file_untrusted(p, uname, pw, '~/ping.txt', True)  # TODO: Breaks if false
+                            utils.ssh_command(p, uname, pw, 'rm ~/ping.txt', False)
+                            dt = []
+                            for line in utils.swap('ping.txt', True):
+                                try:
+                                    dt.append(float(line.split('time=')[1].split(' ')[0]))
+                                except:
+                                    pass
+                            try:
+                                print '(%s->%s) %f ms' % (p, node, dt[0])
+                                connections[p].append([node, dt[0]])
+                            except IndexError:
+                                pass
+    os.system('clear')
+    print '\033[36m\033[1m========= \033[0m\033[1mConnectivity \033[32m========= \033[0m'
+    priority = {}
+    # Find Best Connections
+    for Node in connections.keys():
+        timer = []
+        links = {}
+        if len(connections[Node]):
+            for link in connections[Node]:
+                endpt = link[0]
+                delay = link[1]
+                timer.append(delay)
+                links[delay] = endpt
+            best = np.array(links.keys()).min()
+            fastest = links[best]
+            priority[Node] = fastest
+            print '%s -> %s is Fastest [%s ms]' % (Node, fastest, best)
+    return priority, connections
 
-# Test Network Connectivity
-print 'Testing Network Connectivity '
-for p in utils.prs:
-    uname = utils.names[p]
-    utils.cmd('ls KEYS/*.txt | while read n; do echo $n >> peers.txt; done')
-    for n in utils.swap('peers.txt', True):
-        name = 'KEYS/' + p.replace('.','')+'.txt'
-        if name == n:
-            pw = utils.retrieve_credentials(p)
-            for node in utils.prs:
-                if node != p:
-                    cmd = 'ping -c 3 %s' % node
-                    utils.ssh_command(p,uname,pw,cmd,True)
-                    # utils.get_file_untrusted(p,uname,pw,'ping,txt',True)
-                    # Get mean ping time for this p2p connection
+
+def initialize():
+    if os.path.isdir('KEYS/'):
+        print ''
+    else:
+        print 'You Have NO Peers Registered Yet.'
+        os.mkdir('KEYS/')
+        add_peers()
+    if 'add' in sys.argv:
+        add_peers()
+
+
+if __name__ == '__main__':
+    ''' Initialize Keys and assorted things'''
+    initialize()
+
+    '''[1] Test Network Connectivity '''
+    local_addr = utils.get_local_ip()
+    user = os.getlogin()
+    utils.prs.append(local_addr)
+    # TODO: Multi-thread this to show effectiveness of parallel p2p processes
+    #  because it takes about 30s looping through and sending p2p ping commands
+    best_cnxs, p2p_links = test_connectivity()
+    # Best Connections stored as <k:Sender>--<v:Receiver>
+    # pairs that were found to be fastest
+    # meant to indicate best links for future use
+
+    '''[2] Check Shared Resources Folder and Synchronize '''
+    if not os.path.isdir('Shared'):
+        print '[*] Creating "Shared" Folder'
+        os.mkdir('Shared')
+        # TODO: Step User through adding files? Or explain it maybe?
+    else:
+        if os.path.isfile('shared_files.txt'):
+            print '[*] Shared Resources Found'
+        else:  # Crawl Through shared files and index them by sha256sum
+            shared, hashes = utils.crawl_dir('Shared',True,True)
+            content = ''
+            os.system('touch shared_files.txt')  # Might not be needed but open sometimes fails
+            for file_name in hashes.keys():
+                uid = hashes[file_name].replace('\n', '').replace(' ','')+'\n'
+                content += file_name+' : '+uid
+            open('shared_files.txt', 'w').write(content)
+    # Organize Files Found
+    file_ids = {}
+    id = 0
+    for line in utils.swap('shared_files.txt', False):
+        id += 1
+        fid = line.split(' : ')[0].replace('"','')
+        file_ids[fid] = (line.split(' : ')[1])
+
+    print '%d Files in Shared Folder' % id
+    print len(file_ids.keys())
+
+print '\033[1m\033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)
