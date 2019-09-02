@@ -136,6 +136,24 @@ if __name__ == '__main__':
         file_ids[fid] = (line.split(' : ')[1])
 
     print '%d Files in Shared Folder' % id
-    print len(file_ids.keys())
+
+    # Check Peers for their shared folder contents
+    find_shared = 'find -iname utils.py >> where.txt'
+    install_paths = {}
+    for node in best_cnxs.keys():
+        uname = utils.names[node]
+        utils.ssh_command(node,uname,utils.retrieve_credentials(node),find_shared,True)
+        time.sleep(2) # Allow Remote machine some time to search for install location
+        utils.get_file_untrusted(node,uname,utils.retrieve_credentials(node),'where.txt',True)
+        os.system('cat where.txt | grep PoolParty/code | cut -b 3- >> loc.txt;cat loc.txt')
+        utils.ssh_command(node, uname, utils.retrieve_credentials(node), 'rm where.txt', True)
+        install_paths[node] = utils.swap('loc.txt', True).pop().replace('\n', '').replace(' ', '')
+    os.system('clear')
+    print install_paths
+    # TODO: DEBUG TEST THIS LOCATION
+    for m in best_cnxs.keys():
+        uname = utils.names[m]
+        test = 'cd %s; git pull origin' % install_paths[m].split('utils.py')[0]
+        utils.ssh_command(m, uname, utils.retrieve_credentials(m), test, True)
 
 print '\033[1m\033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)
