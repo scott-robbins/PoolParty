@@ -46,7 +46,7 @@ def update_logs():
     stamps = []
     port = np.random.random_integers(4000, 65000, 1)[0]   # Randomized Port Helps prevent socket creation errs
     os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
-              " cat ~/Desktop/PoolParty/code/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
+              " cat ~/Desktop/PoolParty/code/BTC/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
 
     for line in utils.swap('btc_prices.txt', False):
          try:
@@ -65,9 +65,12 @@ def update_logs():
     padata = np.array(moving_avg)
     setpoint = float(utils.swap('setpoint.txt', False).pop())
     
-    a.cla()
-    a.set_ylabel('Price $ [USD]')
-    a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
+    try:
+        a.cla()
+        a.set_ylabel('Price $ [USD]')
+        a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
+    except:
+        print '\033[31m\033[3m ** Plotting Error!! **\033[3m'
     a.plot(pdata, color='red', linestyle='--', label='Price')
     a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
     a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
@@ -183,6 +186,10 @@ def basic_logic():
 
 
 if 'run' in sys.argv:
+    try:
+        os.remove('btc_prices.txt')
+    except IOError:
+        pass
     root = Tk.Tk()
     plt.style.use('dark_background')
     f = Figure(figsize=(5, 4), dpi=100)
