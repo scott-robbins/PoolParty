@@ -152,8 +152,20 @@ if __name__ == '__main__':
     print install_paths
     # TODO: DEBUG TEST THIS LOCATION
     for m in best_cnxs.keys():
+        pathway = install_paths[m].split('utils.py')[0]
         uname = utils.names[m]
-        test = 'cd %s; git pull origin' % install_paths[m].split('utils.py')[0]
-        utils.ssh_command(m, uname, utils.retrieve_credentials(m), test, True)
-
+        cred = utils.retrieve_credentials(m)
+        test = 'ls %s >> %sdir.txt' % (pathway, pathway)
+        utils.ssh_command(m, uname, cred, test, True)
+        it = '%sdir.txt' % pathway
+        utils.get_file_untrusted(m, uname, cred, it, True)
+        if 'Shared' not in utils.swap('dir.txt', True):
+            print 'No Share Folder found on %s' % m
+            utils.ssh_command(m, uname, cred, 'ls %sShared'%pathway, True)
+        else:
+            print 'exploring %ss Shared Folder' % m
+            #TODO
+            '''
+            START FILE SYNCHRONIZATION 
+            '''
 print '\033[1m\033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)
