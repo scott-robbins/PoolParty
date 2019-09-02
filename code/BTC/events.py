@@ -65,13 +65,15 @@ def update_logs():
     padata = np.array(moving_avg)
     setpoint = float(utils.swap('setpoint.txt', False).pop())
 
-    a.cla()
-    a.set_ylabel('Price $ [USD]')
-    a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
-    a.plot(pdata, color='red', linestyle='--', label='Price')
-    a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
-    a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
-
+	try:
+	    a.cla()
+    	a.set_ylabel('Price $ [USD]')
+    	a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
+    	a.plot(pdata, color='red', linestyle='--', label='Price')
+    	a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
+    	a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
+	except:
+		print 'Plot Error !'
     ''' MODEL_1: Linear Regression 
     (should probably be refitted (or create new fit) after 1k points.
     '''
@@ -227,9 +229,12 @@ if 'run' in sys.argv:
         if host in utils.names:
             cmd = 'python client.py get %s %s -q' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
             os.system(cmd)
-    estimate = padata.mean() + np.array(np.diff(pdata)).mean()
-    print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
-    print '\033[1mGUESS = $%s\033[0m' % str(estimate)
+    try:
+    	estimate = padata.mean() + np.array(np.diff(pdata)).mean()
+    	print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
+    	print '\033[1mGUESS = $%s\033[0m' % str(estimate)
+    except:
+    	print 'btc_prices.txt file is broken !?... '
     a.grid()
     a.plot(pdata, color='red', linestyle='--', label='Price')
     a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
