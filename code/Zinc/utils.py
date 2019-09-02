@@ -163,7 +163,7 @@ def get_file_untrusted(ip,user,password,file_name,verbose):
               (Data_Transferred, str(time.time() - tic))
 
 
-def retrieve_credentials(node):
+def retrieve_credentials(node):     # TODO: Keys must be kept in KEYS/ dir
     os.system('cp KEYS/' + node.replace('.', '') + '.txt encrypted.txt')
     os.system('cp KEYS/' + node.replace('.', '') + '.key key.txt')
     os.system('python aes.py -d >> data.txt; rm encrypted.txt key.txt')
