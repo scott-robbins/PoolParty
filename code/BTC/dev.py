@@ -68,9 +68,9 @@ for dx in np.linspace(0, len(price), N):
             lr.fit(X, y)
 
         fit = lr.predict(X)
-        plt.plot(xx, fit,'--')
+        # plt.plot(xx, fit,'--')
     ii += 1
 
-plt.grid()
-plt.plot(price,'g-')
-plt.show()
+# plt.grid()
+# plt.plot(price,'g-')
+# plt.show()
