@@ -18,6 +18,7 @@ scroll_speed = 200
 
 
 def on_click(event):
+    os.system('clear')
     if event.inaxes is not None:
         sp = event.ydata
         print 'SETPOINT \033[32m\033[1m$%s\033[0m' % str(sp)
@@ -37,32 +38,34 @@ def tick():
     root.after(scroll_speed, tick)
 
 
-def update_logs():
-    basic_logic()
-    plt.close()
+def pull_price_data():
     prices = []
     moving_avg = []
     deltas = []
     stamps = []
-    port = np.random.random_integers(4000, 65000, 1)[0]   # Randomized Port Helps prevent socket creation errs
+    port = np.random.random_integers(4000, 65000, 1)[0]  # Randomized Port Helps prevent socket creation errs
     os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
               " cat ~/Desktop/PoolParty/code/BTC/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
 
     for line in utils.swap('btc_prices.txt', False):
-         try:
-             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
-             aprice = float(line.split('\t')[1].replace('$', '').replace(' ', ''))
-             delta = float(line.split('\t')[2].replace('$', '').replace(' ', ''))
-             dates = line.split('\t')[3].replace('$', '').split(' - ')[1]
-             stamps.append(dates)
-             prices.append(price)
-             moving_avg.append(aprice)
-             deltas.append(delta)
-         except IndexError:
-             pass
+        try:
+            price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
+            aprice = float(line.split('\t')[1].replace('$', '').replace(' ', ''))
+            delta = float(line.split('\t')[2].replace('$', '').replace(' ', ''))
+            dates = line.split('\t')[3].replace('$', '').split(' - ')[1]
+            stamps.append(dates)
+            prices.append(price)
+            moving_avg.append(aprice)
+            deltas.append(delta)
+        except IndexError:
+            pass
+    return prices, moving_avg, deltas, stamps
 
-    pdata = np.array(prices)
-    padata = np.array(moving_avg)
+
+def update_logs():
+    basic_logic()
+    plt.close()
+    prices, moving_avg, deltas, stamps = pull_price_data()
     setpoint = float(utils.swap('setpoint.txt', False).pop())
     
     try:
@@ -71,29 +74,26 @@ def update_logs():
         a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
     except:
         print '\033[31m\033[3m ** Plotting Error!! **\033[3m'
-    a.plot(pdata, color='red', linestyle='--', label='Price')
-    a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
+    a.plot(prices, color='red', linestyle='--', label='Price')
+    a.plot(moving_avg, color='cyan', linestyle='-.', label='Moving Average')
     a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
-    
-    if len(prices) > 10000:
-    	''' MODEL_1: Linear Regression 
-    	(should probably be refitted (or create new fit) after 1k points.
-    	'''
-        print 'Using %d LinearRegression Models in Series' % int(len(prices)/10000.)
+
+    if len(pdata) > 10000:
+        ''' MODEL_1: Linear Regression (create new fit every 10k points) '''
+        print 'Using %d LinearRegression Models in Series' % int(len(pdata)/10000.)
 
         lr = LinearRegression()
         ii = 0
         N = 12
 
         ''' Generate fit iteratively for every 1k points '''
-        dd = np.linspace(0, len(prices), N)
-        for dx in np.linspace(0, len(prices), N):
+        dd = np.linspace(0, len(pdata), N)
+        for dx in np.linspace(0, len(pdata), N):
             if ii > 0:
                 xx = np.arange(dd[ii - 1], dd[ii], 1)
                 X = xx[:, np.newaxis]
                 y = prices[int(dd[ii - 1]):int(dd[ii])]
                 try:
-
                     xx = np.arange(dd[ii - 1], dd[ii], 1)
                     X = xx[:, np.newaxis] + dx
                     if np.array(y).shape[0] != xx.shape[0]:
@@ -103,20 +103,23 @@ def update_logs():
                     lr.fit(X, y)
                 except ValueError:
                     lr.fit(X, y)
-
+                # TODO: Keep track of the discontinuities between
                 fit = lr.predict(X)
+                fi = fit.flatten()[0]
+                ff = fit.flatten()[-1]
+                print 'Fit Start: $%s\tFit End: $%s' % (str(fi), str(ff))
                 a.plot(xx, fit, '--', c="y")
             ii += 1
 
+    price = prices.pop()
     error = price - fit
     guess = np.diff(np.array(prices[len(prices)-121:len(prices)]))+price
     domain = np.array(range(len(prices),len(prices)+120))[:, np.newaxis]
     lr.fit(domain, guess)
     domain = np.array(range(len(prices)-500, len(prices) + 1000))[:, np.newaxis]
     a.plot(domain, lr.predict(domain), '-', c="white",label='Prediction')
-    #a.plot(np.array(range(len(prices), len(prices) + 1000, 1)), guess, '-', c="g")
 
-    print '\033[1mPRICE: $%s' % str(prices.pop())
+    print '\033[1mPRICE: $%s' % str(price)
     print '\033[3m* Error: %s\033[0m' % str(error)
     # open('error.txt', 'a').write(str(error) + '\n')
 
@@ -164,8 +167,7 @@ def update_logs():
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
-    plt.show()
-    # TODO: Automatically update the display every 30 seconds?
+    plt.show()  # TODO: Automatically update the display every 30 seconds?
 
 
 def resize_window():
@@ -190,6 +192,7 @@ if 'run' in sys.argv:
         os.remove('btc_prices.txt')
     except IOError:
         pass
+
     root = Tk.Tk()
     plt.style.use('dark_background')
     f = Figure(figsize=(5, 4), dpi=100)
@@ -199,7 +202,6 @@ if 'run' in sys.argv:
     update = Tk.Button(master=root, text='Update', command=update_logs)
     update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
 
-    # a tk.DrawingArea
     canvas = FigureCanvasTkAgg(f, master=root)
 
     t0 = time.time()
@@ -235,11 +237,13 @@ if 'run' in sys.argv:
             cmd = 'python client.py get %s %s -q' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
             os.system(cmd)
     try:
-    	estimate = padata.mean() + np.array(np.diff(pdata)).mean()
-    	print '\033[1mPRICE: $%s\033[0m' % str(prices.pop())
-    	print '\033[1mGUESS = $%s\033[0m' % str(estimate)
+        estimate = padata.mean() + np.array(np.diff(pdata)).mean()
+        print '\033[1mPRICE: $%s\033[0m' % str(pdata.flatten()[-1])
+        print '\033[1mGUESS = $%s\033[0m' % str(estimate)
     except:
-    	print 'btc_prices.txt file is broken !?... '
+        print 'btc_prices.txt file is broken !?... '
+
+    ''' PLOT BTC PRICE DATA '''
     a.grid()
     a.plot(pdata, color='red', linestyle='--', label='Price')
     a.plot(padata, color='cyan', linestyle='-.', label='Moving Average')
@@ -273,4 +277,9 @@ if 'run' in sys.argv:
         update_logs()
     os.system('python analysis.py -q')
 
+    '''
+    TODO: This has gotten really messy, inflexible and unstable. 
+    It's only like 250 lines, might be worth taking the best functioning
+    elements of this script and starting clean (and keeping it clean, hopefully). 
+    '''
     Tk.mainloop()
