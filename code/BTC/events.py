@@ -18,7 +18,6 @@ scroll_speed = 200
 
 
 def on_click(event):
-    os.system('clear')
     if event.inaxes is not None:
         sp = event.ydata
         print 'SETPOINT \033[32m\033[1m$%s\033[0m' % str(sp)
@@ -67,7 +66,8 @@ def update_logs():
     plt.close()
     prices, moving_avg, deltas, stamps = pull_price_data()
     setpoint = float(utils.swap('setpoint.txt', False).pop())
-    
+    os.system('clear')
+
     try:
         a.cla()
         a.set_ylabel('Price $ [USD]')
