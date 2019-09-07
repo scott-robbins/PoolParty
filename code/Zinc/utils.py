@@ -249,3 +249,15 @@ def start_listener(file_name, port):
     if os.name != 'nt':
         cmd = 'nc -l -k %d >> %s' % (port, file_name)
         os.system(cmd)
+
+def command_peer(peer, command, verbosity):
+    uname = names[peer]
+    pw = retrieve_credentials(peer)
+    ssh_command(peer, uname, pw, command, verbosity)
+
+
+def command_all_peers(command, verbose):
+    for peer in names.keys():
+        cmd = Thread(target=command_peer, args=(peer, command, verbose))
+        cmd.start()
+        cmd.join()

@@ -1,3 +1,4 @@
+from threading import Thread
 import numpy as np
 import utils
 import time
@@ -33,6 +34,33 @@ def add_peers():
                 print '[*] %s' % p
 
 
+def p2p_probe_thread(connections, uname,p):
+    utils.cmd('ls KEYS/*.txt | while read n; do echo $n >> peers.txt; done')
+    print '\033[1m\033[35mTesting %s\033[0m' % p
+    for n in utils.swap('peers.txt', True):
+        name = 'KEYS/' + p.replace('.', '') + '.txt'
+        if name == n:
+            pw = utils.retrieve_credentials(p)
+            for node in utils.prs:
+                if node != p:
+                    cmd = 'ping -c 1 %s >> ping.txt' % node
+                    utils.ssh_command(p, uname, pw, cmd, True)
+                    utils.get_file_untrusted(p, uname, pw, '~/ping.txt', True)  # TODO: Breaks if false
+                    utils.ssh_command(p, uname, pw, 'rm ~/ping.txt', False)
+                    dt = []
+                    for line in utils.swap('ping.txt', True):
+                        try:
+                            dt.append(float(line.split('time=')[1].split(' ')[0]))
+                        except:
+                            pass
+                    try:
+                        print '(%s->%s) %f ms' % (p, node, dt[0])
+                        connections[p].append([node, dt[0]])
+                    except IndexError:
+                        pass
+    return connections
+
+
 def test_connectivity():
     # Test Network Connectivity
     connections = {}
@@ -42,31 +70,12 @@ def test_connectivity():
     for p in utils.prs:
         if p in utils.names.keys():
             uname = utils.names[p]
-            utils.cmd('ls KEYS/*.txt | while read n; do echo $n >> peers.txt; done')
-            print '\033[1m\033[35mTesting %s\033[0m' % p
-            for n in utils.swap('peers.txt', True):
-                name = 'KEYS/' + p.replace('.', '') + '.txt'
-                if name == n:
-                    pw = utils.retrieve_credentials(p)
-                    for node in utils.prs:
-                        if node != p:
-                            cmd = 'ping -c 1 %s >> ping.txt' % node
-                            utils.ssh_command(p, uname, pw, cmd, True)
-                            utils.get_file_untrusted(p, uname, pw, '~/ping.txt', True)  # TODO: Breaks if false
-                            utils.ssh_command(p, uname, pw, 'rm ~/ping.txt', False)
-                            dt = []
-                            for line in utils.swap('ping.txt', True):
-                                try:
-                                    dt.append(float(line.split('time=')[1].split(' ')[0]))
-                                except:
-                                    pass
-                            try:
-                                print '(%s->%s) %f ms' % (p, node, dt[0])
-                                connections[p].append([node, dt[0]])
-                            except IndexError:
-                                pass
+            # connections = p2p_probe_thread(connections, uname, p)
+            p2p = Thread(target=p2p_probe_thread, args=(connections, uname, p))
+            p2p.start()
+            p2p.join()
     os.system('clear')
-    print '\033[36m\033[1m========= \033[0m\033[1mConnectivity \033[32m========= \033[0m'
+    print '\033[36m\033[1m========= \033[0m\033[1mConnectivity \033[36m========= \033[0m'
     priority = {}
     # Find Best Connections
     for Node in connections.keys():
@@ -143,14 +152,15 @@ if __name__ == '__main__':
     for node in best_cnxs.keys():
         uname = utils.names[node]
         utils.ssh_command(node,uname,utils.retrieve_credentials(node),find_shared,True)
-        time.sleep(2) # Allow Remote machine some time to search for install location
+        time.sleep(2)  # Allow Remote machine some time to search for install location
         utils.get_file_untrusted(node,uname,utils.retrieve_credentials(node),'where.txt',True)
         os.system('cat where.txt | grep PoolParty/code | cut -b 3- >> loc.txt;cat loc.txt')
         utils.ssh_command(node, uname, utils.retrieve_credentials(node), 'rm where.txt', True)
         install_paths[node] = utils.swap('loc.txt', True).pop().replace('\n', '').replace(' ', '')
     os.system('clear')
     print install_paths
-    # TODO: DEBUG TEST THIS LOCATION
+
+    # TODO: TEST THIS LOCATION
     for m in best_cnxs.keys():
         pathway = install_paths[m].split('utils.py')[0]
         uname = utils.names[m]
@@ -168,4 +178,4 @@ if __name__ == '__main__':
             '''
             START FILE SYNCHRONIZATION 
             '''
-print '\033[1m\033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)
+    print '\033[1m\033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)
