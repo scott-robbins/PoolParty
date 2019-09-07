@@ -32,4 +32,27 @@ Once we have the complete set, or rather for every instance we see a complete
 set, of files in the shared folder we can determine how to allocate them among
 peers. 
 
- 
+## Distributed Computing 
+I want to run a task as fast as possible. I have multiple machines who can
+communicate at relatively quick speeds with pretty solid bandwidth. 
+
+Can I find a way to achieve a task FASTER with this network, than with my single machine?
+Let's find out!
+
+#### [1] More Basic Problem(s) [Many Operations in Sequence - linear time scaling?]: 
+   
+    * the hash of every word in a fairly large dictionary? or every file in a shared folder?
+    
+    * doing a large loop of any operation where the next step doesn't depend on the previous step
+#### [2] Somewhat hard Problem(s) [Single Process based on sequential operations]:
+    
+    * Processing a single object like a video in a frame by frame fashion
+    
+    * Analyzing a single song to generate a spectrogram or animated FFT
+
+#### [3] Challenging to Make Parallel, and Challenging generally [Many operations which depend on the results of iterations]:
+    
+    * Computing a simulation and saving frames to a single video file
+    
+    * Solving an optimization of a single problem across nodes (find shortest path between
+      a LARGE set of given verts and edges) 
