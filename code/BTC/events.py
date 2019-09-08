@@ -87,7 +87,7 @@ def update_logs():
         N = 12
         dff = []
         dfi = []
-        ''' Generate fit iteratively for every 1k points '''
+        ''' Generate fit iteratively for every 10k points '''
         dd = np.linspace(0, len(pdata), N)
         for dx in np.linspace(0, len(pdata), N):
             if ii > 0:
@@ -140,18 +140,22 @@ def update_logs():
     a.grid()
     a.legend()
 
-    tick.msg = '    DATE: '+stamps.pop().replace(']', '')+'   BTC PRICE: $'+str(price)
+    tick.msg = '    DATE: '+stamps.pop().replace(']', '')+'     BTC PRICE: $'+str(price)
     tick()
-    ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
-    ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
 
     ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
     if price > aprice: # Price is above Moving Average
         mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
+        ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#00ff00',bg='#000000')
+        ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
     elif price < aprice: # Price is below moving average
         mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
+        ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#ff0000',bg='#000000')
+        ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
     else:
         mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
+        ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#0000ff',bg='#000000')
+        ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
     mkt_state.place(x=550,y=0,relwidth=0.15, relheight=0.1)
 
     date, ts = utils.create_timestamp()
