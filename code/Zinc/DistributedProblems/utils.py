@@ -2,6 +2,7 @@ try:
     import paramiko
 except:
     pass
+from multiprocessing.pool import ThreadPool
 from threading import Thread
 import time
 import os
@@ -258,10 +259,10 @@ def command_peer(peer, command, verbosity):
 
 
 def command_all_peers(command, verbose):
+    pool = ThreadPool(processes=1)
     for peer in names.keys():
-        cmd = Thread(target=command_peer, args=(peer, command, verbose))
-        cmd.start()
-        cmd.join()
+        pw = retrieve_credentials(peer)
+        reply = pool.apply_async(ssh_command, (peer,names[peer],pw,command_all_peers,verbose))
 
 
 def distribute_file_resource(file_in):
