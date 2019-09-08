@@ -85,7 +85,8 @@ def update_logs():
         lr = LinearRegression()
         ii = 0
         N = 12
-
+        dff = []
+        dfi = []
         ''' Generate fit iteratively for every 1k points '''
         dd = np.linspace(0, len(pdata), N)
         for dx in np.linspace(0, len(pdata), N):
@@ -107,10 +108,15 @@ def update_logs():
                 fit = lr.predict(X)
                 fi = fit.flatten()[0]
                 ff = fit.flatten()[-1]
+                dff.append(ff)
+                dfi.append(fi)
                 print 'Fit Start: $%s\tFit End: $%s' % (str(fi), str(ff))
                 a.plot(xx, fit, '--', c="y")
             ii += 1
-
+        print 'dFitStart:%s\tdFitEnd:%s' % (str(np.array(dfi).mean()), str(np.array(dff).mean()))
+    # TODO: log price passing through points of support/resistance and adjust them accordingly
+    resistance_0 = np.array(dfi).mean()
+    resistance_1 = np.array(dff).mean()
     price = prices.pop()
     error = price - fit
     guess = np.diff(np.array(prices[len(prices)-121:len(prices)]))+price
