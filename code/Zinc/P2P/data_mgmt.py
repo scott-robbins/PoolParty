@@ -69,3 +69,19 @@ if __name__ == '__main__':
     print 'Distributing %d Files to %d Peers' % (total_files, N_Nodes)
 
     ''' Make Records, and then distribute files accordingsly '''
+    for node in bins.keys():
+        file_list = bins[node]
+        fname = 'node%d.txt' % node
+        open(fname, 'w')
+        os.system('mkdir ARCHIVE')
+        ii = 0
+        for f in file_list:
+            cp = 'cp %s ARCHIVE/' % f
+            os.system(cp)
+            open(fname, 'a').write(f+'\n')
+
+        os.system('tar -zcvf archive.tar.gz ARCHIVE/ ')
+        utils.send_file(os.getcwd()+'/',utils.prs[node],'archive.tar.gz')
+        os.system('rm archive.tar.gz; ls ARCHIVE/ | while read n; do rm ARCHIVE/$n; done; rmdir ARCHIVE')
+    print 'FINISHED Distributing Files to Peers [%ss Elapsed]' % str(time.time()-tic)
+
