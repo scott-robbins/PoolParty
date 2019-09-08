@@ -119,10 +119,10 @@ def update_logs():
     resistance_1 = np.array(dff).mean()
     price = prices.pop()
     error = price - fit
-    guess = np.diff(np.array(prices[len(prices)-121:len(prices)]))+price
-    domain = np.array(range(len(prices),len(prices)+120))[:, np.newaxis]
+    guess = np.diff(np.array(error[len(error)-1201:len(error)]))+(resistance_0+resistance_1)/2.
+    domain = np.array(range(len(error),len(error)+1200))[:, np.newaxis]
     lr.fit(domain, guess)
-    domain = np.array(range(len(prices)-500, len(prices) + 1000))[:, np.newaxis]
+    domain = np.array(range(len(prices)-1000, len(prices) + 3000))[:, np.newaxis]
     a.plot(domain, lr.predict(domain), '-', c="white",label='Prediction')
 
     print '\033[1mPRICE: $%s' % str(price)
