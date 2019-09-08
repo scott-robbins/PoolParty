@@ -37,20 +37,23 @@ if 'run' in sys.argv:
     while running and (time.time() - tic) <= timeout:
         print '\033[1m\033[32mBTC PRICE\t\033[31mTIME\033[0m'
         current_price, timestamp = update_ticker_data(False)
-        price_data.append(np.float(current_price))
-        avgp = np.array(price_data).mean()
-        davg = float(current_price) - avgp
-        mavg.append(avgp)
-        dmavg.append(davg)
-        if davg > 0.5:
-            print '+$%s from Avg. $%s' % (str(davg), avgp)
-        elif davg < 0.5:
-            print '-$%s from Avg. $%s' % (str(davg), avgp)
-        else:
-            print 'Price is AT Avg. $%s' % str(avgp)
-        line = '$%s\t$%s\t$%s\t[%s - %s]' % \
-               (str(current_price), str(avgp), str(davg), timestamp[1], timestamp[0])
-        open('btc_prices.txt', 'a').write(line + '\n')
+        try:
+            price_data.append(np.float(current_price))
+            avgp = np.array(price_data).mean()
+            davg = float(current_price) - avgp
+            mavg.append(avgp)
+            dmavg.append(davg)
+            if davg > 0.5:
+                print '+$%s from Avg. $%s' % (str(davg), avgp)
+            elif davg < 0.5:
+                print '-$%s from Avg. $%s' % (str(davg), avgp)
+            else:
+                print 'Price is AT Avg. $%s' % str(avgp)
+            line = '$%s\t$%s\t$%s\t[%s - %s]' % \
+                   (str(current_price), str(avgp), str(davg), timestamp[1], timestamp[0])
+            open('btc_prices.txt', 'a').write(line + '\n')
+        except:
+            pass
         time.sleep(15)
         os.system('clear')
 

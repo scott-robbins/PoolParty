@@ -201,7 +201,6 @@ if 'run' in sys.argv:
     button.place(x=0, y=0, relwidth=0.1, relheight=0.1)
     update = Tk.Button(master=root, text='Update', command=update_logs)
     update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
-
     canvas = FigureCanvasTkAgg(f, master=root)
 
     t0 = time.time()
@@ -213,6 +212,7 @@ if 'run' in sys.argv:
         port = np.random.random_integers(4000,65000,1)[0]
         os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
                   " cat ~/Desktop/PoolParty/code/BTC/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port,port))
+
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
@@ -252,9 +252,9 @@ if 'run' in sys.argv:
     a.set_ylabel('Price $ [USD]')
     plt.show()
 
-    if price > aprice: # Price is above Moving Average
+    if price > aprice:  # Price is above Moving Average
         mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
-    elif price < aprice: # Price is below moving average
+    elif price < aprice:  # Price is below moving average
         mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
     else:
         mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
