@@ -25,4 +25,4 @@ if '-send_all_peers' in sys.argv and len(sys.argv) >= 3:
     distribute_file_resource(file_in)
 
 
-# print 'FINISHED [%ss Elapsed]' % str(time.time()-tic)
+print 'FINISHED [%ss Elapsed]' % str(time.time()-tic)

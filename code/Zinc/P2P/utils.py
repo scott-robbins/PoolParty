@@ -266,7 +266,7 @@ def command_all_peers(command, verbose):
         pw = retrieve_credentials(peer)
         reply = pool.apply_async(ssh_command, (peer,names[peer],pw,command,verbose))
         if verbose:
-            print reply
+            print reply.get()
         replies[peer] = reply
     return replies
 
@@ -280,23 +280,29 @@ def distribute_file_resource(file_in):
 
 
 #
+tic = time.time()
 verbosity = False
+operation = False
 if '-v' in sys.argv:
     verbosity = True
 
 if 'cmd_all' in sys.argv and len(sys.argv) >= 3:
-    cmd = arr2string(sys.argv[2:])
-    command_all_peers(cmd, verbose=verbosity)
+    cmd = sys.argv[2]
+    replies = command_all_peers(cmd, verbose=verbosity)
+    print '%d Replies Received' % len(replies)
+    operation = True
 
 if 'cmd' in sys.argv and len(sys.argv) >= 4:
     host = sys.argv[2]
     cmd = sys.argv[3]
     command_peer(host, cmd, True)
+    operation = True
 
 if 'send' in sys.argv and len(sys.argv) >= 4:
     host = sys.argv[2]
     file_in = sys.argv[3]
     send_file(os.getcwd(), host, file_in)
+    operation = True
 
 if 'get' in sys.argv and len(sys.argv) >= 4:
     ip = sys.argv[2]
@@ -307,3 +313,7 @@ if 'get' in sys.argv and len(sys.argv) >= 4:
     file_name = sys.argv[3]
     pw = retrieve_credentials(ip)
     get_file_untrusted(ip, name, pw, file_name, verbosity)
+    operation = True
+
+if operation:
+    print '\033[1mFINISHED \033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)
