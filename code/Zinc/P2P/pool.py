@@ -20,9 +20,9 @@ def distribute_file_resource(file_in):
 
 
 tic = time.time()
+
 if '-send_all_peers' in sys.argv and len(sys.argv) >= 3:
     file_in = sys.argv[2]
     distribute_file_resource(file_in)
 
 
-print 'FINISHED [%ss Elapsed]' % str(time.time()-tic)

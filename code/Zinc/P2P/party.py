@@ -1,16 +1,28 @@
-from Crypto.Random import get_random_bytes
-from Crypto.Cipher import AES
-import base64
+import Tkinter as Tk
+import engine
 import utils
 import time
 import sys
 import os
 
-token = base64.b64encode(get_random_bytes(16))
-# Distributed File system needs to be based on hashing files
-# and distributing those files to peers (2^N Peers will
-# correspond to N Bytes of hash to use for sorting I guess?).
+root = Tk.Tk()
+colors = ['#ff0000', '#00ff00', '#0000ff']
+rowy = 100
+rowx = 0
+i = 0
+for ip in utils.prs:
+    if ip in utils.names.keys():
+        host = utils.names[ip]
+        title = '%s [%s]' % (ip, host)
+        node_label = Tk.Label(root, text=title, bg=colors.pop())
+        node_label.place(x=rowx, y=rowy+i*rowy, relwidth=0.12, relheight=0.1)
+        # node_label.place(x=rowx+i*rowx, y=rowy, relwidth=0.2, relheight=0.1)
+        reply = utils.ssh_command(ip, host, utils.retrieve_credentials(ip), 'whoami', False)
 
+        if host == reply.replace('\n', '').replace(' ', ''):
+            online_label = Tk.Label(root, text=' ONLINE ', bg='#ffff00')
+            online_label.place(x=rowx + 150, y=rowy + i * rowy, relwidth=0.1, relheight=0.1)
+            print host
+        i += 1
 
-if '-sum' in sys.argv and len(sys.argv) >=3:
-    utils.get_sha256_sum(sys.argv[2], True)
+Tk.mainloop()
