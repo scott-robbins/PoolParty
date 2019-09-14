@@ -5,6 +5,7 @@ except:
 from multiprocessing.pool import ThreadPool
 from threading import Thread
 import time
+import sys
 import os
 
 # ##### USERS/NODES HARDCODED FOR NOW ##### #
@@ -259,10 +260,15 @@ def command_peer(peer, command, verbosity):
 
 
 def command_all_peers(command, verbose):
+    replies = {}
     pool = ThreadPool(processes=1)
     for peer in names.keys():
         pw = retrieve_credentials(peer)
-        reply = pool.apply_async(ssh_command, (peer,names[peer],pw,command_all_peers,verbose))
+        reply = pool.apply_async(ssh_command, (peer,names[peer],pw,command,verbose))
+        if verbose:
+            print reply
+        replies[peer] = reply
+    return replies
 
 
 def distribute_file_resource(file_in):
@@ -272,3 +278,32 @@ def distribute_file_resource(file_in):
         cmd.start()
         cmd.join()
 
+
+#
+verbosity = False
+if '-v' in sys.argv:
+    verbosity = True
+
+if 'cmd_all' in sys.argv and len(sys.argv) >= 3:
+    cmd = arr2string(sys.argv[2:])
+    command_all_peers(cmd, verbose=verbosity)
+
+if 'cmd' in sys.argv and len(sys.argv) >= 4:
+    host = sys.argv[2]
+    cmd = sys.argv[3]
+    command_peer(host, cmd, True)
+
+if 'send' in sys.argv and len(sys.argv) >= 4:
+    host = sys.argv[2]
+    file_in = sys.argv[3]
+    send_file(os.getcwd(), host, file_in)
+
+if 'get' in sys.argv and len(sys.argv) >= 4:
+    ip = sys.argv[2]
+    try:
+        name = names[ip]
+    except KeyError:
+        print '[*] Unknown Host %s!'
+    file_name = sys.argv[3]
+    pw = retrieve_credentials(ip)
+    get_file_untrusted(ip, name, pw, file_name, verbosity)
