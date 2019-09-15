@@ -44,8 +44,8 @@ def p2p_probe_thread(connections, uname,p):
             for node in utils.prs:
                 if node != p:
                     cmd = 'ping -c 1 %s >> ping.txt' % node
-                    utils.ssh_command(p, uname, pw, cmd, True)
-                    utils.get_file_untrusted(p, uname, pw, '~/ping.txt', True)  # TODO: Breaks if false
+                    utils.ssh_command(p, uname, pw, cmd, False)
+                    utils.get_file_untrusted(p, uname, pw, '~/ping.txt', False)  # TODO: Breaks if false
                     utils.ssh_command(p, uname, pw, 'rm ~/ping.txt', False)
                     dt = []
                     for line in utils.swap('ping.txt', True):
@@ -151,11 +151,11 @@ if __name__ == '__main__':
     install_paths = {}
     for node in best_cnxs.keys():
         uname = utils.names[node]
-        utils.ssh_command(node,uname,utils.retrieve_credentials(node),find_shared,True)
+        utils.ssh_command(node, uname, utils.retrieve_credentials(node), find_shared, False)
         time.sleep(2)  # Allow Remote machine some time to search for install location
-        utils.get_file_untrusted(node,uname,utils.retrieve_credentials(node),'where.txt',True)
+        utils.get_file_untrusted(node, uname, utils.retrieve_credentials(node), 'where.txt', False)
         os.system('cat where.txt | grep PoolParty/code | cut -b 3- >> loc.txt;cat loc.txt')
-        utils.ssh_command(node, uname, utils.retrieve_credentials(node), 'rm where.txt', True)
+        utils.ssh_command(node, uname, utils.retrieve_credentials(node), 'rm where.txt', False)
         install_paths[node] = utils.swap('loc.txt', True).pop().replace('\n', '').replace(' ', '')
     os.system('clear')
     print install_paths
@@ -166,15 +166,16 @@ if __name__ == '__main__':
         uname = utils.names[m]
         cred = utils.retrieve_credentials(m)
         test = 'ls %s >> %sdir.txt' % (pathway, pathway)
-        utils.ssh_command(m, uname, cred, test, True)
+        utils.ssh_command(m, uname, cred, test, False)
         it = '%sdir.txt' % pathway
-        utils.get_file_untrusted(m, uname, cred, it, True)
+        utils.get_file_untrusted(m, uname, cred, it, False)
         if 'Shared' not in utils.swap('dir.txt', True):
             print 'No Share Folder found on %s' % m
-            utils.ssh_command(m, uname, cred, 'ls %sShared'%pathway, True)
+            utils.ssh_command(m, uname, cred, 'ls %sShared' % pathway, False)
         else:
             print 'exploring %ss Shared Folder' % m
             #TODO
+            utils.ssh_command(m, uname, cred, 'ls -la %s' % pathway, False)
             '''
             START FILE SYNCHRONIZATION 
             '''

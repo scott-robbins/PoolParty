@@ -152,19 +152,19 @@ def get_file_untrusted(ip,user,password,file_name,verbose):
         response = ''
         if ssh_session.active:
             ssh_session.exec_command(cmd)
-            if verbose:
-                response = ssh_session.recv(16777216)
+            response = ssh_session.recv(16777216)
     except paramiko.ssh_exception.NoValidConnectionsError:
         print "Could not connect to %s" % ip
     open(local_file, 'w').write(response)
+    file_size, file_size_kb = check_file_size(local_file, False)
     if verbose:
-        file_size, file_size_kb = check_file_size(local_file, False)
         Data_Transferred = '%s B' % str(file_size)
         if 1000000 > file_size > 1000:
             Data_Transferred = '%s KB' % str(file_size_kb)
         print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
         print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
               (Data_Transferred, str(time.time() - tic))
+    return file_size
 
 
 def retrieve_credentials(node):     # TODO: Keys must be kept in KEYS/ dir
