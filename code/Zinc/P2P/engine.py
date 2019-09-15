@@ -113,8 +113,6 @@ if __name__ == '__main__':
     local_addr = utils.get_local_ip()
     user = os.getlogin()
     utils.prs.append(local_addr)
-    # TODO: Multi-thread this to show effectiveness of parallel p2p processes
-    #  because it takes about 30s looping through and sending p2p ping commands
     best_cnxs, p2p_links = test_connectivity()
     # Best Connections stored as <k:Sender>--<v:Receiver>
     # pairs that were found to be fastest
@@ -168,14 +166,14 @@ if __name__ == '__main__':
         test = 'ls %s >> %sdir.txt' % (pathway, pathway)
         utils.ssh_command(m, uname, cred, test, False)
         it = '%sdir.txt' % pathway
-        utils.get_file_untrusted(m, uname, cred, it, False)
+        filesize = utils.get_file_untrusted(m, uname, cred, it, False)
         if 'Shared' not in utils.swap('dir.txt', True):
             print 'No Share Folder found on %s' % m
             utils.ssh_command(m, uname, cred, 'ls %sShared' % pathway, False)
         else:
             print 'exploring %ss Shared Folder' % m
-            #TODO
-            utils.ssh_command(m, uname, cred, 'ls -la %s' % pathway, False)
+            shared_folder = '%sShared' % pathway
+            utils.ssh_command(m, uname, cred, 'ls ', True)
             '''
             START FILE SYNCHRONIZATION 
             '''
