@@ -1,9 +1,14 @@
 from multiprocessing.pool import ThreadPool
 from threading import Thread
+import numpy as np
 import utils 
 import time 
 import sys 
 import os
+
+# To minimize extra outputs to console you can add exceptions here and 
+# They won't be displayed as part of the rogue IP detection/tracking
+exceptions = ['localhost','Fios_Quantum_Gateway','fios-router', os.uname()[1]]
 
 
 def create_logfile(verbose):
@@ -56,6 +61,7 @@ def parse_logs(logfile, verbose):
 	print '[==========================================================]'
 	return cnxs, arps
 
+
 def run(duration,logfile, verbose):
 	tic = time.time()	
 	packets_read = {}
@@ -72,16 +78,36 @@ def run(duration,logfile, verbose):
 		try:
 			if (dt > 0 and dt % 5 == 0):
 				async_read = pool.apply_async(parse_logs, (logfile, verbose))
-				nx_traffic = async_read.get() 
+				conxs, ARPs = async_read.get() 
 		except KeyboardInterrupt:
 			print '\033[1m\033[31m[!] KILLED [%ss Elapsed]\033[0m' %\
 			 str(time.time()-tic)
 	kill_daemon = "ps aux | grep 'tcpdump' | cut -b 10-16 |"\
-			"while read proc; do kill -9 $proc > /dev/null>2&1;done"
+			"while read proc; do kill -9 $proc > /dev/null;done"
 	os.system(kill_daemon)
+	return conxs, ARPs
 
 if __name__ == '__main__':
 	DEBUG = False
 	log, date, localtime = create_logfile(DEBUG)
-	run(15, log, DEBUG)
+	traffic, arps = run(15, log, DEBUG)
+	
+	''' Show Summary of Monitoring Session'''
+	os.system('clear')
+	unknown_hosts = []
+	display = ''
+	for data in traffic:
+		flagged = False
+		for e in exceptions:
+			if len(data[1].split(e))>1:
+				flagged = True
+		if not flagged:
+			display += data[1]+'\n'
+			unknown_hosts.append(data[1])
+	print '%d unique IPs observed:' % len(np.unique(unknown_hosts))
+	print display
+	
+	''' Analyze/Record traffic, Monitor ARPs, and Track unknown hosts  '''
+	
 
+# EOF
