@@ -41,9 +41,7 @@ def web_search(l, verbose):
     DATA['Headers'] = headers
     DATA['Cookies'] = cookies
 
-    # TODO: FOR DEBUGGING
-    file_name = '%s.txt' % link.split('.org/wiki/')[1].replace(' ','_')
-    print 'Dumping to LogFile %s' % file_name
+    file_name = '%s.html' % link.split('.org/wiki/')[1].replace(' ','_')
     os.system('touch %s' % file_name)
     dump = ''
     for par in content[1:]:
@@ -54,5 +52,15 @@ def web_search(l, verbose):
     return DATA
 
 
+def load_words():
+    return utils.swap('words.txt', False)
+
+
 if '-s' in sys.argv and len(sys.argv) >= 3:
-    results = web_search(sys.argv[2], True)
+    results = web_search(utils.arr2string(sys.argv[2:]), False)
+
+'''
+Automate the process of discovering new topics to crawl wikipedia for
+and then read the results and find new topics to search (etc.)
+'''
+words = load_words()
