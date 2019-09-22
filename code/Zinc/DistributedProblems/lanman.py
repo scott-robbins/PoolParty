@@ -25,17 +25,38 @@ def start_nx_listener(iface, logfile):
 	os.system(cmd)
 
 
-def parse_logs(logfile):
-	nx_packets = {}
-	if not os.path.isfile(logfile):
-		print '\033[1m\033[31m[!] Logfile Missing!!\033[0m'
-		exit()
-	for line in utils.swap(logfile, False):
-		print line
-	return nx_packets
-	
+def parse_logs(logfile, verbose):
+	cnxs = []
+	arps = {'requests': [], 'replies': []}
+	file_in = 'ex.log'
+	for line in utils.swap(file_in, False):
+		tstamp = line.split(' ')[0]
+		try: # IP Protocol Packets 
+			IP = line.split('IP')[1].split(' > ')[0]
+			if verbose:
+				print '[%s]\t%s' % (tstamp, IP)
+			cnxs.append([tstamp, IP])
+		except IndexError:
+			pass
+		try: # Find ARP (Requests/Replies)
+			ARP = line.split('ARP, ')[1].split(', length')[0]
+			if ARP.split(' ')[0]=='Request':
+				arps['requests'].append([tstamp, ARP])
+				if verbose:
+					print '\033[33m\033[1m[%s]\t%s\033[0m' % (tstamp, ARP)
+			else:
+				arps['replies'].append([tstamp, ARP])
+				if verbose:
+					print '\033[32m\033[1m[%s]\t%s\033[0m' % (tstamp, ARP)	
+		except IndexError:
+			pass
+	print '%d Network Connections Logged' % len(cnxs)
+	print '%d ARP Requests Logged' % len(arps['requests'])
+	print '%d ARP Replies Logged' % len(arps['replies'])
+	print '[==========================================================]'
+	return cnxs, arps
 
-def run(duration,logfile):
+def run(duration,logfile, verbose):
 	tic = time.time()	
 	packets_read = {}
 	
@@ -44,23 +65,23 @@ def run(duration,logfile):
 	p.daemon = True
   	p.start()
   	
-	''' '''
+	''' Start the Packet Capture Parser Thread AFTER network listener'''
 	pool = ThreadPool(processes=1)
 	while (time.time()- tic) <= duration:
 		dt = time.time()- tic
 		try:
 			if (dt > 0 and dt % 5 == 0):
-				async_read = pool.apply_async(parse_logs, (logfile,))
+				async_read = pool.apply_async(parse_logs, (logfile, verbose))
 				nx_traffic = async_read.get() 
 		except KeyboardInterrupt:
 			print '\033[1m\033[31m[!] KILLED [%ss Elapsed]\033[0m' %\
 			 str(time.time()-tic)
 	kill_daemon = "ps aux | grep 'tcpdump' | cut -b 10-16 |"\
-				  " while read proc; do kill -9 $proc > /dev/null; done"
+			"while read proc; do kill -9 $proc > /dev/null>2&1;done"
 	os.system(kill_daemon)
 
 if __name__ == '__main__':
-	DEBUG = True
+	DEBUG = False
 	log, date, localtime = create_logfile(DEBUG)
-	run(15, log)
+	run(15, log, DEBUG)
 
