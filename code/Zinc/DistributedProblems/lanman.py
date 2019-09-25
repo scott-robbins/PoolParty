@@ -87,7 +87,7 @@ def run(iface, duration, logfile, verbose):
     kill_daemon = "ps aux | grep 'tcpdump' | cut -b 10-16 |" \
                   "while read proc; do kill -9 $proc > /dev/null;done"
     os.system(kill_daemon)
-    return conxs, ARPs
+    return conxs
 
 
 def dump_traffic(traffic):
