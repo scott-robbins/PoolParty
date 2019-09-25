@@ -295,7 +295,45 @@ def distribute_file_resource(file_in):
         cmd.join()
 
 
-#
+def check_resources(host, verbose):
+    if verbose:
+        print "Checking %s's Memory..." % host
+    uname = names[host]
+    pw = retrieve_credentials(host)
+    file_name = 'memstat%s.txt' % host.replace('.', '')
+    cmd = 'free --mega >> %s;' % file_name
+    ssh_command(host, uname, pw, cmd, False)
+    os.system('python utils.py get %s %s' % (host, file_name))
+    resources = {}
+    # Now parse the file received
+    for line in swap(file_name,True):
+        # Split by: TOTAL  |  USED  |  FREE
+        try:
+            total_sys = line.split('Mem:')[1].split('       ')[1].replace(' ','')
+            free_sys = line.split('Mem:')[1].split('       ').pop().replace(' ', '')
+            resources[host] = {'System_Total': int(total_sys), 'System_Free': int(free_sys)}
+        except IndexError:
+            pass
+        except ValueError:
+            pass
+        try:
+            total_swap = line.split('Swap:')[1].split('      ')[1].replace(' ','')
+            free_swap = line.split('Swap:')[1].split('      ').pop().replace(' ', '')
+            resources[host]['Swap_Total'] = int(total_swap)
+            resources[host]['Swap_Free'] = int(free_swap)
+        except IndexError:
+            pass
+        except ValueError:
+            pass
+
+    ssh_command(host, uname, pw, 'rm memstat*', False)
+    if verbose:
+        print 'Total System Memory: %sMB\t Free System Memory: %sMB' % (total_sys, free_sys)
+        print 'Total Swap Memory: %sMB\t Free Swap Memory: %sMB' % (total_swap, free_swap)
+    return resources
+
+
+# MAIN
 tic = time.time()
 verbosity = False
 operation = False
