@@ -4,6 +4,7 @@ except:
     pass
 from multiprocessing.pool import ThreadPool
 from threading import Thread
+import numpy as np
 import time
 import sys
 import os
@@ -302,16 +303,17 @@ def check_resources(host, verbose):
     pw = retrieve_credentials(host)
     file_name = 'memstat%s.txt' % host.replace('.', '')
     cmd = 'free --mega >> %s;' % file_name
-    ssh_command(host, uname, pw, cmd, False)
+    ssh_command(host, uname, pw, cmd, verbose)
     os.system('python utils.py get %s %s' % (host, file_name))
     resources = {}
     # Now parse the file received
-    for line in swap(file_name,True):
+    for line in swap(file_name,verbose):
         # Split by: TOTAL  |  USED  |  FREE
         try:
             total_sys = line.split('Mem:')[1].split('       ')[1].replace(' ','')
             free_sys = line.split('Mem:')[1].split('       ').pop().replace(' ', '')
-            resources[host] = {'System_Total': int(total_sys), 'System_Free': int(free_sys)}
+            resources['System_Total'] = int(total_sys)
+            resources['System_Free'] = int(free_sys)
         except IndexError:
             pass
         except ValueError:
@@ -319,8 +321,8 @@ def check_resources(host, verbose):
         try:
             total_swap = line.split('Swap:')[1].split('      ')[1].replace(' ','')
             free_swap = line.split('Swap:')[1].split('      ').pop().replace(' ', '')
-            resources[host]['Swap_Total'] = int(total_swap)
-            resources[host]['Swap_Free'] = int(free_swap)
+            resources['Swap_Total'] = int(total_swap)
+            resources['Swap_Free'] = int(free_swap)
         except IndexError:
             pass
         except ValueError:
@@ -331,6 +333,44 @@ def check_resources(host, verbose):
         print 'Total System Memory: %sMB\t Free System Memory: %sMB' % (total_sys, free_sys)
         print 'Total Swap Memory: %sMB\t Free Swap Memory: %sMB' % (total_swap, free_swap)
     return resources
+
+
+def nx_memory_profile(verbose):
+    """
+    Determine Network Resources
+    :return:
+    """
+    network_memory = {}
+    sys_free_sum = {}
+    sys_free_tot = {}
+    swap_free_sum = {}
+    swap_free_tot = {}
+    for host in prs:
+        network_memory[host] = check_resources(host, verbose)
+        try:
+            swap_free_tot[network_memory[host]['Swap_Free']] = host
+        except KeyError:
+            pass
+        try:
+            swap_free_sum[network_memory[host]['Swap_Total']] = host
+        except KeyError:
+            pass
+        try:
+            sys_free_sum[network_memory[host]['System_Free']] = host
+        except KeyError:
+            pass
+        try:
+            sys_free_tot[network_memory[host]['System_Total']] = host
+        except KeyError:
+            pass
+    best_worker = swap_free_sum[np.array(swap_free_sum.keys()).max()]
+    historian = sys_free_sum[np.array(sys_free_sum.keys()).max()]
+    if verbose:
+        print '%s Has the Most Swap Memory Free' % swap_free_sum[np.array(swap_free_sum.keys()).max()]
+        print '%s Has the Most Swap Memory Total' % swap_free_tot[np.array(swap_free_tot.keys()).max()]
+        print '%s Has the Most System Memory Free' % sys_free_sum[np.array(sys_free_sum.keys()).max()]
+        print '%s Has the Most System Memory Total' % sys_free_tot[np.array(sys_free_tot.keys()).max()]
+    return best_worker, historian, network_memory
 
 
 # MAIN
