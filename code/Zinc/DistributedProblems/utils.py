@@ -72,6 +72,22 @@ def popup_examples(msg):
     os.system('notify-send "'+str(msg)+'"')
 
 
+def discover_niface():
+    """
+    Discover Network Interface
+    This function returns a string handle (e.g. wlan0) for the network interface(s)
+    that is up and running.
+    :return:
+    """
+    cmd = 'ls /sys/class/net/ | while read n; do ifconfig | grep $n: >> ifaces.txt; done'
+    os.system(cmd)
+    iface = ''.replace(' ', '')
+    for line in swap('ifaces.txt', True):
+        if ('RUNNING' in line.split(',')) and ('BROADCAST' in line.split(',')):
+            iface = line.split(':')[0]
+    return iface
+
+
 def crawl_dir(file_path, h, verbose):
     directory = {'dir': [], 'file': []}
     hash = {}
