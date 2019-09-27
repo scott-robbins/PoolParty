@@ -399,14 +399,15 @@ if 'send' in sys.argv and len(sys.argv) >= 4:
     operation = True
 
 if 'get' in sys.argv and len(sys.argv) >= 4:
-    ip = sys.argv[2]
+    rmt_ip = sys.argv[2]
+    local_ip = get_local_ip()
     try:
-        name = names[ip]
+        name = names[rmt_ip]
     except KeyError:
         print '[*] Unknown Host %s!'
     file_name = sys.argv[3]
-    pw = retrieve_credentials(ip)
-    get_file_untrusted(ip, name, pw, file_name, verbosity)
+    pw = retrieve_credentials(rmt_ip)
+    get_file_untrusted(rmt_ip,name,pw,file_name,verbose=verbosity)
     operation = True
 
 if operation:
