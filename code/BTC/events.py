@@ -61,6 +61,27 @@ def pull_price_data():
     return prices, moving_avg, deltas, stamps
 
 
+def plot_data():
+    f = plt.figure()
+    ''' Plot BTC Price data and Moving Average'''
+    plt.grid()
+    plt.style.use('dark_background')
+    data, mavg, diffs, dates = pull_price_data()
+    plt.plot(data,color='red', linestyle='--', label='Price')
+    plt.plot(mavg, color='cyan', linestyle='-.', label='Moving Average')
+
+    ''' Data the Decision_Tree Decision Boundaries'''
+    x = np.array(range(len(prices)))
+    regr_1 = DecisionTreeRegressor(max_depth=4)
+    X = x[:, np.newaxis]
+    y = prices
+    regr_1.fit(X, y)
+    y_1 = regr_1.predict(X)
+    a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
+    # Show that shit
+    plt.show()
+
+
 def update_logs():
     basic_logic()
     plt.close()
@@ -115,19 +136,8 @@ def update_logs():
             ii += 1
         print 'dFitStart:%s\tdFitEnd:%s' % (str(np.array(dfi).mean()), str(np.array(dff).mean()))
     # TODO: log price passing through points of support/resistance and adjust them accordingly
-    resistance_0 = np.array(dfi).mean()
-    resistance_1 = np.array(dff).mean()
-    price = prices.pop()
-    error = price - fit
-    guess = np.diff(np.array(error[len(error)-1201:len(error)]))+(resistance_0+resistance_1)/2.
-    domain = np.array(range(len(error),len(error)+1200))[:, np.newaxis]
-    lr.fit(domain, guess)
-    domain = np.array(range(len(prices)-1000, len(prices) + 3000))[:, np.newaxis]
-    a.plot(domain, lr.predict(domain), '-', c="white",label='Prediction')
-
-    print '\033[1mPRICE: $%s' % str(price)
-    print '\033[3m* Error: %s\033[0m' % str(error)
-    # open('error.txt', 'a').write(str(error) + '\n')
+    # TODO: Make Better Predictions...
+    print '\033[1mPRICE: $%s\033[0m' % str(price)
 
     '''     MODEL_2: Decision Tree Regressor    '''
     x = np.array(range(len(prices)))
@@ -157,6 +167,10 @@ def update_logs():
         ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#0000ff',bg='#000000')
         ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
     mkt_state.place(x=550,y=0,relwidth=0.15, relheight=0.1)
+
+    ''' Add an inspection button, which pops a matplotlib figure which can be more closely analyzed'''
+    plot_button = Tk.Button(master=root, text='Inspect Data', command=plot_data)
+    plot_button.place(x=800, y=0, relwidth=0.125, relheight=0.1)
 
     date, ts = utils.create_timestamp()
     print ts
