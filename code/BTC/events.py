@@ -64,9 +64,8 @@ def pull_price_data():
 def plot_data():
     f = plt.figure()
     ''' Plot BTC Price data and Moving Average'''
-    plt.style.reload_library()
+    # plt.style.reload_library()
     plt.grid()
-    plt.style.use('classic')
     data, mavg, diffs, dates = pull_price_data()
     plt.plot(data,color='red', linestyle='--', label='Price')
     plt.plot(mavg, color='cyan', linestyle='-.', label='Moving Average')
@@ -86,20 +85,23 @@ def plot_data():
 
 def update_logs():
     basic_logic()
-    plt.close()
+    # plt.close()
     prices, moving_avg, deltas, stamps = pull_price_data()
     setpoint = float(utils.swap('setpoint.txt', False).pop())
     os.system('clear')
 
-    try:
-        a.cla()
-        a.set_ylabel('Price $ [USD]')
-        a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
-    except:
-        print '\033[31m\033[3m ** Plotting Error!! **\033[3m'
+    # plt.style.use('dark_background')
+    # a.clf()
+
+    a.set_ylabel('Price $ [USD]')
     a.plot(prices, color='red', linestyle='--', label='Price')
     a.plot(moving_avg, color='cyan', linestyle='-.', label='Moving Average')
     a.plot(setpoint * np.ones((len(pdata), 1)), linestyle=':', color='orange', label='Target Price')
+    a.grid()
+    try:
+        a.set_title('BTC Price Data [%s - %s]' % (stamps[0], stamps.pop()))
+    except:
+        print '\033[31m\033[3m ** Plotting Error!! **\033[3m'
 
     if len(pdata) > 10000:
         ''' MODEL_1: Linear Regression (create new fit every 10k points) '''
@@ -149,8 +151,6 @@ def update_logs():
     regr_1.fit(X, y)
     y_1 = regr_1.predict(X)
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
-    a.grid()
-    a.legend()
 
     tick.msg = '    DATE: '+stamps.pop().replace(']', '')+'     BTC PRICE: $'+str(price)
     tick()
@@ -193,6 +193,8 @@ def update_logs():
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
+    # plt.xlim([0, len(prices) + 1000])
+    # plt.ylim([0, np.array(prices).max() + 250])
     plt.show()  # TODO: Automatically update the display every 30 seconds?
 
 
@@ -283,7 +285,12 @@ if 'run' in sys.argv:
     elif price < aprice:  # Price is below moving average
         mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
     else:
-        mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
+        mkt_state = Tk.Label(root, text='MARKET STATE [~$~]', bg='#0000ff')
+    # plt.xlim([0, len(prices) + 1000])
+    # plt.ylim([0, np.array(prices).max() + 250])
+    # plt.xlim([0, len(prices) + 1000])
+    # plt.ylim([0, np.array(prices).max() + 250])
+    mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
     mkt_state.place(x=550,y=0,relwidth=0.15, relheight=0.1)
 
     ticker_tape = Tk.StringVar()
