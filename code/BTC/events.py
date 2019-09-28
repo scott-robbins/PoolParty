@@ -64,12 +64,14 @@ def pull_price_data():
 def plot_data():
     f = plt.figure()
     ''' Plot BTC Price data and Moving Average'''
+    plt.style.reload_library()
     plt.grid()
-    plt.style.use('dark_background')
+    plt.style.use('classic')
     data, mavg, diffs, dates = pull_price_data()
     plt.plot(data,color='red', linestyle='--', label='Price')
     plt.plot(mavg, color='cyan', linestyle='-.', label='Moving Average')
-
+    plt.title('BTC Price Inspector')
+    plt.ylabel('Price [$ USD]')
     ''' Data the Decision_Tree Decision Boundaries'''
     x = np.array(range(len(prices)))
     regr_1 = DecisionTreeRegressor(max_depth=4)
