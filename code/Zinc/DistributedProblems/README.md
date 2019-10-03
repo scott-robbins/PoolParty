@@ -1,4 +1,4 @@
-# Distributed Problems 
+## Distributed Problems 
 This project contains utilities and assorted code to kind of fill out a loose API
 for conducting peer to peer actions and fundamental network computing operations
 such as file transfer, command execution, etc. 
