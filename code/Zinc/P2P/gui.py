@@ -56,6 +56,12 @@ def focus():
     print 'Clicked! Focus on'
 
 
+def submit():
+    cmd = v.get()
+    print 'Command Window Contains:'
+    print cmd
+    entry.delete(0, len(list(cmd)))
+
 
 w = 1200
 h = 800
@@ -99,5 +105,15 @@ for node_handle in nodes.keys():
     index += 1
     buttons.append(node_button)
 cv.bind('<Button-1>', nodeEvent)
+
+# Add Command Window
+v = Tk.StringVar()
+entry_widget = Tk.Entry(master=cv)
+box = Tk.Text(cv, height=10, width=50, bg='light gray')
+entry = Tk.Entry(cv, width=65, bd=5, textvariable=v)
+box.place(x=0, y=y2+50,relwidth=0.35,relheight=0.20)
+entry.place(x=0, y=y2+30,relwidth=0.35,relheight=0.20)
+execute = Tk.Button(master=cv, text='Submit', command=submit)
+execute.place(x=0,y=y2+200,relwidth=0.1, relheight=0.1)
 
 Tk.mainloop()
