@@ -2,18 +2,18 @@ try:
     import paramiko
 except:
     pass
+from multiprocessing.pool import ThreadPool
 from threading import Thread
 import time
+import sys
 import os
 
 # ##### USERS/NODES HARDCODED FOR NOW ##### #
-prs = ['192.168.1.153',
-       '192.168.1.200',
+prs = ['192.168.1.200',
        '192.168.1.217',
        '192.168.1.229']
 
-names = {'192.168.1.153':'tylersdurden',
-         '192.168.1.200': 'root',
+names = {'192.168.1.200': 'root',
          '192.168.1.217': 'pi',
          '192.168.1.229': 'pi'}
 
@@ -24,6 +24,10 @@ names = {'192.168.1.153':'tylersdurden',
 def cmd(command):
     os.system(command+' >> cmd.txt')
     return str_builder(swap('cmd.txt',True))
+
+
+def get_local_ip():
+    return cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
 
 
 def create_timestamp():
@@ -68,26 +72,47 @@ def popup_examples(msg):
     os.system('notify-send "'+str(msg)+'"')
 
 
-def crawl_dir(file_path, verbose):
+def crawl_dir(file_path, h, verbose):
     directory = {'dir': [], 'file': []}
-    top_lvl = os.listdir(file_path)
-    for element in top_lvl:
-        if os.path.isdir(file_path + '/' + element):
-            directory['dir'].append(file_path + '/' + element)
-            if verbose:
-                print '%s is a directory' % element
-        elif os.path.isfile(file_path + '/' + element):
-            directory['file'].append(file_path + '/' + element)
-            if verbose:
-                print '%s is a file' % element
-    return directory
+    hash = {}
+    folders = [file_path]
+    while len(folders) > 0:
+        direct = folders.pop()
+        if verbose:
+            print 'Exploring %s' % direct
+        for item in os.listdir(direct):
+            if os.path.isfile(direct + '/' + item):
+                file_name = direct + "/" + item
+                directory['file'].append(file_name)
+                if h:
+                    hash['"'+file_name+'"'] = get_sha256_sum(file_name, False)
+                if verbose:
+                    print '\033[3m- %s Added to Shared Folder\033[0m' % file_name
+            else:
+                directory['dir'].append(direct + '/' + item)
+                folders.append(direct + '/' + item)
+    return directory, hash
 
 
-IP = cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
+def get_sha256_sum(file_name, verbose):
+    if len(file_name.split("'"))>=2:
+        file_name = ("{!r:}".format(file_name))
+        os.system("sha256sum "+file_name + ' >> out.txt')
+    else:
+        os.system("sha256sum '%s' >> out.txt" % file_name)
+    try:
+        sum_data = swap('out.txt', True).pop().split(' ')[0]
+    except:
+        print file_name
+    if verbose:
+        print sum_data
+    return sum_data
 
-'''                             SECURITY/COMMUNICATION FUNCTIONS                            '''
-import warnings     # SUPRESSING PARAMIKO WARNINGS! '''
+
+'''                            COMMUNICATION FUNCTIONS                            '''
+import warnings                                       # SUPRESSING PARAMIKO WARNINGS!
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+IP = cmd('ifconfig | grep broadcast | cut -b 14-28').replace('\n','').replace(' ','')
 
 
 def ssh_command(ip, user, passwd, command, verbose):
@@ -100,8 +125,8 @@ def ssh_command(ip, user, passwd, command, verbose):
         response = ''
         if ssh_session.active:
             ssh_session.exec_command(command)
+            response = ssh_session.recv(16777216)  # needed for file sharing
             if verbose:
-                response = ssh_session.recv(16777216)   # needed for file sharing
                 print '%s@%s:~$ %s [Executed]' % (user, ip, command)
                 print '%s@%s:~$ %s' % (user, ip, response)
                 return response
@@ -127,27 +152,27 @@ def get_file_untrusted(ip,user,password,file_name,verbose):
         response = ''
         if ssh_session.active:
             ssh_session.exec_command(cmd)
-            if verbose:
-                response = ssh_session.recv(16777216)
+            response = ssh_session.recv(16777216)
     except paramiko.ssh_exception.NoValidConnectionsError:
         print "Could not connect to %s" % ip
     open(local_file, 'w').write(response)
+    file_size, file_size_kb = check_file_size(local_file, False)
     if verbose:
-        file_size, file_size_kb = check_file_size(local_file, False)
         Data_Transferred = '%s B' % str(file_size)
         if 1000000 > file_size > 1000:
             Data_Transferred = '%s KB' % str(file_size_kb)
         print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
         print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
               (Data_Transferred, str(time.time() - tic))
+    return file_size
 
 
-
-def retrieve_credentials(node):
+def retrieve_credentials(node):     # TODO: Keys must be kept in KEYS/ dir
     os.system('cp KEYS/' + node.replace('.', '') + '.txt encrypted.txt')
     os.system('cp KEYS/' + node.replace('.', '') + '.key key.txt')
     os.system('python aes.py -d >> data.txt; rm encrypted.txt key.txt')
-    pw = swap('data.txt', True).pop().split('Result: ')[1].replace(' ', '')
+    ln = swap('data.txt', True).pop()
+    pw = ln.split('Result: ')[1].replace(' ', '')
     return pw
 
 
@@ -221,15 +246,75 @@ def get_file_2(local_file, rmt_file):
     os.system(cmd)
     return swap(cmd, False)
 
-def get_local_ip(verbose):
-    os.system('ifconfig | grep broadcast | cut -b 14-28 >> ip.txt')
-    ip = swap('ip.txt', True).pop().replace(' ','')
-    if verbose:
-        print '\033[1mLocal IP:\033[3m %s\033[0m' % ip
-    return ip
-
 
 def start_listener(file_name, port):
     if os.name != 'nt':
         cmd = 'nc -l -k %d >> %s' % (port, file_name)
         os.system(cmd)
+
+
+def command_peer(peer, command, verbosity):
+    uname = names[peer]
+    pw = retrieve_credentials(peer)
+    ssh_command(peer, uname, pw, command, verbosity)
+
+
+def command_all_peers(command, verbose):
+    replies = {}
+    pool = ThreadPool(processes=1)
+    for peer in names.keys():
+        pw = retrieve_credentials(peer)
+        reply = pool.apply_async(ssh_command, (peer,names[peer],pw,command,verbose))
+        if verbose:
+            print reply.get()
+        replies[peer] = reply
+    return replies
+
+
+def distribute_file_resource(file_in):
+    for peer in prs:
+        path = os.getcwd()+'/'+ peer
+        cmd = Thread(target=send_file,args=(path, peer, file_in))
+        cmd.start()
+        cmd.join()
+
+
+#
+tic = time.time()
+verbosity = False
+operation = False
+if '-v' in sys.argv:
+    verbosity = True
+
+if 'cmd_all' in sys.argv and len(sys.argv) >= 3:
+    cmd = sys.argv[2]
+    replies = command_all_peers(cmd, verbose=verbosity)
+    print '%d Replies Received' % len(replies)
+    operation = True
+
+if 'cmd' in sys.argv and len(sys.argv) >= 4:
+    host = sys.argv[2]
+    cmd = sys.argv[3]
+    command_peer(host, cmd, True)
+    operation = True
+
+if 'send' in sys.argv and len(sys.argv) >= 4:
+    host = sys.argv[2]
+    file_in = sys.argv[3]
+    send_file(os.getcwd(), host, file_in)
+    operation = True
+
+if 'get' in sys.argv and len(sys.argv) >= 4:
+    verbosity = True
+    ip = sys.argv[2]
+    try:
+        name = names[ip]
+    except KeyError:
+        print '[*] Unknown Host %s!'
+    file_name = sys.argv[3]
+    pw = retrieve_credentials(ip)
+    get_file_untrusted(ip, name, pw, file_name, verbosity)
+    operation = True
+
+if operation:
+    print '\033[1mFINISHED \033[31m[%ss Elapsed]\033[0m' % str(time.time()-tic)

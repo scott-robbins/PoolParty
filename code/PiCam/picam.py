@@ -31,7 +31,7 @@ if 'snap' in sys.argv:
         ip = sys.argv[2]
         host = utils.names[ip]
         pw = utils.retrieve_credentials(ip)
-        snap_cmd = 'raspistill -t 1 -o test.jpeg; ls -la test.jpeg'
+        snap_cmd = 'raspistill -t 1 -o test.jpeg'
         utils.ssh_command(ip, host, pw, snap_cmd, False)
         os.system('sshpass -p %s sftp pi@%s:/home/pi/test.jpeg' % (pw,ip))
         os.system('python client.py cmd %s "rm test.jpeg"' % ip)
@@ -50,7 +50,7 @@ if 'monitor' in sys.argv:
         snap_cmd = 'raspistill -t 1 -o test.jpeg; ls -la test.jpeg'
         utils.ssh_command(ip, host, pw, snap_cmd, False)
         os.system('sshpass -p %s sftp pi@%s:/home/pi/test.jpeg' % (pw, ip))
-        os.system('python client.py cmd %s "rm test.jpeg"' % ip)
+        os.system('python utils.py cmd %s "rm test.jpeg"' % ip)
 
         root = Tk.Tk()
         plt.style.use('dark_background')
