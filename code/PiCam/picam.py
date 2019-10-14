@@ -34,7 +34,7 @@ if 'snap' in sys.argv:
         snap_cmd = 'raspistill -t 1 -o test.jpeg'
         utils.ssh_command(ip, host, pw, snap_cmd, False)
         os.system('sshpass -p %s sftp pi@%s:/home/pi/test.jpeg' % (pw,ip))
-        os.system('python client.py cmd %s "rm test.jpeg"' % ip)
+        os.system('python utils.py cmd %s "rm test.jpeg"' % ip)
         print '\033[1m[%ss Elapsed]\033[0m' % str(time.time() - tic)
         print 'Opening Image...'
         os.system('eog test.jpeg')
@@ -92,5 +92,23 @@ if 'stream' in sys.argv:
     utils.ssh_command(ip, host, pw, snap_stream, True)
     time.sleep(0.1)
     os.system('mplayer -fps 200 -demuxer h264es ffmpeg://tcp://192.168.1.229://6666')
+
+if 'snap_save' in sys.argv:
+    date, localtime = utils.create_timestamp()
+    tag = localtime.split(':')[0] + localtime.split(':')[1] + localtime.split(':')[2] + '_' +\
+          date.split('/')[0] + date.split('/')[1] + date.split('/')[2]
+    img_name = 'picam_'+tag+'.jpg'
+    print 'Snapping %s' % img_name
+    snap_cmd = 'raspistill -t 1 -o test.jpeg'
+
+    if len(sys.argv) >= 3:
+        ip = sys.argv[2]
+        host = utils.names[ip]
+        pw = utils.retrieve_credentials(ip)
+        utils.ssh_command(ip, host, pw, snap_cmd, False)
+        os.system('sshpass -p %s sftp pi@%s:/home/pi/test.jpeg' % (pw, ip))
+        os.system('python utils.py cmd %s "rm test.jpeg"' % ip)
+        os.system('mv test.jpeg %s' % img_name)
+        print '\033[1m[%ss Elapsed]\033[0m' % str(time.time() - tic)
 
 
