@@ -64,15 +64,44 @@ def create_manifest(ip, hashes, table):
 
 def distribute_resources(distributed_hash_table, table_keys):
     for key in distributed_hash_table:
-        print 'Sending %s %d Files' % (key, len(distributed_hash_table[key]))
+        has_table = False
         file_list, status = create_manifest(key,distributed_hash_table, table_keys)
         if status:
             if key != utils.get_local_ip():
-                print 'Distributing...'
-                utils.ssh_command(key, utils.names[key],
+                reply = utils.ssh_command(key, utils.names[key],
                                   utils.retrieve_credentials(key),
-                                  'mkdir /tmp/Shared',False)
-                utils.send_file('/tmp/Shared', key, file_list)
+                                  'ls -la /tmp/Shared/%s' % file_list,False).replace('\n', '')
+                try:
+                    file_size = int(reply.split(' ')[4])
+                    if os.path.getsize(file_list) == file_size and file_size>0:
+                        print '%s Already Has HashTable' % key
+                        has_table = True
+                    else:
+                        print file_size
+                        print os.path.getsize(file_list)
+                        print file_list
+                except IndexError:
+                    pass
+                if not has_table:
+                    utils.ssh_command(key, utils.names[key],
+                                      utils.retrieve_credentials(key),
+                                      'mkdir /tmp/Shared', False)
+                    utils.send_file('/tmp/Shared', key, file_list)
+                else:
+                    print 'Compressing and Transferring Data to %s' % key
+                    os.mkdir(file_list.split('.')[0])
+                    for file_name in distributed_hash_table[key]:
+                        fid = table_keys[file_name].replace('"', '')
+                        if os.name == ('posix' or 'unix'):
+                            os.system('cp %s %s/' % (fid, file_list.split('.')[0]))
+                    if os.name == ('posix' or 'unix'):
+                        os.system('zip archive%s.zip --quiet -r %s' % (file_list.split('.')[0],
+                                                                  file_list.split('.')[0]))
+                        arch = 'rm %s; ls %s | while read n; do rm %s/$n; done; rm -rf %s' % \
+                               (file_list, file_list.split('.')[0],file_list.split('.')[0],file_list.split('.')[0])
+                        os.system(arch)
+                        # TODO: Make this parallel because it's quiet slow sequentially
+                        utils.send_file('/tmp/Shared', key, 'archive%s.zip'%file_list.split('.')[0])
 
 
 if __name__ == '__main__':
