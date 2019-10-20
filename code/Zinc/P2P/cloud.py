@@ -1,3 +1,4 @@
+import distribution
 import utils
 import time
 import sys
@@ -8,11 +9,13 @@ tic = time.time()
 
 class Cloud:
     files = {}
-    n_nodes = 0
+    n_nodes = 1
     nodes = utils.names
 
     def __init__(self):
         self.initialize()
+        live_ips = self.live_nodes()
+        distribution.build_distributed_hashtable(live_ips)
 
     def initialize(self):
         if not os.path.isdir('Shared'):
@@ -47,6 +50,19 @@ class Cloud:
                 n_files += 1
             print '[*] %d Files Logged in Shared Folder  [%ss Elapsed]' % \
                   (len(self.files.keys()), str(time.time() - tic))
+
+    def live_nodes(self):
+        utils.names[utils.get_local_ip()] = os.getlogin()
+        active = [utils.get_local_ip()]
+        for name in utils.prs:
+            node_name = utils.names[name]
+            reply = utils.ssh_command(name, node_name, utils.retrieve_credentials(name),
+                                      'whoami', False)
+            if reply.replace('\n', '') == node_name:
+                active.append(name)
+                print '%s is Active' % name
+        self.n_nodes = len(active)
+        return active
 
 
 if __name__ == '__main__':

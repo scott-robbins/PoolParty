@@ -72,9 +72,9 @@ def popup_examples(msg):
     os.system('notify-send "'+str(msg)+'"')
 
 
-def crawl_dir(file_path, h, verbose):
+def crawl_dir(file_path, hash, verbose):
     directory = {'dir': [], 'file': []}
-    hash = {}
+    hashes = {}
     folders = [file_path]
     while len(folders) > 0:
         direct = folders.pop()
@@ -84,14 +84,14 @@ def crawl_dir(file_path, h, verbose):
             if os.path.isfile(direct + '/' + item):
                 file_name = direct + "/" + item
                 directory['file'].append(file_name)
-                if h:
-                    hash['"'+file_name+'"'] = get_sha256_sum(file_name, False)
+                if hash:
+                    hashes['"'+file_name+'"'] = get_sha256_sum(file_name, False)
                 if verbose:
                     print '\033[3m- %s Added to Shared Folder\033[0m' % file_name
             else:
                 directory['dir'].append(direct + '/' + item)
                 folders.append(direct + '/' + item)
-    return directory, hash
+    return directory, hashes
 
 
 def get_sha256_sum(file_name, verbose):
