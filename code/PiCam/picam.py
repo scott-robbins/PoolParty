@@ -2,7 +2,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import Tkinter as Tk
-import numpy as np
 import utils
 import time
 import sys
@@ -24,6 +23,26 @@ def on_click(event):
         sp = [event.xdata, event.ydata]
 
 
+def snap_save():
+    if not os.path.isdir('PiCamImages'):
+        os.mkdir('PiCamImages')
+    date, localtime = utils.create_timestamp()
+    tag = localtime.split(':')[0] + localtime.split(':')[1] + localtime.split(':')[2] + '_' + \
+          date.split('/')[0] + date.split('/')[1] + date.split('/')[2]
+    img_name = 'picam_' + tag + '.jpg'
+    print 'Snapping %s' % img_name
+    snap_cmd = 'raspistill -t 1 -o test.jpeg'
+    ip = '192.168.1.229'
+    host = utils.names[ip]
+    pw = utils.retrieve_credentials(ip)
+    utils.ssh_command(ip, host, pw, snap_cmd, False)
+    os.system('sshpass -p %s sftp pi@%s:/home/pi/test.jpeg' % (pw, ip))
+    os.system('python utils.py cmd %s "rm test.jpeg"' % ip)
+    os.system('mv test.jpeg PiCamImages/%s' % img_name)
+    print '\033[1m[%ss Elapsed]\033[0m' % str(time.time() - tic)
+    return 'PiCamImages/'+img_name
+
+
 if 'snap' in sys.argv:
     if len(sys.argv) <= 2:
         print 'Incorrect Usage!'
@@ -40,7 +59,7 @@ if 'snap' in sys.argv:
         os.system('eog test.jpeg')
         os.system('rm test.jpeg')
 
-if 'monitor' in sys.argv:
+if 'monitor' in sys.argv:       # TODO: This looks really shitty...
     if len(sys.argv) <= 2:
         print 'Incorrect Usage!'
     if len(sys.argv) > 2:
@@ -83,7 +102,7 @@ if 'monitor' in sys.argv:
         canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
 
         f.canvas.callbacks.connect('button_press_event', on_click)
-        Tk.mainloop()
+        Tk.mainloop()   # Lo        # T #
 
 if 'stream' in sys.argv:
     ip = '192.168.1.229'
@@ -94,21 +113,5 @@ if 'stream' in sys.argv:
     os.system('mplayer -fps 200 -demuxer h264es ffmpeg://tcp://192.168.1.229://6666')
 
 if 'snap_save' in sys.argv:
-    date, localtime = utils.create_timestamp()
-    tag = localtime.split(':')[0] + localtime.split(':')[1] + localtime.split(':')[2] + '_' +\
-          date.split('/')[0] + date.split('/')[1] + date.split('/')[2]
-    img_name = 'picam_'+tag+'.jpg'
-    print 'Snapping %s' % img_name
-    snap_cmd = 'raspistill -t 1 -o test.jpeg'
-
-    if len(sys.argv) >= 3:
-        ip = sys.argv[2]
-        host = utils.names[ip]
-        pw = utils.retrieve_credentials(ip)
-        utils.ssh_command(ip, host, pw, snap_cmd, False)
-        os.system('sshpass -p %s sftp pi@%s:/home/pi/test.jpeg' % (pw, ip))
-        os.system('python utils.py cmd %s "rm test.jpeg"' % ip)
-        os.system('mv test.jpeg %s' % img_name)
-        print '\033[1m[%ss Elapsed]\033[0m' % str(time.time() - tic)
-
+    snap_save()
 

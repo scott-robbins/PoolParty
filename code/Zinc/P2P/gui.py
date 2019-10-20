@@ -1,4 +1,5 @@
 import Tkinter, Tkconstants, tkFileDialog
+import tkinter.ttk
 import Tkinter as Tk
 import numpy as np
 import utils
@@ -7,7 +8,13 @@ import sys
 import os
 
 tic = time.time()
+''' Setup GUI Window '''
+w = 1200
+h = 800
 root = Tk.Tk()
+buttons = []
+cv = Tk.Canvas(root, height=h, width=w)
+cv.pack()
 
 
 def discover_nodes():
@@ -36,20 +43,59 @@ def nodeEvent(event):
             cv.itemconfig(item, fill='blue')
         else:
             cv.itemconfig(item, fill='green')
-    print '%s,%s ' % (str(cx),str(cy))
+    # print '%s,%s ' % (str(cx),str(cy))
 
 
 def openFile():
     root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
                                                  filetypes=(("jpeg files", "*.jpg"),
                                                             ("all files", "*.*")))
-    print (root.filename)
+    # TODO: Determine FileType
+    #  Choose what to do based on file type
+
+
+def sendFile():
+    global buttons
+    root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
+                                                 filetypes=(("jpeg files", "*.jpg"),
+                                                            ("all files", "*.*")))
+    # TODO: How to determine which node to send to?
+    if os.path.isfile('enabled.txt'):
+        recipients = utils.swap('enabled.txt', True)
+        print 'Sending %s to %d Recipients' % (root.filename, len(recipients))
+        print recipients
 
 
 def addNode():
     host = str(raw_input('Enter IP: '))
     name = str(raw_input('Enter Username: '))
     # TODO: Get Password and use aes.py -d to add to KEYS/
+
+
+def addLiveNodesToGUI():
+    global buttons
+    nodes = discover_nodes()
+    colors = ['green', '#00ff00']
+    index = 1
+    for node_handle in nodes.keys():
+        x1 = 10
+        y1 = index * 100
+        x2 = x1 + 100
+        y2 = y1 + 50
+        node_button = cv.create_rectangle(x1, y1, x2, y2, fill=colors[0], tags="clickable")
+        node_title = cv.create_text((x2 - x1) / 2 + 10, y1 + 20, text=node_handle, font=("Papyrus", 10), fill='black')
+        cv.bind(node_button, '<Button-1>', nodeEvent)
+        index += 1
+        buttons.append(node_button)
+    cv.bind('<Button-1>', nodeEvent)
+
+
+def addClock():
+    # Get Date and Time for Clock Display
+    date, localtime = utils.create_timestamp()
+    timestamp = date + '\t' + localtime
+    cv.create_rectangle(425, 0, 730, 35, fill='#2200bf')
+    cv.create_text(575, 15, text=timestamp, font=('Papyrus', 12), fill='white')
 
 
 def addMenuBar():
@@ -60,69 +106,31 @@ def addMenuBar():
     menu.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="New Node", command=addNode)
     filemenu.add_command(label="Open...", command=openFile)
+    filemenu.add_command(label='Send File', command=sendFile)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=root.quit)
     helpmenu = Tk.Menu(menu)
     menu.add_cascade(label="Help", menu=helpmenu)
 
 
-def evaluate():
-    print 'EVALUATING NODE FLOW WINDOW'
+def initialize():
+    # Add Menu/Help Bar
+    addMenuBar()
 
-# def submit():
-#     cmd = v.get()
-#     print 'Command Window Contains:'
-#     print cmd
-#     entry.delete(0, len(list(cmd)))
+    # Add Quit Button
+    button = Tk.Button(master=cv, text='Quit', command=sys.exit)
+    button.place(x=0, y=0, relwidth=0.07, relheight=0.06)
+
+    # Add a Clock to show date and time
+    addClock()
 
 
-w = 1200
-h = 800
-cv = Tk.Canvas(root, height=h, width=w)
-cv.pack()
+# Initialize The GUI Objects
+initialize()
 
-# Add Menu/Help Bar
-addMenuBar()
-
-# Add Quit Button
-button = Tk.Button(master=cv, text='Quit', command=sys.exit)
-button.place(x=0, y=0, relwidth=0.07, relheight=0.06)
-
-# Add Title
-title = Tk.Label(cv,text='P2P_CONTROL_DASHBOARD',bg='#00fff0')
-title.place(x=w/2-150, h=0,relwidth=0.25, relheight=0.06)
 
 # Check Active Nodes, and add to GUI
-# Discover nodes
-nodes = discover_nodes()
-colors = ['green', '#00ff00']
-index = 1
-buttons = []
-for node_handle in nodes.keys():
-    x1 = 10
-    y1 = index * 100
-    x2 = x1 + 100
-    y2 = y1 + 50
-    node_button = cv.create_rectangle(x1, y1, x2, y2, fill=colors[0], tags="clickable")
-    node_title = cv.create_text((x2 - x1) / 2 + 10, y1 + 20, text=node_handle, font=("Papyrus", 10), fill='black')
-    cv.bind(node_button, '<Button-1>', nodeEvent)
-    index += 1
-    buttons.append(node_button)
-cv.bind('<Button-1>', nodeEvent)
+addLiveNodesToGUI()
 
-''' NODE FLOW '''
-interp = Tk.Canvas(cv,bg='#f1f1f1')
-interp.place(x=w/8, y=100, relwidth=0.6, relheight=0.4)
-interp.bind('<>', )
-
-# Add Command Window
-# v = Tk.StringVar()
-# entry_widget = Tk.Entry(master=cv)
-# box = Tk.Text(cv, height=10, width=50, bg='light gray')
-# entry = Tk.Entry(cv, width=65, bd=5, textvariable=v)
-# box.place(x=0, y=y2+50,relwidth=0.35,relheight=0.20)
-# entry.place(x=0, y=y2+30,relwidth=0.35,relheight=0.20)
-# execute = Tk.Button(master=cv, text='Submit', command=submit)
-# execute.place(x=0,y=y2+200,relwidth=0.1, relheight=0.1)
 
 Tk.mainloop()
