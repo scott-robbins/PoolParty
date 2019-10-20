@@ -14,8 +14,12 @@ class Cloud:
 
     def __init__(self):
         self.initialize()
+        # Discover nodes are online
         live_ips = self.live_nodes()
-        distribution.build_distributed_hashtable(live_ips)
+        # Create a distributed table of hashes for the files in Shared/ folder
+        distributed_table, table_data = distribution.build_distributed_hashtable(live_ips)
+        # Give nodes list of hashes each one is responsible for storing in distributed system
+        distribution.distribute_resources(distributed_table, table_data)
 
     def initialize(self):
         if not os.path.isdir('Shared'):
