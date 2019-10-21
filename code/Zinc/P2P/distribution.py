@@ -7,7 +7,7 @@ import sys
 import os
 
 tic = time.time()
-DEBUG = True
+DEBUG = False
 
 
 def load_hashes():

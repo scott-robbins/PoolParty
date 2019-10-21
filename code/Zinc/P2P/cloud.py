@@ -82,6 +82,9 @@ class Cloud:
                 for peer in self.distributed_table.keys():
                     if target_hash in self.distributed_table[peer]:
                         print '%s Has %s' % (peer, file_name)
+                        break
+        print '[%ss Elapsed]' % str(time.time()-tic)
+
 
 if __name__ == '__main__':
     myCloud = Cloud()
