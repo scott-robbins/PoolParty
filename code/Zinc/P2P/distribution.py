@@ -74,12 +74,11 @@ def compress_and_send(file_list, distributed_hash_table, table_keys, key):
         arch = 'rm %s; ls %s | while read n; do rm %s/$n; done; rm -rf %s' % \
                (file_list, ipid, ipid, ipid)
         os.system(arch)
-        utils.send_file('/tmp/Shared', key, 'archive.zip')
-        os.remove('archive'+ipid+'.zip')
+        utils.send_file('/tmp/Shared', key, 'archive'+ipid+'.zip')
 
 
 def distribute_resources(distributed_hash_table, table_keys):
-    pool = ThreadPool(processes=3)
+    # pool = ThreadPool(processes=3)
     for key in distributed_hash_table:
         has_table = False
         file_list, status = create_manifest(key,distributed_hash_table, table_keys)
@@ -100,12 +99,21 @@ def distribute_resources(distributed_hash_table, table_keys):
                 except IndexError:
                     pass
                 if not has_table:
-                    utils.ssh_command(key, utils.names[key],
-                                      utils.retrieve_credentials(key),
-                                      'mkdir /tmp/Shared', False)
+                    folders = utils.ssh_command(key, utils.names[key],
+                                  utils.retrieve_credentials(key),
+                                  'ls /tmp/', False)
+                    if 'Shared' not in folders.split('\n'):
+                        utils.ssh_command(key, utils.names[key],
+                                          utils.retrieve_credentials(key),
+                                          'mkdir /tmp/Shared', False)
                     utils.send_file('/tmp/Shared', key, file_list)
+                    # If they don't have table, they need new zip archive
+                    rmcmd = 'rm /tmp/Shared/archive' + file_list.split('.')[0] + '.zip'
+                    utils.ssh_command(key, utils.names[key],
+                                      utils.retrieve_credentials(key), rmcmd, False)
+                    compress_and_send(file_list, distributed_hash_table, table_keys, key)
                 os.remove(file_list)
-                pool.apply_async(compress_and_send, (file_list, distributed_hash_table, table_keys, key))
+    print '[*] Shared Folder Successfully Distributed to Nodes'
 
 
 if __name__ == '__main__':

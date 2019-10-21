@@ -64,7 +64,7 @@ class Cloud:
                                       'whoami', False)
             if reply.replace('\n', '') == node_name:
                 active.append(name)
-                print '%s is Active' % name
+                print '[*] %s is Active' % name
         self.n_nodes = len(active)
         return active
 
