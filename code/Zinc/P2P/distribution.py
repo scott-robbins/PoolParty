@@ -7,17 +7,18 @@ import sys
 import os
 
 tic = time.time()
-file_hashes = {}
 DEBUG = True
 
 
 def load_hashes():
+    file_hashes = {}
+    lookup = {}
     if os.path.isfile('sharedfiles.txt'):
         for line in utils.swap('sharedfiles.txt', False):
             file_name = line.split(' : ')[0]
             file_hash = line.split(' : ')[1]
             file_hashes[int(file_hash, 32)] = file_name
-
+            lookup[file_name] = int(file_hash, 32)
     hash_nums = np.array(file_hashes.keys())
     minima = hash_nums.min()
     maxima = hash_nums.max()
@@ -26,12 +27,12 @@ def load_hashes():
         print '%d Hashes Total' % len(file_hashes.values())
         print 'HashMax: %d' % maxima
         print 'HashMin: %d' % minima
-    return hash_nums, minima, maxima, file_hashes
+    return hash_nums, minima, maxima, file_hashes, lookup
 
 
 def build_distributed_hashtable(nodes):
     # Load Hashes of Shared Files
-    hashes, minimum, maximum, table = load_hashes()
+    hashes, minimum, maximum, table, lut = load_hashes()
     buckets = np.linspace(minimum, maximum, len(nodes))
 
     delta = np.diff(buckets)[0]
@@ -44,13 +45,12 @@ def build_distributed_hashtable(nodes):
         for bin in buckets:
             if bin-delta/2 <= value <= bin +delta/2:
                 hash_table[distributor[bin]].append(value)
-    print hash_table.keys()
     total_sorted = 0
     for k in hash_table.keys():
         total_sorted += len(hash_table[k])
-    print '%d Files Sorted into %d Bins [%d Files Given]' %\
+    print '[*] %d Files Sorted into %d Bins [%d Files Given]' %\
           (total_sorted, len(hash_table.keys()), len(hashes))
-    return hash_table, table
+    return hash_table, table, lut
 
 
 def create_manifest(ip, hashes, table):
@@ -62,7 +62,24 @@ def create_manifest(ip, hashes, table):
     return file_name, os.path.isfile(file_name)
 
 
+def compress_and_send(file_list, distributed_hash_table, table_keys, key):
+    ipid = file_list.split('.')[0]
+    os.mkdir(ipid)
+    for file_name in distributed_hash_table[key]:
+        fid = table_keys[file_name].replace('"', '')
+        if os.name == ('posix' or 'unix'):
+            os.system('cp %s %s/' % (fid, ipid))
+    if os.name == ('posix' or 'unix'):
+        os.system('zip archive'+ipid+'.zip --quiet -r %s' % ipid)
+        arch = 'rm %s; ls %s | while read n; do rm %s/$n; done; rm -rf %s' % \
+               (file_list, ipid, ipid, ipid)
+        os.system(arch)
+        utils.send_file('/tmp/Shared', key, 'archive.zip')
+        os.remove('archive'+ipid+'.zip')
+
+
 def distribute_resources(distributed_hash_table, table_keys):
+    pool = ThreadPool(processes=3)
     for key in distributed_hash_table:
         has_table = False
         file_list, status = create_manifest(key,distributed_hash_table, table_keys)
@@ -87,21 +104,8 @@ def distribute_resources(distributed_hash_table, table_keys):
                                       utils.retrieve_credentials(key),
                                       'mkdir /tmp/Shared', False)
                     utils.send_file('/tmp/Shared', key, file_list)
-                else:
-                    print 'Compressing and Transferring Data to %s' % key
-                    os.mkdir(file_list.split('.')[0])
-                    for file_name in distributed_hash_table[key]:
-                        fid = table_keys[file_name].replace('"', '')
-                        if os.name == ('posix' or 'unix'):
-                            os.system('cp %s %s/' % (fid, file_list.split('.')[0]))
-                    if os.name == ('posix' or 'unix'):
-                        os.system('zip archive%s.zip --quiet -r %s' % (file_list.split('.')[0],
-                                                                  file_list.split('.')[0]))
-                        arch = 'rm %s; ls %s | while read n; do rm %s/$n; done; rm -rf %s' % \
-                               (file_list, file_list.split('.')[0],file_list.split('.')[0],file_list.split('.')[0])
-                        os.system(arch)
-                        # TODO: Make this parallel because it's quiet slow sequentially
-                        utils.send_file('/tmp/Shared', key, 'archive%s.zip'%file_list.split('.')[0])
+                os.remove(file_list)
+                pool.apply_async(compress_and_send, (file_list, distributed_hash_table, table_keys, key))
 
 
 if __name__ == '__main__':

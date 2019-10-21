@@ -17,9 +17,9 @@ class Cloud:
         # Discover nodes are online
         live_ips = self.live_nodes()
         # Create a distributed table of hashes for the files in Shared/ folder
-        distributed_table, table_data = distribution.build_distributed_hashtable(live_ips)
+        self.distributed_table, self.table_data, self.LUT = distribution.build_distributed_hashtable(live_ips)
         # Give nodes list of hashes each one is responsible for storing in distributed system
-        distribution.distribute_resources(distributed_table, table_data)
+        distribution.distribute_resources(self.distributed_table, self.table_data)
 
     def initialize(self):
         if not os.path.isdir('Shared'):
@@ -68,7 +68,24 @@ class Cloud:
         self.n_nodes = len(active)
         return active
 
+    @staticmethod
+    def delete_all_data():
+        cmd = 'ls /tmp/Shared/* | while read n; do rm /tmp/Shared/$n; done'
+        utils.command_all_peers(cmd, True)
+
+    def find_file(self, file_name):
+        for name in self.table_data.values():
+            if file_name in name.replace('"','').split('/') or file_name==name:
+                print 'Found %s' % file_name
+                target_hash = self.LUT[name]
+                print 'Searching Hashtable for %s...' % target_hash
+                for peer in self.distributed_table.keys():
+                    if target_hash in self.distributed_table[peer]:
+                        print '%s Has %s' % (peer, file_name)
 
 if __name__ == '__main__':
     myCloud = Cloud()
 
+    if 'search' in sys.argv and len(sys.argv) >= 3:
+        target = sys.argv[2]
+        myCloud.find_file(target)
