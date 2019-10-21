@@ -19,3 +19,11 @@ Here is an example of searching for a file once the Shared folder has been index
 distributed among available peers.
 
 ![search](https://raw.githubusercontent.com/scott-robbins/PoolParty/master/code/Zinc/P2P/distributed_file_search.png)
+
+For this example I put the source code of FFMpeg, an **extremely** useful media conversion tool.
+The source contains hundreds of folders and subfolders containing thousands of various drivers and
+files. I figured this would represent a pretty complex example set of data for storage on a network.
+
+While the entire thing can be hashed, zipped and distributed in a few minutes, and searches take seconds, 
+surely elements of this will not scale well when the file sizes themselves get larger (the example 
+data contains thousands of very small files in complex directory tree, but the files are small). 
