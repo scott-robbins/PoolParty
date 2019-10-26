@@ -37,14 +37,23 @@ def tick():
     root.after(scroll_speed, tick)
 
 
+def get_client_location():
+    location = ''
+    cmd = 'locate */PoolParty/*/client.py >> clients.txt'
+    results = utils.cmd(cmd)
+    location = results.split('\n').pop()
+    print location
+    return location
+
+
 def pull_price_data():
     prices = []
     moving_avg = []
     deltas = []
     stamps = []
-    port = np.random.random_integers(4000, 65000, 1)[0]  # Randomized Port Helps prevent socket creation errs
-    os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
-              " cat ~/Desktop/PoolParty/code/BTC/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port, port))
+    utils.get_file_untrusted('192.168.1.200', 'root',
+                             utils.retrieve_credentials('192.168.1.200'),
+                             '~/Desktop/PoolParty/code/BTC/btc_prices.txt', True)
 
     for line in utils.swap('btc_prices.txt', False):
         try:
@@ -216,11 +225,6 @@ def basic_logic():
 
 
 if 'run' in sys.argv:
-    try:
-        os.remove('btc_prices.txt')
-    except IOError:
-        pass
-
     root = Tk.Tk()
     plt.style.use('dark_background')
     f = Figure(figsize=(5, 4), dpi=100)
@@ -236,11 +240,14 @@ if 'run' in sys.argv:
     moving_avg = []
     deltas = []
     stamps = []
+    location = '~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt'
     if not os.path.isfile('btc_prices.txt'):
         port = np.random.random_integers(4000,65000,1)[0]
-        os.system("rm btc_prices.txt; nc -l %d >> btc_prices.txt & python client.py cmd 192.168.1.200 'sleep 1;"
-                  " cat ~/Desktop/PoolParty/code/BTC/btc_prices.txt | nc -q 2 192.168.1.153 %d'" % (port,port))
+        utils.get_file_untrusted('192.168.1.200',   'root',
+                                 utils.retrieve_credentials('192.168.1.200'),
+                                 '~/Desktop/PoolParty/code/BTC/btc_prices.txt', True)
 
+    ''' After Recieving the New price data file, parse it. '''
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
@@ -258,12 +265,15 @@ if 'run' in sys.argv:
     padata = np.array(moving_avg)
     setpoint = float(open('setpoint.txt', 'r').readlines().pop())
 
-    if not os.path.isfile(os.getcwd()+'/btc_prices.txt'):
+    if os.path.isfile('btc_prices.txt') and len(prices) > 0:
         print '\033[1mBTC Price Data Log \033[3mis NOT present!\033[0m'
         host = raw_input('Enter Name of Host \033[1mWith\033[0m btc_prices.txt: ')
         if host in utils.names:
-            cmd = 'python client.py get %s %s -q' % (host, '/root/Desktop/PoolParty/code/btc_prices.txt')
+            location = '~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt'
+            cmd = 'python client.py get %s %s -q' % (host, location)
             os.system(cmd)
+    else:
+        print 'Price Data Missing!'
     try:
         estimate = padata.mean() + np.array(np.diff(pdata)).mean()
         print '\033[1mPRICE: $%s\033[0m' % str(pdata.flatten()[-1])
@@ -280,6 +290,7 @@ if 'run' in sys.argv:
     a.set_ylabel('Price $ [USD]')
     plt.show()
 
+    price = pdata[len(pdata)-1]
     if price > aprice:  # Price is above Moving Average
         mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
     elif price < aprice:  # Price is below moving average

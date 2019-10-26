@@ -38,7 +38,7 @@ def update_all(verbose):
     for host in peers:
         name = names[host]
         pwrd = utils.retrieve_credentials(host)
-        cmd = 'cd ~/Desktop/RAXion; sudo git pull origin'
+        cmd = 'sudo git pull origin'
         utils.ssh_command(host,name,pwrd,cmd,verbose)
 
 
