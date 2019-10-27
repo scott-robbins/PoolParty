@@ -57,15 +57,18 @@ def pull_btc_price_data():
             except IndexError:
                 pass
         tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '     BTC PRICE: $' + str(price)
+        a.cla()
         a.plot(np.array(prices))
         a.plot(np.array(moving_avg))
         print '%d Lines of Live BTC Price Data Accumulated' % len(utils.swap('btc_prices.txt', False))
         print '%d Prices Logged' % len(prices)
+        if os.path.isfile('setpoint.txt'):
+            setpoint = float(utils.swap('setpoint.txt', False).pop().replace('\n', '').replace(' ', ''))
+            a.plot(np.ones((len(prices),1))*setpoint)
         plt.show()
         canvas.draw()
         canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
         canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
-        f.canvas.callbacks.connect('button_press_event', pull_btc_price_data)
 
     try:
         ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
