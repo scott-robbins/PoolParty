@@ -18,7 +18,7 @@ a = f.add_subplot(111)
 ticker_tape = Tk.StringVar()
 ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
 scroll_speed = 100
-a.grid()
+tic = time.time()
 
 
 def click_event(event):
@@ -58,20 +58,28 @@ def pull_btc_price_data():
                 pass
         tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '     BTC PRICE: $' + str(price)
         levels = analysis.decision_tree_levels(prices, depth=5)
+        prediction, y_lo, y_up, X, xx = analysis.quantitative_prediction(prices, depth=3,show=False)
+        a.cla()
+        a.grid()
         a.plot(np.array(prices), 'r', label='BTC Price [$]')
-        a.plot(np.array(moving_avg), 'b', label='Moving Avg.')
+        a.plot(np.array(moving_avg), 'y', label='Moving Avg.')
         a.plot(levels, 'g', label='Decision Boundaries')
+        # ################ Highlight 90% Confidence Region(s) ################ #
+        a.fill(np.concatenate([xx, xx[::-1]]),
+                 np.concatenate([y_up, y_lo[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='90% prediction interval')
+        # ##################################################################### #
         a.legend()
         print '%d Lines of Live BTC Price Data Accumulated' % len(utils.swap('btc_prices.txt', False))
         print '%d Prices Logged' % len(prices)
         if os.path.isfile('setpoint.txt'):
             setpoint = float(utils.swap('setpoint.txt', False).pop().replace('\n', '').replace(' ', ''))
             a.plot(np.ones((len(prices),1))*setpoint)
-        plt.show()
+
         canvas.draw()
         canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
         canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
-
+        plt.show()
     try:
         ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
         if price > avged:  # Price is above Moving Average
@@ -86,10 +94,11 @@ def pull_btc_price_data():
             mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#0000ff', bg='#000000')
             ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
-        mkt_state.place(x=550, y=0, relwidth=0.15, relheight=0.1)
+        mkt_state.place(x=600, y=0, relwidth=0.15, relheight=0.1)
     except UnboundLocalError:
         pass
     tick()
+    root.after(1000 * 45, pull_btc_price_data)  # Continuously update figure
 
 
 def tick():
@@ -110,5 +119,6 @@ canvas.draw()
 canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
 canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
 f.canvas.callbacks.connect('button_press_event', click_event)
+
 
 Tk.mainloop()

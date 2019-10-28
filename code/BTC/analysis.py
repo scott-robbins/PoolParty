@@ -1,3 +1,4 @@
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,6 +6,8 @@ import utils
 import time
 import sys
 import os
+
+tic = time.time()
 
 
 def get_btc_data():
@@ -44,20 +47,61 @@ def decision_tree_levels(p, depth):
     return y_1
 
 
+def quantitative_prediction(price_data, depth, show):
+    a = 0.95
+    clf = GradientBoostingRegressor(loss='quantile', alpha=a,
+                                    n_estimators=250, max_depth=depth,
+                                    learning_rate=.1, min_samples_leaf=9,
+                                    min_samples_split=9)
+    X = np.array(range(len(price_data)))[:, np.newaxis]
+    xx = np.atleast_2d(range(len(price_data))).T
+    xx = xx.astype(np.float32)
+    clf.fit(X, price_data)
+    y_up = clf.predict(xx)
+    clf.set_params(alpha=1.0 - a)
+    clf.fit(X, price_data)
+    y_lo = clf.predict(xx)
+    clf.set_params(loss='ls')
+    clf.fit(X, price_data)
+    # Make the prediction on the meshed x-axis
+    pred = clf.predict(xx)
+    print len(pred)
+    if show:
+        # plt.plot(xx, price_data,'g:', label='Price')
+        plt.plot(X, price_data, 'r')
+        plt.legend(loc='upper left')
+        plt.fill(np.concatenate([xx, xx[::-1]]),
+                 np.concatenate([y_up, y_lo[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='90% prediction interval')
+        plt.show()
+    return pred, y_lo, y_up, X, xx
+
+
 if 'run' in sys.argv:
     if not os.path.isfile('btc_prices.txt'):
         get_btc_data()
     pdata, mavg, dprice, dates = parse_data()
-    plt.plot(np.array(pdata), 'b', label='btc price [$]')
-    plt.plot(np.array(mavg), 'r', label='moving avg.')
+    # plt.plot(np.array(pdata), 'b', label='btc price [$]')
+    # plt.plot(np.array(mavg), 'r', label='moving avg.')
 
     if 'tree' in sys.argv:
         # Use Decision Tree Regression to Set Limits
         fit = decision_tree_levels(pdata)
         plt.plot(fit, 'g', label='Decision Tree')
 
-    plt.legend()
-    plt.grid()
-    plt.show()
+    if '-q' in sys.argv:
+        X = np.array(range(len(pdata)))[:, np.newaxis]
+        xx = np.atleast_2d(np.linspace(0, 10, len(pdata))).T
+        xx = xx.astype(np.float32)
+        pred, y_lo, y_hi = quantitative_prediction(pdata, 3, True)
+        plt.plot(X, pdata, 'r')
+        plt.legend(loc='upper left')
+        plt.fill(np.concatenate([xx, xx[::-1]]),
+                 np.concatenate([y_hi, y_lo[::-1]]),
+                 alpha=.5, fc='b', ec='None', label='90% prediction interval')
+        plt.show()
+    # plt.legend()
+    # plt.grid()
+    # plt.show()
 
 
