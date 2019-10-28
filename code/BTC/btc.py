@@ -85,7 +85,7 @@ def pull_btc_price_data():
         if price > avged:  # Price is above Moving Average
             mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#00ff00', bg='#000000')
-            ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
+            ticker.place(x=200, y=0, relwidth=0.2, relheight=0.1)
         elif price < avged:  # Price is below moving average
             mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#ff0000', bg='#000000')
@@ -98,7 +98,7 @@ def pull_btc_price_data():
     except UnboundLocalError:
         pass
     tick()
-    root.after(1000 * 45, pull_btc_price_data)  # Continuously update figure
+    root.after(1000 * 30, pull_btc_price_data)  # Continuously update figure
 
 
 def tick():
@@ -110,9 +110,10 @@ def tick():
 # Add Buttons
 button = Tk.Button(master=root, text='Quit', command=sys.exit)
 button.place(x=0, y=0, relwidth=0.1, relheight=0.1)
-update = Tk.Button(master=root, text='Update', command=pull_btc_price_data)
-update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
 canvas = FigureCanvasTkAgg(f, master=root)
+# update = Tk.Button(master=root, text='Update', command=pull_btc_price_data)
+# update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
+
 
 pull_btc_price_data()
 canvas.draw()
