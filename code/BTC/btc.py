@@ -76,10 +76,6 @@ def pull_btc_price_data():
             setpoint = float(utils.swap('setpoint.txt', False).pop().replace('\n', '').replace(' ', ''))
             a.plot(np.ones((len(prices),1))*setpoint)
 
-        canvas.draw()
-        canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
-        canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
-        plt.show()
     try:
         ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
         if price > avged:  # Price is above Moving Average
@@ -97,7 +93,13 @@ def pull_btc_price_data():
         mkt_state.place(x=600, y=0, relwidth=0.15, relheight=0.1)
     except UnboundLocalError:
         pass
-    tick()
+
+    canvas.draw()
+    canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
+    canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
+    plt.show()
+
+    root.after(1000, tick)
     root.after(1000 * 30, pull_btc_price_data)  # Continuously update figure
 
 
