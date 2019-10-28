@@ -3,6 +3,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import Tkinter as Tk
 import numpy as np
+import analysis
 import utils
 import time
 import sys
@@ -29,6 +30,7 @@ def click_event(event):
         except IOError:
             print '** Setpoint Unchanged **'
             pass
+        pull_btc_price_data()
 
 
 def pull_btc_price_data():
@@ -38,10 +40,8 @@ def pull_btc_price_data():
     stamps = list()
     if os.path.isfile('btc_prices.txt'):
         os.remove('btc_prices.txt')
-    dedicated = '192.168.1.200'
-    loc = '/root/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt'
     cmd = "nc -l 6666 >> btc_prices.txt & python utils.py cmd 192.168.1.200 " \
-          "'cat ~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt | nc -q 3 192.168.1.153 6666';"
+          "'cat ~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt | nc -q 3 192.168.1.153 6666';clear"
     os.system(cmd)
     if len(utils.swap('btc_prices.txt', False))> 1:
         for line in utils.swap('btc_prices.txt', False):
@@ -57,9 +57,11 @@ def pull_btc_price_data():
             except IndexError:
                 pass
         tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '     BTC PRICE: $' + str(price)
-        a.cla()
-        a.plot(np.array(prices))
-        a.plot(np.array(moving_avg))
+        levels = analysis.decision_tree_levels(prices, depth=5)
+        a.plot(np.array(prices), 'r', label='BTC Price [$]')
+        a.plot(np.array(moving_avg), 'b', label='Moving Avg.')
+        a.plot(levels, 'g', label='Decision Boundaries')
+        a.legend()
         print '%d Lines of Live BTC Price Data Accumulated' % len(utils.swap('btc_prices.txt', False))
         print '%d Prices Logged' % len(prices)
         if os.path.isfile('setpoint.txt'):
