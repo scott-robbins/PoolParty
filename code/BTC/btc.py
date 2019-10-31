@@ -17,7 +17,7 @@ f = Figure(figsize=(5, 4), dpi=100)
 a = f.add_subplot(111)
 ticker_tape = Tk.StringVar()
 ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
-scroll_speed = 100
+scroll_speed = 400
 tic = time.time()
 
 
@@ -33,7 +33,14 @@ def click_event(event):
         pull_btc_price_data()
 
 
+def tick():
+    tick.msg = tick.msg[1:] + tick.msg[0]
+    ticker_tape.set(tick.msg)
+    root.after(scroll_speed, tick)
+
+
 def pull_btc_price_data():
+
     prices = list()
     deltas = list()
     moving_avg = list()
@@ -99,14 +106,8 @@ def pull_btc_price_data():
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
     plt.show()
 
-    root.after(1000, tick)
-    root.after(1000 * 30, pull_btc_price_data)  # Continuously update figure
-
-
-def tick():
-    tick.msg = tick.msg[1:] + tick.msg[0]
-    ticker_tape.set(tick.msg)
-    root.after(scroll_speed, tick)
+    tick()
+    root.after(1000 * 60, pull_btc_price_data)  # Continuously update figure
 
 
 # Add Buttons
@@ -122,6 +123,6 @@ canvas.draw()
 canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
 canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
 f.canvas.callbacks.connect('button_press_event', click_event)
-
+root.after(1000 * 30, pull_btc_price_data)  # Continuously update figure
 
 Tk.mainloop()

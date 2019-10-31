@@ -16,6 +16,11 @@ Width = 600
 Height = 800
 scroll_speed = 200
 
+root = Tk.Tk()
+ticker_tape = Tk.StringVar()
+ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
+
+
 
 def on_click(event):
     if event.inaxes is not None:
@@ -53,7 +58,7 @@ def pull_price_data():
     stamps = []
     utils.get_file_untrusted('192.168.1.200', 'root',
                              utils.retrieve_credentials('192.168.1.200'),
-                             '~/Desktop/PoolParty/code/BTC/btc_prices.txt', True)
+                             '~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt', True)
 
     for line in utils.swap('btc_prices.txt', False):
         try:
@@ -70,26 +75,16 @@ def pull_price_data():
     return prices, moving_avg, deltas, stamps
 
 
-def plot_data():
-    f = plt.figure()
-    ''' Plot BTC Price data and Moving Average'''
-    # plt.style.reload_library()
-    plt.grid()
-    data, mavg, diffs, dates = pull_price_data()
-    plt.plot(data,color='red', linestyle='--', label='Price')
-    plt.plot(mavg, color='cyan', linestyle='-.', label='Moving Average')
-    plt.title('BTC Price Inspector')
-    plt.ylabel('Price [$ USD]')
-    ''' Data the Decision_Tree Decision Boundaries'''
-    x = np.array(range(len(prices)))
-    regr_1 = DecisionTreeRegressor(max_depth=4)
-    X = x[:, np.newaxis]
-    y = prices
-    regr_1.fit(X, y)
-    y_1 = regr_1.predict(X)
-    a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
-    # Show that shit
-    plt.show()
+def basic_logic():
+    setpoint = float(open('setpoint.txt', 'r').readlines().pop())
+    if setpoint < prices.pop():
+        print 'Setpoint is below current price'
+    if setpoint > prices.pop():
+        print 'Setpoint is above current price'
+    if prices.pop() < moving_avg.pop():
+        print '\033[1mPrice is \033[31mBELOW \033m0m\033[1m Moving Average !!\033[0m'
+    if prices.pop() == pdata.max():
+        print '** 033[1mPrice is at an \033[32mAT ALL TIME HIGH \033m0m\033[1m Moving Average **\033[0m'
 
 
 def update_logs():
@@ -98,7 +93,9 @@ def update_logs():
     prices, moving_avg, deltas, stamps = pull_price_data()
     setpoint = float(utils.swap('setpoint.txt', False).pop())
     os.system('clear')
-
+    if len(stamps):
+        tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '     BTC PRICE: $' + str(price)
+        tick()
     # plt.style.use('dark_background')
     # a.clf()
 
@@ -161,9 +158,6 @@ def update_logs():
     y_1 = regr_1.predict(X)
     a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
 
-    tick.msg = '    DATE: '+stamps.pop().replace(']', '')+'     BTC PRICE: $'+str(price)
-    tick()
-
     ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
     if price > aprice: # Price is above Moving Average
         mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
@@ -182,7 +176,6 @@ def update_logs():
     ''' Add an inspection button, which pops a matplotlib figure which can be more closely analyzed'''
     plot_button = Tk.Button(master=root, text='Inspect Data', command=plot_data)
     plot_button.place(x=800, y=0, relwidth=0.125, relheight=0.1)
-
     date, ts = utils.create_timestamp()
     print ts
 
@@ -207,25 +200,7 @@ def update_logs():
     plt.show()  # TODO: Automatically update the display every 30 seconds?
 
 
-def resize_window():
-    print 'RESIZE'
-
-
-def basic_logic():
-
-    setpoint = float(open('setpoint.txt', 'r').readlines().pop())
-    if setpoint < prices.pop():
-        print 'Setpoint is below current price'
-    if setpoint > prices.pop():
-        print 'Setpoint is above current price'
-    if prices.pop() < moving_avg.pop():
-        print '\033[1mPrice is \033[31mBELOW \033m0m\033[1m Moving Average !!\033[0m'
-    if prices.pop() == pdata.max():
-        print '** 033[1mPrice is at an \033[32mAT ALL TIME HIGH \033m0m\033[1m Moving Average **\033[0m'
-
-
 if 'run' in sys.argv:
-    root = Tk.Tk()
     plt.style.use('dark_background')
     f = Figure(figsize=(5, 4), dpi=100)
     a = f.add_subplot(111)
@@ -241,39 +216,38 @@ if 'run' in sys.argv:
     deltas = []
     stamps = []
     location = '~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt'
+
     if not os.path.isfile('btc_prices.txt'):
-        port = np.random.random_integers(4000,65000,1)[0]
-        utils.get_file_untrusted('192.168.1.200',   'root',
+        print '\033[1mBTC Price Data Log \033[3mis NOT present!\033[0m'
+        host = raw_input('Enter Name of Host \033[1mWith\033[0m btc_prices.txt: ')
+        # location = '~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt'
+        utils.get_file_untrusted('192.168.1.200', 'root',
                                  utils.retrieve_credentials('192.168.1.200'),
-                                 '~/Desktop/PoolParty/code/BTC/btc_prices.txt', True)
+                                 location, True)
 
     ''' After Recieving the New price data file, parse it. '''
+    lns = 0
     for line in utils.swap('btc_prices.txt', False):
         try:
             price = float(line.replace('\t', ' ').split('$')[1].replace(' ', ''))
-            aprice = float(line.split('\t')[1].replace('$', '').replace(' ', ''))
+            aprice = float(line.split('$', '')[2].replace(' ', ''))
             delta = float(line.split('\t')[2].replace('$', '').replace(' ', ''))
             dates = line.split('\t')[3].replace('$', '').split(' - ')[1]
             stamps.append(dates)
             prices.append(price)
             moving_avg.append(aprice)
             deltas.append(delta)
+            lns += 1
         except IndexError:
             pass
-
+        except TypeError:
+            pass
+    print lns
+    pdata = np.array(prices)
     pdata = np.array(prices)
     padata = np.array(moving_avg)
     setpoint = float(open('setpoint.txt', 'r').readlines().pop())
 
-    if os.path.isfile('btc_prices.txt') and len(prices) > 0:
-        print '\033[1mBTC Price Data Log \033[3mis NOT present!\033[0m'
-        host = raw_input('Enter Name of Host \033[1mWith\033[0m btc_prices.txt: ')
-        if host in utils.names:
-            location = '~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt'
-            cmd = 'python client.py get %s %s -q' % (host, location)
-            os.system(cmd)
-    else:
-        print 'Price Data Missing!'
     try:
         estimate = padata.mean() + np.array(np.diff(pdata)).mean()
         print '\033[1mPRICE: $%s\033[0m' % str(pdata.flatten()[-1])
@@ -304,12 +278,6 @@ if 'run' in sys.argv:
     mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
     mkt_state.place(x=550,y=0,relwidth=0.15, relheight=0.1)
 
-    ticker_tape = Tk.StringVar()
-    tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '   BTC PRICE: $' + str(price)
-    tick()
-    ticker = Tk.Label(root, textvariable=ticker_tape, height=20)
-    ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
-
     canvas.draw()
     canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
     canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
@@ -317,6 +285,30 @@ if 'run' in sys.argv:
     f.canvas.callbacks.connect('button_press_event', on_click)
     basic_logic()
 
+
+def plot_data():
+    f = plt.figure()
+    ''' Plot BTC Price data and Moving Average'''
+    # plt.style.reload_library()
+    plt.grid()
+    data, mavg, diffs, dates = pull_price_data()
+    plt.plot(data,color='red', linestyle='--', label='Price')
+    plt.plot(mavg, color='cyan', linestyle='-.', label='Moving Average')
+    plt.title('BTC Price Inspector')
+    plt.ylabel('Price [$ USD]')
+    ''' Data the Decision_Tree Decision Boundaries'''
+    x = np.array(range(len(prices)))
+    regr_1 = DecisionTreeRegressor(max_depth=4)
+    X = x[:, np.newaxis]
+    y = prices
+    regr_1.fit(X, y)
+    y_1 = regr_1.predict(X)
+    a.plot(X, y_1, c="g", label="Decision Boundaries", linewidth=3)
+    # Show that shit
+    plt.show()
+
+
+if __name__ == '__main__':
     if time.time()-tic > 1 and int(time.time()-tic) % 30 == 0:
         update_logs()
     os.system('python analysis.py -q')
@@ -327,3 +319,4 @@ if 'run' in sys.argv:
     elements of this script and starting clean (and keeping it clean, hopefully). 
     '''
     Tk.mainloop()
+
