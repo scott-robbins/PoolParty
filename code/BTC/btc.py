@@ -33,12 +33,6 @@ def click_event(event):
         pull_btc_price_data()
 
 
-def tick():
-    tick.msg = tick.msg[1:] + tick.msg[0]
-    ticker_tape.set(tick.msg)
-    root.after(scroll_speed, tick)
-
-
 def pull_btc_price_data():
 
     prices = list()
@@ -109,6 +103,10 @@ def pull_btc_price_data():
     tick()
     root.after(1000 * 60, pull_btc_price_data)  # Continuously update figure
 
+def tick():
+    tick.msg = tick.msg[1:] + tick.msg[0]
+    ticker_tape.set(tick.msg)
+    root.after(scroll_speed, tick)
 
 # Add Buttons
 button = Tk.Button(master=root, text='Quit', command=sys.exit)

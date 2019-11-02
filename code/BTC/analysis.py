@@ -16,6 +16,20 @@ def get_btc_data():
     os.system(cmd)
 
 
+def btc2csv(raw_prices, stamps, file_out):
+    if len(raw_prices) != len(stamps):
+        print '[!!] Dimension Mismatch %s:%s' % (str(raw_prices), str(len(stamps)))
+        exit()
+    content = ''
+    N = len(stamps)
+    for ii in range(N):
+        content += '%s, %s' % (str(stamps[ii].split(' - ')[1]), str(raw_prices[ii])) + '\n'
+    if os.path.isfile(file_out):
+        # TODO:
+        print '%s Already Exists. Are you sure you want to overwrite this file? (y/n)' % file_out
+    open(file_out, 'w').write(content)
+
+
 def parse_data():
     prices = list()
     deltas = list()

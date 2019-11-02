@@ -290,18 +290,19 @@ def test_transfer_rate(remote):
         exit()
 
     content = ''
-    for ln in range(2000):
+    for ln in range(5000):
         content += '\x42'*50+'\n'
     open('test_file.txt', 'w').write(content)
 
-    tic = time.time()
+    tc = time.time()
     file_size = os.path.getsize('test_file.txt')
     os.system('python utils.py send %s test_file.txt > /dev/null 2>&1' % remote)
-    dt = time.time() - tic
-
+    dt = time.time() - tc
+    os.system("python utils.py cmd %s 'rm ~/test_file.txt' > /dev/null 2>&1" % remote)
     db = file_size/(8000*dt)
-    print '\033[1m\033[31mFile Transfer Speed: %sKB/s\033[0m' % db
+    print '\033[1mFile Transfer Speed of %s: \033[31m%sKB/s\033[0m' % (remote, db)
     return db
+
 
 #
 tic = time.time()
