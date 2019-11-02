@@ -7,6 +7,24 @@ try:
     import paramiko
 except ImportError:
     pass
+
+'''_______________________
+| UTILS |_________________|
+| An attempt at somewhat  |
+| modular p2p networking  |
+|                         |
+| [*] 1st few fcns are    |
+|     for local machine   |
+|                         |
+| [*] 2nd Half of fcns    |
+|     are for p2p actions |
+|                         |
+| [*] You can also call   |
+|     utils.py in scripts |
+|  Ex:                    |_________
+|$ python utils.py cmd_all whoami -v|
+|___________________________________|
+'''
 # ##### USERS/NODES HARDCODED FOR NOW ##### #
 prs = ['192.168.1.200',
        '192.168.1.217',
@@ -186,7 +204,8 @@ def ftp_put(ip, username, password, local_file, remote_file):
 
 
 def check_file_size(filename, verbose):
-    file_size = int(cmd('ls -la '+filename).split(' ')[4])
+    # file_size = int(cmd('ls -la '+filename).split(' ')[4])
+    file_size = os.path.getsize(file_name)
     return file_size, file_size/1000.      # Return filesize and filesize in Kb
 
 
@@ -289,18 +308,23 @@ def test_transfer_rate(remote):
         print '[!!] Unknown Peer!'
         exit()
 
-    content = ''
-    for ln in range(5000):
-        content += '\x42'*50+'\n'
-    open('test_file.txt', 'w').write(content)
+    # Make a Bogus file to use for testing file transfer speed
+    if not os.path.isfile('test_file.txt'):
+        content = ''
+        for ln in range(5000):
+            content += '\x42' * 50 + '\n'
+        open('test_file.txt', 'w').write(content)
 
     tc = time.time()
     file_size = os.path.getsize('test_file.txt')
     os.system('python utils.py send %s test_file.txt > /dev/null 2>&1' % remote)
     dt = time.time() - tc
+
     os.system("python utils.py cmd %s 'rm ~/test_file.txt' > /dev/null 2>&1" % remote)
+    os.remove('test_file.txt')
     db = file_size/(8000*dt)
     print '\033[1mFile Transfer Speed of %s: \033[31m%sKB/s\033[0m' % (remote, db)
+
     return db
 
 
