@@ -1,13 +1,12 @@
-try:
-    import paramiko
-except:
-    pass
 from multiprocessing.pool import ThreadPool
 from threading import Thread
 import time
 import sys
 import os
-
+try:
+    import paramiko
+except ImportError:
+    pass
 # ##### USERS/NODES HARDCODED FOR NOW ##### #
 prs = ['192.168.1.200',
        '192.168.1.217',
@@ -191,7 +190,7 @@ def check_file_size(filename, verbose):
     return file_size, file_size/1000.      # Return filesize and filesize in Kb
 
 
-def send_file(proj_path, target, local_file):
+def send_file(proj_path, target, local_file, quiet):
     tic = time.time()
     """
     Send File to a remote host
@@ -200,23 +199,26 @@ def send_file(proj_path, target, local_file):
     rmt_file = local_file
     if '/' in list(rmt_file):
         rmt_file = rmt_file.split('/').pop()
-    print ' %s Sending %s File %s' % (IP, target, rmt_file)
+    if not quiet:
+        print ' %s Sending %s File %s' % (IP, target, rmt_file)
     host = names[target]
     pw = retrieve_credentials(target)
     # Now Actually do it
     file_size, file_size_kb = check_file_size(local_file, False)
     Data_Transferred = '%s B' % str(file_size)
-    if 1000000 > file_size > 1000:
-        Data_Transferred = '%s KB' % str(file_size_kb)
-        print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
-    elif file_size_kb > 1000:
-        Data_Transferred = '%s MB' % str(file_size_kb / 1000.)
-        print '\033[1m Local File Is \033[31m%s MB\033[0m' % str(file_size_kb / 1000.)
-    ssh_command(target, host, pw, 'cd ' + proj_path + '; echo $PWD; nc -l -p 5000 > ' + rmt_file, True)
+    if not quiet:
+        if 1000000 > file_size > 1000:
+            Data_Transferred = '%s KB' % str(file_size_kb)
+            print '\033[1m[*] Local File Is \033[31m%s KB\033[0m' % str(file_size_kb)
+        elif file_size_kb > 1000:
+            Data_Transferred = '%s MB' % str(file_size_kb / 1000.)
+            print '\033[1m Local File Is \033[31m%s MB\033[0m' % str(file_size_kb / 1000.)
+    ssh_command(target, host, pw, 'cd ' + proj_path + '; echo $PWD; nc -l -p 5000 >> ' + rmt_file, True)
     time.sleep(.3)
     os.system('cat ' + local_file + ' | nc -q 2 ' + target + ' 5000')
-    print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
-          (Data_Transferred, str(time.time() - tic))
+    if not quiet:
+        print '\033[1m\033[32mFile Transferred!\033[0m\033[1m\t[%s in %ss Elapsed]\033[0m' % \
+              (Data_Transferred, str(time.time() - tic))
     return Data_Transferred, time.time() - tic
 
 
@@ -282,6 +284,25 @@ def distribute_file_resource(file_in):
         cmd.join()
 
 
+def test_transfer_rate(remote):
+    if remote not in names.keys():
+        print '[!!] Unknown Peer!'
+        exit()
+
+    content = ''
+    for ln in range(2000):
+        content += '\x42'*50+'\n'
+    open('test_file.txt', 'w').write(content)
+
+    tic = time.time()
+    file_size = os.path.getsize('test_file.txt')
+    os.system('python utils.py send %s test_file.txt > /dev/null 2>&1' % remote)
+    dt = time.time() - tic
+
+    db = file_size/(8000*dt)
+    print '\033[1m\033[31mFile Transfer Speed: %sKB/s\033[0m' % db
+    return db
+
 #
 tic = time.time()
 verbosity = False
@@ -304,7 +325,7 @@ if 'cmd' in sys.argv and len(sys.argv) >= 4:
 if 'send' in sys.argv and len(sys.argv) >= 4:
     host = sys.argv[2]
     file_in = sys.argv[3]
-    send_file(os.getcwd(), host, file_in)
+    send_file(os.getcwd(), host, file_in, True)
     operation = True
 
 if 'get' in sys.argv and len(sys.argv) >= 4:
