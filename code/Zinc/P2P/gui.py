@@ -68,24 +68,24 @@ def nodeEvent(event):
 def openFile():
     root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
                                                  filetypes=(("jpeg files", "*.jpg"),
+                                                            ("python code", "*.py"),
                                                             ("all files", "*.*")))
-    # TODO: Determine FileType
-    #  Choose what to do based on file type
 
 
 def sendFile():
     global buttons
     root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
-                                                 filetypes=(("jpeg files", "*.jpg"),
+                                                 filetypes=(("text files", "*.txt"),
+                                                            ("python code", "*.py"),
+                                                            ("jpeg files", "*.jpg"),
                                                             ("all files", "*.*")))
-    SendFileDialog(root)
+    if root.filename:
+        SendFileDialog(root)
     # TODO: How to determine which node to send to?
     if os.path.isfile(os.getcwd()+'/enabled.txt'):
         recipient = utils.swap('enabled.txt', True).pop()
         print 'Sending %s to %d Recipients' % (root.filename, len(recipient))
         utils.send_file('',recipient,root.filename)
-
-
 
 
 def addNode():
