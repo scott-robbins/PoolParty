@@ -17,6 +17,25 @@ cv = Tk.Canvas(root, height=h, width=w)
 cv.pack()
 
 
+class SendFileDialog:
+    def __init__(self, parent):
+        top = self.top = Tk.Toplevel(parent)
+        Tk.Label(top, text="Enter Remote Host:").pack()
+
+        self.e = Tk.Entry(top)
+        self.e.pack(padx=5)
+
+        b = Tk.Button(top, text="Send", command=self.write)
+        b.pack(pady=5)
+
+    def write(self):
+        addr = self.e.get()
+        if os.path.isfile('enabled.txt'):
+            os.remove('enabled.txt')
+        open('enabled.txt', 'w').write(addr)
+        self.top.destroy()
+
+
 def discover_nodes():
     active_nodes = {}
     for host in utils.prs:
@@ -59,11 +78,14 @@ def sendFile():
     root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
                                                  filetypes=(("jpeg files", "*.jpg"),
                                                             ("all files", "*.*")))
+    SendFileDialog(root)
     # TODO: How to determine which node to send to?
-    if os.path.isfile('enabled.txt'):
-        recipients = utils.swap('enabled.txt', True)
-        print 'Sending %s to %d Recipients' % (root.filename, len(recipients))
-        print recipients
+    if os.path.isfile(os.getcwd()+'/enabled.txt'):
+        recipient = utils.swap('enabled.txt', True).pop()
+        print 'Sending %s to %d Recipients' % (root.filename, len(recipient))
+        utils.send_file('',recipient,root.filename)
+
+
 
 
 def addNode():
