@@ -205,7 +205,7 @@ def ftp_put(ip, username, password, local_file, remote_file):
 
 def check_file_size(filename, verbose):
     # file_size = int(cmd('ls -la '+filename).split(' ')[4])
-    file_size = os.path.getsize(file_name)
+    file_size = os.path.getsize(filename)
     return file_size, file_size/1000.      # Return filesize and filesize in Kb
 
 
@@ -232,7 +232,7 @@ def send_file(proj_path, target, local_file, quiet):
         elif file_size_kb > 1000:
             Data_Transferred = '%s MB' % str(file_size_kb / 1000.)
             print '\033[1m Local File Is \033[31m%s MB\033[0m' % str(file_size_kb / 1000.)
-    ssh_command(target, host, pw, 'cd ' + proj_path + '; echo $PWD; nc -l -p 5000 >> ' + rmt_file, True)
+    ssh_command(target, host, pw, 'cd ' + proj_path + '; nc -l -p 5000 >> ' + rmt_file, True)
     time.sleep(.3)
     os.system('cat ' + local_file + ' | nc -q 2 ' + target + ' 5000')
     if not quiet:
@@ -264,11 +264,13 @@ def get_file(localhost, target, remote_file):
 
 
 def get_file_2(local_file, rmt_file):
-    cmd = "rm btc_prices.txt; nc -l 6666 >> %s & " \
+    if os.path.isfile(local_file):
+        os.remove(local_file)
+    cmd = "nc -l 6666 >> %s & " \
           "python client.py cmd 192.168.1.200 'sleep 1; " \
           "cat %s | nc -q 2 192.168.1.153 6666'" % (local_file, rmt_file)
     os.system(cmd)
-    return swap(cmd, False)
+    # return swap(cmd, False)
 
 
 def start_listener(file_name, port):

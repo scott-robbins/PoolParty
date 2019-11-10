@@ -34,16 +34,22 @@ def click_event(event):
 
 
 def pull_btc_price_data():
-
+    # Send the setpoint to remote machine to check if current is above
+    addr = '192.168.1.200'
+    btc_file = '~/PoolParty/code/BTC/v0.1/btc_prices.txt'
     prices = list()
     deltas = list()
     moving_avg = list()
     stamps = list()
     if os.path.isfile('btc_prices.txt'):
         os.remove('btc_prices.txt')
-    cmd = "nc -l 6666 >> btc_prices.txt & python utils.py cmd 192.168.1.200 " \
-          "'cat ~/Desktop/PoolParty/code/BTC/v0.1/btc_prices.txt | nc -q 3 192.168.1.153 6666';clear"
+    cmd = "nc -l 6666 >> btc_prices.txt & python utils.py cmd "+addr+ \
+          " 'cat ~/PoolParty/code/BTC/v0.1/btc_prices.txt | nc -q 3 192.168.1.153 6666';"
     os.system(cmd)
+    # utils.get_file_untrusted(addr,utils.names[addr],
+    #                          utils.retrieve_credentials(addr),
+    #                          '~/PoolParty/code/BTC/v0.1/btc_prices.txt',True)
+    # utils.get_file('192.168.1.153',addr,btc_file)
     if len(utils.swap('btc_prices.txt', False))> 1:
         for line in utils.swap('btc_prices.txt', False):
             try:
@@ -57,7 +63,8 @@ def pull_btc_price_data():
                 moving_avg.append(avged)
             except IndexError:
                 pass
-        tick.msg = '    DATE: ' + stamps.pop().replace(']', '') + '     BTC PRICE: $' + str(price)
+
+        msg = '    DATE: ' + stamps.pop().replace(']', '') + '     BTC PRICE: $' + str(price)
         levels = analysis.decision_tree_levels(prices, depth=5)
         prediction, y_lo, y_up, X, xx = analysis.quantitative_prediction(prices, depth=3,show=False)
         a.cla()
@@ -77,7 +84,6 @@ def pull_btc_price_data():
             setpoint = float(utils.swap('setpoint.txt', False).pop().replace('\n', '').replace(' ', ''))
             a.plot(np.ones((len(prices),1))*setpoint)
 
-    try:
         ''' Use Basic Red/Green/Blue Color system for indicating Market State '''
         if price > avged:  # Price is above Moving Average
             mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
@@ -92,21 +98,24 @@ def pull_btc_price_data():
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#0000ff', bg='#000000')
             ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
         mkt_state.place(x=600, y=0, relwidth=0.15, relheight=0.1)
-    except UnboundLocalError:
-        pass
 
-    canvas.draw()
-    canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
-    canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
-    plt.show()
+        canvas.draw()
+        canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
+        canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
+        plt.show()
+        try:
+            tick(msg)
+        except UnboundLocalError:
+            pass
+        root.after(1000 * 60, pull_btc_price_data)  # Continuously update figure
 
-    tick()
-    root.after(1000 * 60, pull_btc_price_data)  # Continuously update figure
 
-def tick():
-    tick.msg = tick.msg[1:] + tick.msg[0]
+def tick(msg):
+    os.system('clear')
+    tick.msg = msg[1:] + msg[0]
     ticker_tape.set(tick.msg)
-    root.after(scroll_speed, tick)
+    # root.after(scroll_speed, tick)
+
 
 # Add Buttons
 button = Tk.Button(master=root, text='Quit', command=sys.exit)
@@ -114,13 +123,12 @@ button.place(x=0, y=0, relwidth=0.1, relheight=0.1)
 canvas = FigureCanvasTkAgg(f, master=root)
 # update = Tk.Button(master=root, text='Update', command=pull_btc_price_data)
 # update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
-
-
+root.after(1000 * 45, pull_btc_price_data)  # Continuously update figure
 pull_btc_price_data()
 canvas.draw()
 canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
 canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
 f.canvas.callbacks.connect('button_press_event', click_event)
-root.after(1000 * 30, pull_btc_price_data)  # Continuously update figure
+
 
 Tk.mainloop()
