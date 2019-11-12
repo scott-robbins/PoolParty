@@ -8,7 +8,6 @@ import sys
 import os
 
 tic = time.time()
-''' Setup GUI Window '''
 w = 1200
 h = 800
 root = Tk.Tk()
@@ -244,9 +243,8 @@ def initialize():
 # Initialize The GUI Objects
 initialize()
 
-
 # Check Active Nodes, and add to GUI
 add_live_nodes()
 
-
 Tk.mainloop()
+# EOF
