@@ -1,5 +1,5 @@
 import Tkinter, Tkconstants, tkFileDialog
-import tkinter.ttk
+import subprocess as sub
 import Tkinter as Tk
 import numpy as np
 import utils
@@ -16,6 +16,9 @@ buttons = []
 cv = Tk.Canvas(root, height=h, width=w)
 cv.pack()
 
+window = Tk.Label(root,relief='sunken')
+window.place(x=w/2,y=h/5,relwidth=0.3,relheight=0.4)
+
 
 class SendFileDialog:
     def __init__(self, parent):
@@ -30,9 +33,27 @@ class SendFileDialog:
 
     def write(self):
         addr = self.e.get()
-        if os.path.isfile('enabled.txt'):
+        if os.path.isfile(os.getcwd()+'/enabled.txt'):
             os.remove('enabled.txt')
         open('enabled.txt', 'w').write(addr)
+        self.top.destroy()
+
+
+class GetFileDialog:
+    def __init__(self, parent):
+        top = self.top = Tk.Toplevel(parent)
+        Tk.Label(top, text='Enter Remote Host:').pack()
+        self.e = Tk.Entry(top)
+        self.e.pack(padx=5)
+        b = Tk.Button(top, text="Submit", command=self.write)
+        b.pack(pady=5)
+
+    def write(self):
+        addr = self.e.get()
+        file_name = 'get_file_host.txt'
+        if os.path.isfile(os.getcwd()+'/'+file_name):
+            os.remove(os.getcwd()+'/'+file_name)
+        open(file_name, 'w').write(addr)
         self.top.destroy()
 
 
@@ -57,12 +78,10 @@ def nodeEvent(event):
     item = cv.find_closest(event.x, event.y)
     if item[0] in buttons:
         current_color = cv.itemcget(item, 'fill')
-
         if current_color == 'green':
             cv.itemconfig(item, fill='blue')
         else:
             cv.itemconfig(item, fill='green')
-    # print '%s,%s ' % (str(cx),str(cy))
 
 
 def openFile():
@@ -86,6 +105,36 @@ def sendFile():
         recipient = utils.swap('enabled.txt', True).pop()
         print 'Sending %s to %d Recipients' % (root.filename, len(recipient))
         utils.send_file('',recipient,root.filename)
+
+
+def getFile():
+    global buttons
+    GetFileDialog(root)
+    try:
+        remote = utils.swap('get_file_host.txt', True).pop()
+        if remote:
+            print 'Getting shared file list from remote host %s:~/PoolParty/code/Shared' % remote
+            cmd = 'ls ~/PoolParty/code/'
+            os.system('echo "'+cmd+'" >> tmp.sh')
+            ''' Create Console/Command Window '''
+            p = sub.Popen('sh ./tmp.sh', stdout=sub.PIPE, stderr=sub.PIPE)
+            output, errors = p.communicate()
+            text = Tk.Text(window)
+            text.place(x=w/2,y=h/5,relwidth=0.3,relheight=0.3)
+            text.insert(Tk.END, output)
+            # reply = utils.ssh_command(remote, utils.names[remote],
+            #                           utils.retrieve_credentials(remote), cmd, False)
+            if 'Shared' in text.split('\n'):
+                print '[*] Shared Folder Found'
+
+            else:
+                mk = 'mkdir ~/PoolParty/code/Shared'
+                utils.ssh_command(remote, utils.names[remote],
+                                  utils.retrieve_credentials(remote), mk, False)
+
+    except:
+        print '\033[1m[!!]\033[31m Something Went Wrong...\033[0m'
+        os.remove('tmp.sh')
 
 
 def addNode():
@@ -129,6 +178,7 @@ def addMenuBar():
     filemenu.add_command(label="New Node", command=addNode)
     filemenu.add_command(label="Open...", command=openFile)
     filemenu.add_command(label='Send File', command=sendFile)
+    filemenu.add_command(label='Get File', command=getFile)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=root.quit)
     helpmenu = Tk.Menu(menu)

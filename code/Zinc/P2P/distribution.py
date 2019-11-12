@@ -1,9 +1,6 @@
-from multiprocessing.pool import ThreadPool
-from threading import Thread
 import numpy as np
 import utils
 import time
-import sys
 import os
 
 tic = time.time()
