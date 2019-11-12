@@ -16,8 +16,11 @@ buttons = []
 cv = Tk.Canvas(root, height=h, width=w)
 cv.pack()
 
+PEERS = utils.prs
+NAMES = utils.names
+
 window = Tk.Label(root,relief='sunken')
-window.place(x=w/2,y=h/5,relwidth=0.3,relheight=0.4)
+window.place(x=w/2, y=h/5, relwidth=0.3, relheight=0.4)
 
 
 class SendFileDialog:
@@ -57,10 +60,52 @@ class GetFileDialog:
         self.top.destroy()
 
 
+class AddToPool:
+    def __init__(self, parent):
+        top = self.top = Tk.Toplevel(parent)
+        self.a = Tk.Label(top, text="Host Name").grid(row=0, column=0)
+        self.b = Tk.Label(top, text="IP Address").grid(row=1, column=0)
+        self.c = Tk.Label(top, text="Password").grid(row=2, column=0)
+        self.a1 = Tk.Entry(top)
+        self.b1 = Tk.Entry(top)
+        self.c1 = Tk.Entry(top)
+        # Place the forms fields into canvas
+        self.a1.grid(row=0, column=1)
+        self.b1.grid(row=1, column=1)
+        self.c1.grid(row=2, column=1)
+        # add submit button
+        b = Tk.Button(top, text="Submit", command=self.write)
+        b.grid(row=4, column=1)
+
+    def write(self):
+        global NAMES
+        global PEERS
+        host = self.a1.get()
+        ip = self.b1.get()
+        pw = self.c1.get()
+        self.top.destroy()
+
+        if ip not in NAMES.keys():
+            print 'Adding %s@%s to nodes' % (host, ip)
+            host_file = ip.replace('.', '') + '.txt'
+            hkey_file = ip.replace('.', '') + '.key'
+            os.system('python aes.py -e %s' % pw)
+            os.system('mv encrypted.txt KEYS/%s' % host_file)
+            os.system('mv key.txt KEYS/%s' % hkey_file)
+            NAMES.keys().append(host)
+            NAMES[host] = ip
+            PEERS.append(ip)
+            add_live_nodes()
+        else:
+            print '[!!] %s is ALREADY a Peer' % ip
+
+
 def discover_nodes():
+    global NAMES
+    global PEERS
     active_nodes = {}
     for host in utils.prs:
-        name = utils.names[host]
+        name = NAMES[host]
         pw = utils.retrieve_credentials(host)
         status = utils.ssh_command(host,name,pw,'ping -c 1 1.1.1.1', False)
         for line in status.split('\n'):
@@ -72,7 +117,7 @@ def discover_nodes():
     return active_nodes
 
 
-def nodeEvent(event):
+def node_event(event):
     cx = event.x
     cy = event.y
     item = cv.find_closest(event.x, event.y)
@@ -84,14 +129,14 @@ def nodeEvent(event):
             cv.itemconfig(item, fill='green')
 
 
-def openFile():
+def open_file():
     root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
                                                  filetypes=(("jpeg files", "*.jpg"),
                                                             ("python code", "*.py"),
                                                             ("all files", "*.*")))
 
 
-def sendFile():
+def send_file():
     global buttons
     root.filename = tkFileDialog.askopenfilename(initialdir=os.getcwd(), title="Select file",
                                                  filetypes=(("text files", "*.txt"),
@@ -107,7 +152,7 @@ def sendFile():
         utils.send_file('',recipient,root.filename)
 
 
-def getFile():
+def get_file():
     global buttons
     GetFileDialog(root)
     try:
@@ -137,13 +182,12 @@ def getFile():
         os.remove('tmp.sh')
 
 
-def addNode():
-    host = str(raw_input('Enter IP: '))
-    name = str(raw_input('Enter Username: '))
-    # TODO: Get Password and use aes.py -d to add to KEYS/
+def add_node():
+    # Create a form for user to fill in
+    AddToPool(root)
 
 
-def addLiveNodesToGUI():
+def add_live_nodes():
     global buttons
     nodes = discover_nodes()
     colors = ['green', '#00ff00']
@@ -155,13 +199,13 @@ def addLiveNodesToGUI():
         y2 = y1 + 50
         node_button = cv.create_rectangle(x1, y1, x2, y2, fill=colors[0], tags="clickable")
         node_title = cv.create_text((x2 - x1) / 2 + 10, y1 + 20, text=node_handle, font=("Papyrus", 10), fill='black')
-        cv.bind(node_button, '<Button-1>', nodeEvent)
+        cv.bind(node_button, '<Button-1>', node_event)
         index += 1
         buttons.append(node_button)
-    cv.bind('<Button-1>', nodeEvent)
+    cv.bind('<Button-1>', node_event)
 
 
-def addClock():
+def add_clock():
     # Get Date and Time for Clock Display
     date, localtime = utils.create_timestamp()
     timestamp = date + '\t' + localtime
@@ -169,16 +213,16 @@ def addClock():
     cv.create_text(575, 15, text=timestamp, font=('Papyrus', 12), fill='white')
 
 
-def addMenuBar():
+def add_menu():
     # Add a File/Help Menubar
     menu = Tk.Menu(root)
     root.config(menu=menu)
     filemenu = Tk.Menu(menu)
     menu.add_cascade(label="File", menu=filemenu)
-    filemenu.add_command(label="New Node", command=addNode)
-    filemenu.add_command(label="Open...", command=openFile)
-    filemenu.add_command(label='Send File', command=sendFile)
-    filemenu.add_command(label='Get File', command=getFile)
+    filemenu.add_command(label="New Node", command=add_node)
+    filemenu.add_command(label="Open...", command=open_file)
+    filemenu.add_command(label='Send File', command=send_file)
+    filemenu.add_command(label='Get File', command=get_file)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=root.quit)
     helpmenu = Tk.Menu(menu)
@@ -187,14 +231,14 @@ def addMenuBar():
 
 def initialize():
     # Add Menu/Help Bar
-    addMenuBar()
+    add_menu()
 
     # Add Quit Button
     button = Tk.Button(master=cv, text='Quit', command=sys.exit)
     button.place(x=0, y=0, relwidth=0.07, relheight=0.06)
 
     # Add a Clock to show date and time
-    addClock()
+    add_clock()
 
 
 # Initialize The GUI Objects
@@ -202,7 +246,7 @@ initialize()
 
 
 # Check Active Nodes, and add to GUI
-addLiveNodesToGUI()
+add_live_nodes()
 
 
 Tk.mainloop()
