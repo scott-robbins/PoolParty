@@ -1,7 +1,7 @@
 import Tkinter, Tkconstants, tkFileDialog
+from itertools import cycle
 import subprocess as sub
 import Tkinter as Tk
-import numpy as np
 import utils
 import time
 import sys
@@ -19,7 +19,7 @@ PEERS = utils.prs
 NAMES = utils.names
 
 window = Tk.Label(root,relief='sunken')
-window.place(x=w/2, y=h/5, relwidth=0.3, relheight=0.4)
+window.place(x=5, y=h/5, relwidth=0.3, relheight=0.4)
 
 
 class SendFileDialog:
@@ -190,17 +190,18 @@ def add_live_nodes():
     global buttons
     nodes = discover_nodes()
     colors = ['green', '#00ff00']
-    index = 1
+    index = 0
     for node_handle in nodes.keys():
-        x1 = 10
-        y1 = index * 100
+        y1 = 80
+        x1 = index * 110 + 5
         x2 = x1 + 100
         y2 = y1 + 50
         node_button = cv.create_rectangle(x1, y1, x2, y2, fill=colors[0], tags="clickable")
-        node_title = cv.create_text((x2 - x1) / 2 + 10, y1 + 20, text=node_handle, font=("Papyrus", 10), fill='black')
+        node_title = cv.create_text(x1 + 50, y1 + 20, text=node_handle, font=("Papyrus", 10), fill='black')
         cv.bind(node_button, '<Button-1>', node_event)
         index += 1
         buttons.append(node_button)
+
     cv.bind('<Button-1>', node_event)
 
 

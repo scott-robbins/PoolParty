@@ -44,7 +44,7 @@ def pull_btc_price_data():
     if os.path.isfile('btc_prices.txt'):
         os.remove('btc_prices.txt')
     cmd = "nc -l 6666 >> btc_prices.txt & python utils.py cmd "+addr+ \
-          " 'cat ~/PoolParty/code/BTC/v0.1/btc_prices.txt | nc -q 3 192.168.1.153 6666';"
+          " 'cat ~/PoolParty/code/BTC/v0.1/btc_prices.txt | nc -q 3 192.168.1.153 6666';clear"
     os.system(cmd)
     # utils.get_file_untrusted(addr,utils.names[addr],
     #                          utils.retrieve_credentials(addr),
@@ -88,30 +88,26 @@ def pull_btc_price_data():
         if price > avged:  # Price is above Moving Average
             mkt_state = Tk.Label(root, text='MARKET STATE [+$]', bg='#00ff00')
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#00ff00', bg='#000000')
-            ticker.place(x=200, y=0, relwidth=0.2, relheight=0.1)
+            ticker.place(x=200, y=0, relwidth=0.36, relheight=0.1)
         elif price < avged:  # Price is below moving average
             mkt_state = Tk.Label(root, text='MARKET STATE [-$]', bg='#ff0000')
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#ff0000', bg='#000000')
-            ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
+            ticker.place(x=200, y=0, relwidth=0.36, relheight=0.1)
         else:
             mkt_state = Tk.Label(root, text='MARKET STATE', bg='#0000ff')
             ticker = Tk.Label(root, textvariable=ticker_tape, height=20, fg='#0000ff', bg='#000000')
-            ticker.place(x=300, y=0, relwidth=0.2, relheight=0.1)
+            ticker.place(x=200, y=0, relwidth=0.36, relheight=0.1)
         mkt_state.place(x=600, y=0, relwidth=0.15, relheight=0.1)
 
         canvas.draw()
         canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
         canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
         plt.show()
-        try:
-            tick(msg)
-        except UnboundLocalError:
-            pass
-        root.after(1000 * 60, pull_btc_price_data)  # Continuously update figure
+        root.after(1000, tick(msg))
+        root.after(1000 * 45, pull_btc_price_data)  # Continuously update every 45s
 
 
 def tick(msg):
-    os.system('clear')
     tick.msg = msg[1:] + msg[0]
     ticker_tape.set(tick.msg)
     # root.after(scroll_speed, tick)
@@ -125,10 +121,9 @@ canvas = FigureCanvasTkAgg(f, master=root)
 # update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
 root.after(1000 * 45, pull_btc_price_data)  # Continuously update figure
 pull_btc_price_data()
-canvas.draw()
-canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
-canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
+
+# canvas.draw()
+# canvas.get_tk_widget().place(x=0, y=100, relwidth=1, relheight=0.8)
+# canvas._tkcanvas.place(x=0, y=100, relwidth=1, relheight=0.8)
 f.canvas.callbacks.connect('button_press_event', click_event)
-
-
 Tk.mainloop()
