@@ -169,7 +169,7 @@ button.place(x=0, y=0, relwidth=0.1, relheight=0.1)
 canvas = FigureCanvasTkAgg(f, master=root)
 # update = Tk.Button(master=root, text='Update', command=pull_btc_price_data)
 # update.place(x=150, y=0, relwidth=0.1, relheight=0.1)
-root.after(1000 * 45, pull_btc_price_data)  # Continuously update figure
+root.after(1000 * 35, pull_btc_price_data)  # Continuously update figure
 pull_btc_price_data()
 
 # canvas.draw()
