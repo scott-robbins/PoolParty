@@ -142,8 +142,8 @@ def ssh_command(ip, user, passwd, command, verbose):
         response = ''
         if ssh_session.active:
             ssh_session.exec_command(command)
+            response = ssh_session.recv(16777216)  # needed for file sharing
             if verbose:
-                response = ssh_session.recv(16777216)   # needed for file sharing
                 print '%s@%s:~$ %s [Executed]' % (user, ip, command)
                 print '%s@%s:~$ %s' % (user, ip, response)
                 return response
