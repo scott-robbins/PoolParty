@@ -3,6 +3,7 @@ try:
 except:
     pass
 from multiprocessing.pool import ThreadPool
+from Crypto.PublicKey import RSA
 from threading import Thread
 import time
 import sys
@@ -280,6 +281,26 @@ def distribute_file_resource(file_in):
         cmd = Thread(target=send_file,args=(path, peer, file_in))
         cmd.start()
         cmd.join()
+
+
+def generate_private_key(file_out):
+    pk = RSA.generate(2048)
+    f = open(file_out, 'w')
+    f.write(pk.exportKey('PEM'))
+    f.close()
+
+
+def load_key(key_file):
+    f = open(key_file, 'r')
+    k = RSA.importKey(f.read())
+    return k
+
+
+def generate_public_key(private_key, file_out):
+    public_key = private_key.publickey()
+    pkf = open(file_out, 'w')
+    pkf.write(public_key.exportKey('PEM'))
+    pkf.close()
 
 
 #

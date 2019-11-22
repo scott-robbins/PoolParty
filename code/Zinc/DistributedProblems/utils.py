@@ -3,6 +3,7 @@ try:
 except:
     pass
 from multiprocessing.pool import ThreadPool
+from Crypto.PublicKey import RSA
 from threading import Thread
 import numpy as np
 import time
@@ -371,6 +372,26 @@ def nx_memory_profile(verbose):
         print '%s Has the Most System Memory Free' % sys_free_sum[np.array(sys_free_sum.keys()).max()]
         print '%s Has the Most System Memory Total' % sys_free_tot[np.array(sys_free_tot.keys()).max()]
     return best_worker, historian, network_memory
+
+
+def generate_private_key(file_out):
+    pk = RSA.generate(2048)
+    f = open(file_out, 'w')
+    f.write(pk.exportKey('PEM'))
+    f.close()
+
+
+def load_key(key_file):
+    f = open(key_file, 'r')
+    k = RSA.importKey(f.read())
+    return k
+
+
+def generate_public_key(private_key, file_out):
+    public_key = private_key.publickey()
+    pkf = open(file_out, 'w')
+    pkf.write(public_key.exportKey('PEM'))
+    pkf.close()
 
 
 # MAIN
