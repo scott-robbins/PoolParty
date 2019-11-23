@@ -90,6 +90,46 @@ def recv_remote_keyfile(port, timeout):
         return -1
 
 
+def create_secure_handshake(peer):
+    secret = list(get_random_bytes(8))
+    # Determine Known Peers and see if given peer is known
+    local_files = os.listdir(os.getcwd())
+    if peer in utils.prs or (peer.replace('.','')+'.txt') in local_files:
+        print '[*] %s is a known Peer' % peer
+    # If so make connection
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((peer, 41414))
+    except socket.error:
+        print '[!!] Failed to Connect to %s' % peer
+        return 0
+    # Else exchange public keys
+    # Use public key to encrypt secret and send it
+    # Other end will do the same (you receive their encrypted secret)
+    # Both will use each others public key to decrypt nonce secret
+    # reply with the decrypted answers
+    # Append the actually messages to the replies, and if the secret is correct
+    # Read the message (cut down on # of cnx/packets total!)
+
+
+def secret_listener(timeout):
+    data = []
+    tic = time.time()
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind('0.0.0.0', 41414)
+        s.listen(5)
+        while time.time() - tic < timeout:
+            client, addr = s.accept()
+
+    except socket:
+        s.close()
+        print 'Connection Broken!'
+        return data
+    s.close()
+
+
+'''                 ______<(|[ MAIN ]|)>______                '''
 if 'keygen' in sys.argv:
     public_key = ephemeral_keygen(False)
 
@@ -98,3 +138,11 @@ if 'send_pub_key' in sys.argv:
 
 if 'rcv_key' in sys.argv:
     recv_peers_key(6666, 5)
+
+if 'hello' in sys.argv:
+    secret_listener(30)
+
+
+create_secure_handshake('192.168.1.200')
+
+# EOF

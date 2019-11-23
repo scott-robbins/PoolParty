@@ -1,6 +1,7 @@
 #!/bin/bash
 if [ $# != 1 ]; then
     echo 'Incorrect Usage!'
+    echo '$ ./update_peer_code.sh <ip_address>'
     exit
 fi
 python utils.py cmd $1 'rm conductive.py' > /dev/null 2>&1
