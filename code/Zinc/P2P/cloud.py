@@ -60,8 +60,7 @@ class Cloud:
         active = [utils.get_local_ip()]
         for name in utils.prs:
             node_name = utils.names[name]
-            reply = utils.ssh_command(name, node_name, utils.retrieve_credentials(name),
-                                      'whoami', False)
+            reply = utils.ssh_command(name, node_name, utils.retrieve_credentials(name), 'whoami', False)
             if reply.replace('\n', '') == node_name:
                 active.append(name)
                 print '[*] %s is Active' % name
