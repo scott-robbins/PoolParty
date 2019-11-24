@@ -30,4 +30,8 @@ forward) to each. While the initial step is centralized in distribution, each no
 communicate with the other, so the network is **fully connected** with encrypted tunnels.
 
 ## Challenge 2 - Commands? File Distribution? 
+Okay, cool so using AES we securely stored the credentials of each node. Then distributed that
+data with SSH to each node. 
  
+But how are we now going to enable sending updates in the software that allowed us to do the 
+original key distribution? 

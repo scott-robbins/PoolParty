@@ -272,7 +272,11 @@ def start_listener(file_name, port):
 
 
 def command_peer(peer, command, verbosity):
-    uname = names[peer]
+    if peer in names.keys():
+        uname = names[peer]
+    else:
+        uname = raw_input('Whats the Hostname of this Peer?:\n')
+        names[peer] = uname
     pw = retrieve_credentials(peer)
     ssh_command(peer, uname, pw, command, verbosity)
 

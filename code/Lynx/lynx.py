@@ -1,5 +1,6 @@
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from multiprocessing import Pool
 import matplotlib.pyplot as plt
 import Tkinter as Tk
 import tkFileDialog
@@ -17,24 +18,32 @@ base.pack()
 NAMES = []; PEERS = []; buttons = []
 
 
+def query_lan(i):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(.25)
+        s.connect((i, 22))
+        addr = i
+        print '\033[1m\033[31m[*] \033[0m\033[1m%s Discovered\033[0m' % i
+        s.close()
+        return addr
+    except socket.error:
+        pass
+        s.close()
+    return ''
+
+
 def discover_nodes():
+    p = Pool(processes=10)
     queued = ''
     addrs = []
     self = utils.get_local_ip()
-    for i in range(2, 254):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(.25)
-            s.connect(('192.168.1.%d' % i, 22))
-            if self != '192.168.1.%d' % i:
-                addrs.append('192.168.1.%d' % i)
-            print '\033[1m\033[31m[*] \033[0m\033[1m192.168.1.%d Discovered\033[0m' % i
-            s.close()
-            queued += '192.168.1.%d\n' % i
-        except socket.error:
-            pass
-            s.close()
 
+    for i in range(1, 254):
+        ip = '192.168.1.%d' % i
+        live = p.apply_async(query_lan, (ip,)).get(timeout=1)
+        if live != self and len(live)>0:
+            addrs.append(live)
     return addrs
 
 
@@ -94,10 +103,10 @@ def node_event(event):
 def add_live_nodes():
     tic = time.time()
     global buttons, PEERS, NAMES
-    nodes = discover_nodes()
+    PEERS = discover_nodes()
     colors = ['green', '#00ff00']
     index = 0
-    for node_handle in nodes:
+    for node_handle in PEERS:
         x1 = 10
         y1 = index * 110 + 5
         x2 = x1 + 100
@@ -105,8 +114,8 @@ def add_live_nodes():
         node_button = base.create_rectangle(x1, y1, x2, y2, fill=colors[0], tags="clickable")
         node_title = base.create_text(x1 + 50, y1 + 20, text=node_handle, font=("Papyrus", 10), fill='black')
         base.bind(node_button, '<Button-1>', node_event)
-        index += 1
         buttons.append(node_button)
+        index += 1
 
     base.bind('<Button-1>', node_event)
     print 'Nodes Linked [%ss Elapsed]' % str(time.time()-tic)
@@ -149,6 +158,8 @@ class AddToPool:
 
 
 add_live_nodes()
+
+
 add_menu({'Open': choose_file,
           'Send': send_file})
 add_clock()
