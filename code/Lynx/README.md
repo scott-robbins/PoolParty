@@ -1,5 +1,5 @@
 # LYNX
-This part of repository is a more refined subset of the tools I was hoping to develop
+This part of the repository is a more refined subset of the tools I was hoping to develop
 in order to create some kind of homegrown LAN-P2P Network (ideally to pool resources 
 and complete jobs quicker, or utilize multiple nodes to run separate services that a
 single application can utilize asynchronously). I've had varying degrees of success, 
@@ -20,7 +20,7 @@ think of something that works well but it is also using the tools that exist cor
 *Secure Shells* are a fantastic way of communicating. The only challenge here is that you need 
 each endpoint to exchange a secret to get started. This can be a challenge because each end of
 the conversation needs the others secret to communicate securely, and yet they need to somehow
-communicate their secret to get started. Because my endpoints are not actual clients (their 
+communicate their secret to get started. Because my endpoints are not actual clients (they are 
 machines I own, and presumably will be running remotely) I start by locally creating a directory
 and encrypting files that contain login information for each node via SSH. 
 
