@@ -20,9 +20,10 @@ date, localtime = utils.create_timestamp()
 
 
 class TestServer:
+    token = base64.b64encode(get_random_bytes(128))
     clients_seen = {}
-    actions = {'?': base64.b64encode(get_random_bytes(128)),
-               '?{*f}': utils.cmd('ls')}
+    actions = {'?': token,
+               '?{*f}'+token: utils.cmd('ls')}
     inbound_port = 12345
     tic = 0.0
 

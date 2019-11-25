@@ -40,7 +40,7 @@ class API:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.remote, self.port))
-            s.send('?{*f}')
+            s.send('?{*f}'+self.session_token)
             answer = s.recv(1256)
             s.close()
         except socket.error:
