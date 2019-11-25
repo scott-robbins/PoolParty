@@ -22,16 +22,15 @@ date, localtime = utils.create_timestamp()
 class TestServer:
     token = base64.b64encode(get_random_bytes(128))
     clients_seen = {}
+    actions = {'?': token,
+               '?{*f}'+token: utils.cmd('ls')}
     inbound_port = 12345
     tic = 0.0
 
     def __init__(self):
         self.init()
-        self.actions = {'?': self.get_new_token(),
-                        '?{*f}'+self.token: utils.cmd('ls'),
-                        '!!' + self.token :self.get_new_token(),
-                        '?t'+self.token: self.get_uptime()}
-
+        self.actions['!!'+self.token] = self.get_new_token()
+        self.actions['?t'+self.token] = self.get_uptime()
 
     def init(self,):
         # Make sure you have the correct permissions
