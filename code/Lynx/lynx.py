@@ -24,7 +24,6 @@ class TestServer:
     actions = {'?': base64.b64encode(get_random_bytes(128)),
                '?{*f}': utils.cmd('ls')}
     inbound_port = 12345
-    outgoin_port = 12346
     tic = 0.0
 
     def __init__(self):
@@ -72,6 +71,7 @@ class TestServer:
                 client_sock.close()
             if client_query == '?':
                 self.clients_seen[addr[0]] = reply
+            s.close()
         return time.time()-self.tic
 
     def get_uptime(self):
