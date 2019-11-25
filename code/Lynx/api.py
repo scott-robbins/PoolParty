@@ -54,6 +54,7 @@ class API:
         return self.request(token, self.remote, self.port, '?t'+token)
 
     def request(self, session_token, ip, port, cmd):
+        answer = ''
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((ip, port))
