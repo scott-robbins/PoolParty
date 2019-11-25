@@ -35,5 +35,8 @@ class API:
         return value
 
 
-# Example
-agent = API('192.236.160.95', 12345)
+if len(sys.argv) < 2:
+    print 'Incorrect Usage!'
+else:
+    # Example
+    agent = API(sys.argv[1], 12345)
