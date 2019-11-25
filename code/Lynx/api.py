@@ -32,7 +32,22 @@ class API:
             print '[!!] Connection Error'
             s.close()
             pass
+        self.port += 1
         return value
+
+    def query_file_store(self):
+        answer = ''
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.remote, self.port))
+            s.send('?{*f}')
+            answer = s.recv(1256)
+            s.close()
+        except socket.error:
+            print '[!!] Connection Error'
+            s.close()
+            pass
+        return answer
 
 
 if len(sys.argv) < 2:
@@ -40,3 +55,4 @@ if len(sys.argv) < 2:
 else:
     # Example
     agent = API(sys.argv[1], 12345)
+    print agent.query_file_store()

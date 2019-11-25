@@ -72,6 +72,7 @@ class TestServer:
             if client_query == '?':
                 self.clients_seen[addr[0]] = reply
             s.close()
+            self.inbound_port += 1
         return time.time()-self.tic
 
     def get_uptime(self):
