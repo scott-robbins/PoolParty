@@ -1,6 +1,7 @@
 from Crypto.Random import get_random_bytes
 from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
+import random
 import base64
 import socket
 import utils
@@ -19,8 +20,9 @@ date, localtime = utils.create_timestamp()
 
 
 class TestServer:
-    clients_seen = []
-    actions = {'?': base64.b64encode(get_random_bytes(128))}
+    clients_seen = {}
+    actions = {'?': base64.b64encode(get_random_bytes(128)),
+               '?{*f}': utils.cmd('ls')}
     inbound_port = 12345
     outgoin_port = 12346
     tic = 0.0
@@ -35,9 +37,10 @@ class TestServer:
             exit()
         self.running = True
         try:
-            uptime = self.run()
+            runtime = self.run()
         except KeyboardInterrupt:
             print '[*] Killing Server!'
+            print '[* Server Killed After %s seconds *]' % str(runtime)
             self.running = False
             # TODO: Dump unlogged data
             exit()
@@ -67,7 +70,8 @@ class TestServer:
                 print '[$] %s => %s' % (client_query, reply)
                 client_sock.send(reply)
                 client_sock.close()
-            s.close()
+            if client_query == '?':
+                self.clients_seen[addr[0]] = reply
         return time.time()-self.tic
 
     def get_uptime(self):
