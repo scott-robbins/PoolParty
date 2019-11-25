@@ -49,10 +49,33 @@ class API:
             pass
         return answer
 
+    def query_uptime(self, token):
+        return API.request(token, self.remote, self.port, '?t'+token)
+
+    @staticmethod
+    def request(session_token, ip, port, cmd):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((ip, port))
+            s.send(cmd+session_token)
+            answer = s.recv(1256)
+            s.close()
+        except socket.error:
+            print '[!!] Connection Error'
+            s.close()
+            pass
+        return answer
+
 
 if len(sys.argv) < 2:
     print 'Incorrect Usage!'
 else:
     # Example
+    print 'Testing all API Queries...'
     agent = API(sys.argv[1], 12345)
-    print agent.query_file_store()
+    token = agent.query_file_store()
+    print 'Session Token Recieved [%s]' % token
+    uptime = agent.query_uptime(token)
+    print 'Server uptime: %s' % uptime
+
+

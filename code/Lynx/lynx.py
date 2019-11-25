@@ -29,6 +29,8 @@ class TestServer:
 
     def __init__(self):
         self.init()
+        self.actions['!!'+self.token] = self.get_new_token()
+        self.actions['?t'+self.token] = self.get_uptime()
 
     def init(self,):
         # Make sure you have the correct permissions
@@ -37,8 +39,9 @@ class TestServer:
             exit()
         self.running = True
         try:
-            runtime = self.run()
+            self.run()
         except KeyboardInterrupt:
+            runtime = time.time() - self.tic
             print '[*] Killing Server!'
             print '[* Server Killed After %s seconds *]' % str(runtime)
             self.running = False
@@ -74,10 +77,11 @@ class TestServer:
                 self.clients_seen[addr[0]] = reply
             s.close()
             self.inbound_port += 1
-        return time.time()-self.tic
 
     def get_uptime(self):
         return time.time()-self.tic
 
+    def get_new_token(self):
+        return base64.b64encode(get_random_bytes(128))
 
 TestServer()
