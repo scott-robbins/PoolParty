@@ -47,13 +47,13 @@ class API:
             print '[!!] Connection Error'
             s.close()
             pass
+        self.port += 1
         return answer
 
     def query_uptime(self, token):
-        return API.request(token, self.remote, self.port, '?t'+token)
+        return self.request(token, self.remote, self.port, '?t'+token)
 
-    @staticmethod
-    def request(session_token, ip, port, cmd):
+    def request(self, session_token, ip, port, cmd):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((ip, port))
@@ -64,6 +64,7 @@ class API:
             print '[!!] Connection Error'
             s.close()
             pass
+        self.port += 1
         return answer
 
 
