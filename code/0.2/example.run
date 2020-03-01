@@ -1,0 +1,13 @@
+NODES: 10.0.0.3, 10.0.0.7, 10.0.0.11
+
+MODE: SEQUENTIAL
+
+OPERATIONS:
+o 1=[1]:$(raspistill -t 1 -o test.jpeg)
+o 2=[3]:<get /home/pi/test.jpeg from [1] /root/Desktop>
+o 3=[0]:<get /root/Desktop/test.jpeg from [3] ~/PiCam/0.2/code/>
+o 4=[0]:$(cd  ~/PiCam/0.2/code; python image_processor.py --process test.jpeg)
+
+
+
+
