@@ -64,6 +64,14 @@ def get_local_ip():
     ip = raw_line.split('inet ')[1].split(' netmask')[0]
     return ip
 
+
+def arr2dir(str_arr):
+    out = ''
+    for element in str_arr:
+        out+='%s/' % element
+    return out
+
+
 # ######################## ENCRYPTED COMMUNICATION FUNCTIONS ######################## #
 import warnings                                       # SUPRESSING PARAMIKO WARNINGS!
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')

@@ -65,6 +65,7 @@ def parse_runtime(configuration):
     print '[o] Parsing Instructions...'
     gameplan = {}
     raw_steps.pop(0)
+    open('run.sh', 'wb').write('#!/bin/bash\n')
     for step in raw_steps:
         if len(list(step)) <= 1:
             continue
@@ -81,32 +82,58 @@ def parse_runtime(configuration):
             if instruct_unparsed[0]=='$':
                 opcode='SHELL'
                 operation = instruct_unparsed[2:].split(')')[0]
-            elif instruct_unparsed[0]=='<': # more complicated, as it requires further parsing
+
+            elif instruct_unparsed[0] == '<': # more complicated, as it requires further parsing
                 opcode='API'
                 operation = instruct_unparsed[1:].split('>')[0]
                 if 'get' in operation.split(' '):
                     opcode += '_get'
                     remote_file = operation.split('get ')[1].split(' from')[0]
                     remote_host = nodes[int(operation.split('[')[1].split(']')[0])]
+                    node_creds = party.which_nodes(remote_host)
+                    node_info = node_creds.split('.')[0]+'.pool'
+                    credentials = party.quick_load(node_creds, node_info)
+                    ip = credentials['ip']
+                    uname = credentials['name']
+                    pwd = credentials['password']
+                    loc = utils.arr2dir(remote_file.split('/')[:-1])
+                    opg = "echo 'get %s' | sshpass -p '%s' sftp %s@%s:%s\n" %\
+                                 (remote_file.split('/')[-1], pwd, uname, ip, loc)
+                    open('run.sh', 'a').write(opg)
 
-                    operation = "sshpass -p '%s' sftp %s@%s:%s <<< $'get %s'" % \
-                                ()
-                    # TODO: Use SFTP to make this the same as a shell command
-                elif 'put' in operation.split(' '):
+                if 'put' in operation.split(' '):
                     opcode += '_put'
                     local_file = operation.split('get ')[1].split(' from')[0]
                     remote_host = nodes[int(operation.split('[')[1].split(']')[0])]
-                    operation = "sshpass -p '%s' sftp %s@%s:%s <<< $'put %s'"  %\
-                                ()
-                    # TODO: Use SFTP to make this the same as a shell command
+                    node_creds = party.which_nodes(remote_host)
+                    node_info = node_creds.split('.')[0] + '.pool'
+                    credentials = party.quick_load(node_creds, node_info)
+                    ip = credentials['ip']
+                    uname = credentials['name']
+                    pwd = credentials['password']
+                    opp = "echo 'put %s' | sshpass -p '%s' sftp %s@%s:%s\n" %\
+                                (local_file, pwd, uname, ip, '~/%s' % local_file.split('/')[-1])
+                    open('run.sh', 'a').write(opp)
+
+            # Check for configuration file syntax errors
             else:
                 print '[!!] Unrecognized OP-CODE: %s' % instruct_unparsed[0]
+                exit()
             if instruct_target_host > (len(nodes)+1) or instruct_target_host < 0:
                 print '[!!] Instruction defines a host CPU that is not listed as node!'
+                exit()
+            # Add line to master script
+
         print '\t%d - %s on host %s' % \
               (instruct_num, opcode, nodes[instruct_target_host])
+        if opcode == 'SHELL' and instruct_target_host!=0:
+            open('run.sh', 'a').write('python party.py cmd %s %s\n' %
+                                      (nodes[instruct_target_host], operation))
+        elif opcode == 'SHELL' and instruct_target_host==0:
+            open('run.sh', 'a').write(operation+'\n')
         gameplan[instruct_num] = (instruct_num, operation, nodes[instruct_target_host])
     print '[*] %d Instructions Found ' % instruct_num
+    open('run.sh', 'a').write('rm -- %s/"$0"\n#EOF\n' % os.getcwd())
 
 
 if __name__ == '__main__':

@@ -6,6 +6,19 @@ import sys
 import os
 
 
+def which_nodes(ip_address):
+    if not os.path.isdir('Pool'):
+        print '[!!] No POOL Created...'
+        exit()
+    substr = ip_address.replace('.', '')
+    os.system('ls Pool/*.key >> keys.txt')
+    keys = utils.swap('keys.txt', True)
+    for line in keys:
+        name = line.split('/')[1].split('.')[0]
+        if len(name.split(substr)) > 1:
+            return line.split('/')[1]
+
+
 def register_node():
     """
     Log the information/credentials for a peer to it's own unique file.
