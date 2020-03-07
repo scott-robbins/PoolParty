@@ -127,8 +127,8 @@ if __name__ == '__main__':
             credentials = load_credentials(hostname, ip)
         else:
             name = sys.argv[2]
-            # TODO: Make sure there is only ONE node with this name,
-            #  Otherwise tell user they must be more specific (use IP instead)
+            # Make sure there is only ONE node with this name,
+            # Otherwise tell user they must be more specific (use IP instead)
             os.system('ls Pool | grep %s >> files.txt' % name)
             creds = utils.swap('files.txt', True)
             if len(creds) == 2:

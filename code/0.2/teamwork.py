@@ -64,10 +64,6 @@ def extract_features(raw_data):
         if start_instruction_buff:
             steps.append(line)
     ns.insert(0, lan_ip)
-
-    # print '[*] %d Nodes In Runtime:' % len(ns)
-    # print '[*] %s MODE Selected' % m
-    # print '[o] Parsing Instructions...'
     steps.pop(0)
     return ns, m, steps, iterations
 
@@ -147,6 +143,7 @@ def build_sequential(nodes, iterations, raw_steps):
                 open('run.sh', 'a').write('    python party.py cmd %s %s\n' %
                                           (nodes[instruct_target_host], operation))
         elif opcode == 'SHELL' and instruct_target_host == 0:
+            verbose = True
             if iterations <= 1:
                 open('run.sh', 'a').write(operation + '\n')
             else:
@@ -155,6 +152,12 @@ def build_sequential(nodes, iterations, raw_steps):
     if iterations > 1:
         open('run.sh', 'a').write('done\n')
     open('run.sh', 'a').write('rm -- %s/"$0"\n#EOF\n' % os.getcwd())
+    # Run the built script
+    if not verbose:
+        os.system('bash run.sh >> /dev/null 2>&1')
+    else:
+        os.system('bash run.sh')
+    print '[*] Execution Finished [%ss Elapsed]' % str(time.time() - tic)
 
 
 def parse_runtime(configuration):
@@ -172,6 +175,7 @@ if __name__ == '__main__':
         UNSAFE = True
     if ('-v' or '--verbose') in sys.argv:
         verbose = True
+
     # The RUNTIME_STRUCTURE will be derived from a pool_party.run file
     # where a pool_party is a structured text-file that defines an event for
     # a cluster of machines to run cooperatively
@@ -179,11 +183,5 @@ if __name__ == '__main__':
 
     # Parse the Runtime Configuration File
     parse_runtime(runtime_config_file)
-
-    # Run the built script
-    if not verbose:
-        os.system('bash run.sh >> /dev/null 2>&1')
-    else:
-        os.system('bash run.sh')
-    print '[*] Execution Finished [%ss Elapsed]' % str(time.time()-tic)
+    print '[*] Beginning Execution [%ss Elapsed]' % str(time.time()-tic)
 
