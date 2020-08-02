@@ -1,14 +1,10 @@
 # PoolParty
 My own DIY attempt at a small P2P kind of distributed computing system
 
-## Distributed Computing Projects
+## Distributed Computing Projects Attempted (![see v0.2](https://github.com/scott-robbins/PoolParty/tree/master/code/0.2))
 * security camera  *(under development)*
 * basic btc price analytics and monitoring *(under development)*
 * distributed file system/file syncing *(under development)*
-
-Tons of other things could be done, like using a distributed
-network to run parallel cpu training with tensorflow, or a
-set of nodes that parellelize tasks like scanning the internet.
 
 My general thought here is that the way the scaling of processing
 power has been heading, it seems worth exploring the idea that 
