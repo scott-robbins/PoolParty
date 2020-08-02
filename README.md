@@ -12,5 +12,5 @@ I want to make this more flexible because the system I had before was:
 	B) Really rigid in defining jobs, no real communication between nodes, the previous attempt did not really
 	   create a network so much as a fleet of bots you can *kinda* control with a configuration file.
 To see what the latest development is up to ![visit v0.3](https://github.com/scott-robbins/PoolParty/tree/master/code/0.3)
-========================================== *Last Updated August 2020* ==========================================
+================================== *Last Updated August 2020* ====================================
 
