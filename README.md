@@ -31,7 +31,7 @@ netflix subscription, you can control an increasingly powerful network of
 machines from a cheap chromebook or laptop. Why by the next $500 beast if 
 you can subscribe to Moore's Law for less than $10 a month?  
 
-## BTC 
+## Example: BTC Price Analysis
 Still under development. Not used to making GUIs, so that's a challenge for me 
 as well. Here's a snapshot of what it looks like so far: 
 
