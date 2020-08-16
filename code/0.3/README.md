@@ -10,4 +10,4 @@ Every machine is a NODE
 But these are simply <ROLES> a node may have (Nodes can have more than one ROLE too) and are traits about the
 machine that help optimize how jobs will be schedule
 
-========================================== *Last Updated August 2020* ==========================================
+========================== *Last Updated August 2020* ==========================
