@@ -20,6 +20,17 @@ def get_cluster_creds(user_nodes, check_cnx):
 				ping[username] = float(stop-start)
 	return node_creds, ping
 
+def get_node_names():
+	ns = []
+	for n in list(set(utils.cmd('ls PoolData/Creds/*.creds',False))):
+		ns.append(n.split('@')[0].split('/')[-1])
+	return ns 
 
-nodes = ['Server', 'Jetson', 'Kali', 'Raspberry1', 'Raspberry2']
-creds, latency = get_cluster_creds(nodes, True)
+def main():
+	nodes = get_node_names()
+	creds, latency = get_cluster_creds(nodes, False)
+	
+
+
+if __name__ == '__main__':
+	main()

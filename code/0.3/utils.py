@@ -15,6 +15,13 @@ import os
                                        # SUPRESSING PARAMIKO WARNINGS!
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
+FEND = '\033[0m'
+BOLD = '\033[1m'
+RED = '\033[31m'
+GREEN = '\033[32m'
+BLUE = '\033[34m'
+YELLOW = '\033[33m'
+
 def swap(filename, destroy):
 	data = []
 	for line in open(filename, 'rb').readlines():
@@ -95,8 +102,8 @@ def ssh_exec(cmd, ip_address, uname, password, verbose):
 			ssh_session.exec_command(cmd)
 			reply = ssh_session.recv(100000)
 		if verbose:
-			print '$ %s' % cmd
-			print '$ %s' % reply
+			print '$ %s\n$ %s' % (cmd,reply)
+			
 	except paramiko.SSHException:
 		pass
 	except paramiko.ssh_exception.NoValidConnectionsError:

@@ -2,6 +2,7 @@ from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
+import numpy as np
 import base64
 import socket
 import utils
@@ -85,7 +86,8 @@ def load_credentials(nickname, debug):
 	for name in os.listdir('PoolData/Creds'):
 		if len(name.split('@'))==2:
 			if nickname == name.split('@')[0]:
-				print '[*] Found Credentials for %s' % nickname
+				if debug:
+					print '[*] Found Credentials for %s' % nickname
 				cred_name = name
 				host = name.split('@')[1].split('.creds')[0]
 				found = True
@@ -101,22 +103,81 @@ def load_credentials(nickname, debug):
 	hostname = raw_creds.split('@')[0]
 	ip_addr = raw_creds.split('@')[1].split(':')[0]
 	password = raw_creds.split(':')[1]
-
-	if debug:
-		print 'hostname: %s' % host
-		print 'IP Address: %s' % ip_addr
-		print 'Password: %s' % password
-
 	return host, ip_addr, password, private_key
 
+def check_pooldeck():
+	exists = False
+	if os.path.isdir(os.getcwd()+'/PoolData'):
+		if os.path.isdir(os.getcwd()+'/PoolData/Creds'):
+			exists = True
+	return exists
+
+def test_cnx(pool_name):
+	connected = False
+	hostname, ip, passwd, pk = load_credentials(pool_name, False)
+	start = time.time()
+	# Test Command Execution on the remote machine with simple hostname check
+	result = utils.ssh_exec('whoami',ip,hostname,passwd,False).replace('\n','')
+	if result == hostname:
+		connected = True
+	# Record how long it took to get a reply from this command
+	dt = time.time() - start
+	return dt, connected
+
+def test_pool():
+	# Get All Nodes listed in creds
+		nodes = list(set(utils.cmd('ls PoolData/Creds/*.creds', False)))
+		timing = {}
+		# run a connection check for each
+		for name in nodes:
+			n = name.split('/').pop(-1).split('@')[0]
+			ping, cnx = test_cnx(n)
+			if cnx:
+				# color the print out based on reply speed
+				if ping <= 0.75:
+					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.GREEN, ping,utils.FEND)
+				if 0.75 < ping < 1.5:
+					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.YELLOW, ping,utils.FEND)
+				if 1.5 < ping :
+					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.YELLOW, ping,utils.FEND)
+				timing[ping] = n
+		# also calculate fastest
+		best_time = np.min(list(set(timing.keys())))
+		best_node = timing[best_time]
+
+		# report connectivity
+		print '[*] %s is fastest' % best_node
+		return best_node, best_time
+
+
 def main():
-	DEBUG = True
-	if '-add' in sys.argv:
+	DEBUG = False
+	if ('-add' or '-add_cmd') in sys.argv:
 		add_client_cmdline()
 
 	if '-load' in sys.argv and len(sys.argv) >= 3:
-		hostname, ip, pword, pkey = load_credentials(sys.argv[2], DEBUG)
+		if check_pooldeck():
+			hostname, ip, pword, pkey = load_credentials(sys.argv[2], DEBUG)
 		
+	if '-cmd_rmt' in sys.argv and len(sys.argv) > 3:
+		if check_pooldeck():
+			hostname, ip, pword, pkey = load_credentials(sys.argv[2], DEBUG)
+			cmd = utils.arr2chstr(sys.argv[3:])
+			utils.ssh_exec(cmd,ip,hostname,pword,True)
+
+	if '-test' in sys.argv and len(sys.argv) >= 3:
+		print '[*] Checking connection to %s...' % sys.argv[2]
+		if check_pooldeck():
+			delta, connected = test_cnx(sys.argv[2])
+			if connected:
+				print '[*] Successfully connected to %s [%ss Elapsed]' % (sys.argv[2], delta)
+			else:
+				print '[!] Unable to connect to %s ' % sys.argv[2]
+	
+
+	if '-pool_cnx' in sys.argv:
+		test_pool()
+
 
 if __name__ == '__main__':
 	main()
