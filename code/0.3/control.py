@@ -54,7 +54,16 @@ def main():
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
 		rfile = remote_file.split('/')[-1]
 		rpath = remote_file.split(rfile)[0]
-		success = utils.ssh_get_file(rpath, rfile, ip, hostname, pword)
+		if utils.ssh_get_file(rpath, rfile, ip, hostname, pword):
+			print '[*] File Received'
+
+	if '-put_file' in sys.argv and len(sys.argv) >= 5:
+		local_file = sys.argv[2]
+		remote_path = sys.argv[3]
+		peer = sys.argv[4]
+		hostname, ip, pword, pk = setup.load_credentials(peer, False)
+		if utils.ssh_put_file(local_file, remote_path, ip, hostname, pword):
+			print '[*] File Transfer Complete'
 
 
 if __name__ == '__main__':
