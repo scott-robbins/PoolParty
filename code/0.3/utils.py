@@ -113,11 +113,9 @@ def ssh_exec(cmd, ip_address, uname, password, verbose):
 def ssh_get_file(r_path, rmt_file, ip, uname, passwd):
 	cmd = 'sshpass -p "%s" sftp %s@%s:%s/%s' % (passwd, uname, ip, r_path,rmt_file)
 	os.system(cmd)
-	os.system('mv %s HoneyJar/' % rmt_file)
 	return True
 
-def ssh_put_file(localfile, ip,uname,password):
-	rpath = '/home/Snoopy/code/Blue/Honey0.2/'
+def ssh_put_file(localfile, rpath, ip, uname, password):
 	cmd1 = 'sshpass -p "%s" sftp %s@%s:%s' % (password,uname,ip,rpath)
 	cmd2 = " <<< $'put %s'" % (localfile)
 	getreq = cmd1+cmd2

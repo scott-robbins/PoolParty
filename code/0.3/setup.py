@@ -149,23 +149,40 @@ def test_pool():
 		print '[*] %s is fastest' % best_node
 		return best_node, best_time
 
+def usage():
+	print '[!!] Incorrect usage [!!]\n'
+	print '$ python setup.py <opt> <args>\n'
+	print 'Valid options are:'
+	opts = ['-add', '-load', '-cmd_rmt', '-pool_cnx']
+	info = {'-add': 'Add peer to network',
+			'-load': 'Load Credentials for a node',
+			'-cmd_rmt': 'Execute command on remote node',
+			'-pool_cnx': 'Check pool connectivity/network connections'}
+	for o in opts:
+		print '\t-%s    \t(%s)' % (o, info[o])
 
 def main():
 	DEBUG = False
+	completed = False
+
 	if ('-add' or '-add_cmd') in sys.argv:
+		completed = True
 		add_client_cmdline()
 
 	if '-load' in sys.argv and len(sys.argv) >= 3:
+		completed = True
 		if check_pooldeck():
 			hostname, ip, pword, pkey = load_credentials(sys.argv[2], DEBUG)
 		
 	if '-cmd_rmt' in sys.argv and len(sys.argv) > 3:
+		completed = True
 		if check_pooldeck():
 			hostname, ip, pword, pkey = load_credentials(sys.argv[2], DEBUG)
 			cmd = utils.arr2chstr(sys.argv[3:])
 			utils.ssh_exec(cmd,ip,hostname,pword,True)
 
 	if '-test' in sys.argv and len(sys.argv) >= 3:
+		completed = True
 		print '[*] Checking connection to %s...' % sys.argv[2]
 		if check_pooldeck():
 			delta, connected = test_cnx(sys.argv[2])
@@ -173,10 +190,13 @@ def main():
 				print '[*] Successfully connected to %s [%ss Elapsed]' % (sys.argv[2], delta)
 			else:
 				print '[!] Unable to connect to %s ' % sys.argv[2]
-	
 
 	if '-pool_cnx' in sys.argv:
+		completed = True
 		test_pool()
+
+	if not completed:
+		usage()
 
 
 if __name__ == '__main__':
