@@ -1,3 +1,6 @@
+from Crypto.Random import get_random_bytes
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.PublicKey import RSA
 import setup
 import utils 
 import time 
@@ -35,6 +38,36 @@ def get_node_names():
 		ns.append(n.split('@')[0].split('/')[-1])
 	return ns 
 
+def load_credentials(nickname, debug):
+	if not os.path.isdir(os.getcwd()+'/PoolData/Creds'):
+		print '[!!] No credentials Found. Plese Register First!'
+		exit()
+	found = False
+	host  = ''
+	key_name = nickname+'.pem'
+	for name in os.listdir('PoolData/Creds'):
+		if len(name.split('@'))==2:
+			if nickname == name.split('@')[0]:
+				if debug:
+					print '[*] Found Credentials for %s' % nickname
+				cred_name = name
+				host = name.split('@')[1].split('.creds')[0]
+				found = True
+	if not found:
+		print '[!!] Unable to find username %s' % nickname
+		exit()
+	if not os.path.isfile(os.getcwd()+'/PoolData/Creds/%s' % key_name):
+		print '[!!] No credentials founder for username %s' % host
+		exit()
+	
+	private_key = RSA.importKey(open(os.getcwd()+'/PoolData/Creds/%s' % key_name).read())
+	raw_creds = PKCS1_OAEP.new(private_key).decrypt(open(os.getcwd()+'/PoolData/Creds/%s' % cred_name,'rb').read())
+	hostname = raw_creds.split('@')[0]
+	ip_addr = raw_creds.split('@')[1].split(':')[0]
+	password = raw_creds.split(':')[1]
+	return host, ip_addr, password, private_key
+
+
 def main():
 	nodes = get_node_names()
 	
@@ -44,6 +77,7 @@ def main():
 		for n in nodes:
 			cmd = utils.arr2chstr(sys.argv[2:])
 			try:
+				print creds[n]
 				result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
 			except Exception:
 				pass

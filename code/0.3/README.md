@@ -1,13 +1,15 @@
 # PoolParty_v0.3
-This new architecture will build on things I've learned in the meantime, and will hopefully be cleaner and more efficient. 
+Previous designs helped me figure out how to make pretty neat functionality for machines
+controlling each others remotely (command execution, file transfer, etc.). This next version
+will try and build on that foundation, and create ways to have machines work together on common
+tasks. This should work better now that the fundamentals are more solid. 
+
 
 ### Pool Rules 
-Every machine is a NODE  
- - Some nodes have higher computational power, this designates them a WORKER
- - Other nodes might be well connected on the network, they are designated the TALKER
- - Nodes that have public facing IPs will be useful for routing as network grows, so they are ROUTER
-
-But these are simply <ROLES> a node may have (Nodes can have more than one ROLE too) and are traits about the
-machine that help optimize how jobs will be schedule
+Every machine is a **node** which is given one or more of the follow <*roles*>:
+---------------------------------------------------------------------------------------------
+ - Some nodes have higher computational power, this designates them a **worker**
+ - Other nodes might be well connected on the network, they are designated a **talker**
+ - Nodes without NAT will be useful for routing as network grows, so they are **routers**
 
 ========================== *Last Updated August 2020* ==========================

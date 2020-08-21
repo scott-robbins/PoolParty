@@ -1,3 +1,4 @@
+import numpy as np
 import control 
 import utils 
 import setup
@@ -11,7 +12,7 @@ import os
 # effecively will require knowing this about each peer and organizing their coordination around these profiles. 
 
 class Node:
-	style = ''			# node style (WORKER, TALKER, ROUTER, etc...)
+	style = ''			# node style (WORKER, TALKER, ROUTER, HOLDER, etc...)
 	internal_ip = {}	# Not all machines will only have one active adapter?
 	external_ip = ''	# IP seen outisde of NAT
 	cpu_rating = 0.0	# computational power rating
@@ -21,6 +22,7 @@ class Node:
 		self.external_ip = utils.get_ext_ip()
 		hostname, ip, pword, pkey = setup.load_credentials(nickname, True)
 		self.get_internal_addr()
+		print self.test_cpu_power()
 
 	def get_internal_addr(self):
 		for line in utils.cmd('ifconfig | grep UP', False):
@@ -30,6 +32,20 @@ class Node:
 				route = utils.cmd('ifconfig %s | grep inet | grep netmask' % iface, False)
 				if 'LOOPBACK' not in flags:
 					self.internal_ip[iface] = route.pop().split(' netmask')[0].replace(' ','').split('inet')[1]
+
+
+	def test_cpu_power(self):
+		t0 = time.time()
+		l0 = []
+		l1 = 0
+		for i in range(10000):
+			l0.append(np.random.randint(0,1,1)[0])
+		l0 = np.array(l0).reshape(100, 100)
+		for i in range(1000):
+			l1 += np.array(l0[i,:]).sum()
+		dt = time.time() - t0
+		return dt
+
 					
 def main():
 	Node('Test')
