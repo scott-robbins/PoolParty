@@ -27,6 +27,7 @@ class Node:
 		self.get_internal_addr()
 		print self.external_ip
 		for addr in self.internal_ip.values():
+			print addr
 			if addr == self.external_ip:
 				ROUTER = True
 
