@@ -16,7 +16,7 @@ class Node:
 	ROUTER = False
 	HOARDER = True
 	WORKER = False	    # node style (WORKER, TALKER, ROUTER, HOLDER, etc...)
-	internal_ip = {}	# Not all machines will only have one active adapter?
+	internal_ip = []	# Not all machines will only have one active adapter?
 	external_ip = ''	# IP seen outisde of NAT
 	cpu_rating = 0.0	# computational power rating
 	trx_rating = 0.0	# network connectivity rating
@@ -31,17 +31,7 @@ class Node:
 
 	def get_internal_addr(self):
 		# This is only working when run locally for raspberry pi. not sure why
-		for line in utils.cmd('ifconfig | grep UP', False):
-			iface = line.split(':')[0].replace('\n','').replace(' ','')
-			flags = utils.arr2chstr(line.split(':')[1].split('<')[1:]).split('>')[0].split(',')
-			# print flags
-			if 'RUNNING' in flags:
-				route = utils.cmd('ifconfig %s | grep inet | grep netmask' % iface, False)
-				
-				if 'LOOPBACK' not in flags:
-					ln = route.pop()
-					print ln.split(' netmask ')[0].split(' ')[-2]
-					self.internal_ip[iface] = ln.split(' netmask ')[0].split(' ')[-2]
+		self.internal_ip = utils.cmd('hostname -I',False).pop()
 
 
 	def test_cpu_power(self):
@@ -63,7 +53,7 @@ class Node:
 				  'HOARDER': self.HOARDER,
 				  'WORKER': self.WORKER}
 		ipstr = '\n'; n = 1
-		for addr in self.internal_ip.values():
+		for addr in self.internal_ip:
 			ipstr += '    [%d] %s\n' % (n, addr)
 			n += 1
 		result = '[* --- < Node Details > --- *]\n'
