@@ -30,13 +30,13 @@ class Node:
 		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
+		# This is only working when run locally for raspberry pi. not sure why
 		for line in utils.cmd('ifconfig | grep UP', False):
 			iface = line.split(':')[0].replace('\n','').replace(' ','')
 			flags = utils.arr2chstr(line.split(':')[1].split('<')[1:]).split('>')[0].split(',')
 			if 'RUNNING'  in flags:
 				route = utils.cmd('ifconfig %s | grep inet | grep netmask' % iface, False)
-				if 'LOOPBACK' not in flags:
-					self.internal_ip[iface] = route.pop().split(' netmask')[0].replace(' ','').split('inet')[1]
+				self.internal_ip[iface] = route.pop().split(' netmask')[0].replace(' ','').split('inet')[1]
 
 
 	def test_cpu_power(self):
