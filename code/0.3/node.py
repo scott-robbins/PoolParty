@@ -20,7 +20,7 @@ class Node:
 
 	def __init__(self, nickname):
 		self.external_ip = utils.get_ext_ip()
-		self.internal_ip = self.get_internal_addr()
+		self.get_internal_addr()
 		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
