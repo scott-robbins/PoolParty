@@ -13,13 +13,12 @@ def get_cluster_creds(user_nodes, check_cnx):
 	# Get all the credentials for each node 
 	for username in user_nodes:
 		hname, ip, pword, pkey = setup.load_credentials(username, False)
+		node_creds[username] = [hname, ip, pword]
 		if check_cnx:
 			start = time.time()
 			result = utils.ssh_exec('whoami', ip, hname, pword, False).replace('\n','')
 			stop = time.time()
 			if result == hname:
-				# print '[*] Successful Command Execution on %s [%ss]' % (username, str(stop-start))
-				node_creds[username] = [hname, ip, pword]
 				p = float(stop-start)
 				ping[username] = p
 
@@ -67,13 +66,17 @@ def load_credentials(nickname, debug):
 	password = raw_creds.split(':')[1]
 	return host, ip_addr, password, private_key
 
+def test_computational_power():
+	nodes = get_node_names()
+	creds, null = get_cluster_creds(nodes, False)
+
 
 def main():
 	nodes = get_node_names()
 	
 	
 	if '-cmd_all' in sys.argv and len(sys.argv) >=3:
-		creds, latency = get_cluster_creds(nodes, True)
+		creds, latency = get_cluster_creds(nodes, False)
 		for n in nodes:
 			cmd = utils.arr2chstr(sys.argv[2:])
 			try:
@@ -81,7 +84,7 @@ def main():
 			except Exception:
 				pass
 
-	if '-get_file' in sys.argv and len(sys.argv) >= 4:
+	elif '-get_file' in sys.argv and len(sys.argv) >= 4:
 		remote_file = sys.argv[2]
 		peer = sys.argv[3]
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
@@ -90,13 +93,23 @@ def main():
 		if utils.ssh_get_file(rpath, rfile, ip, hostname, pword):
 			print '[*] File Received'
 
-	if '-put_file' in sys.argv and len(sys.argv) >= 5:
+	elif '-put_file' in sys.argv and len(sys.argv) >= 5:
 		local_file = sys.argv[2]
 		remote_path = sys.argv[3]
 		peer = sys.argv[4]
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
 		if utils.ssh_put_file(local_file, remote_path, ip, hostname, pword):
 			print '[*] File Transfer Complete'
+
+	elif '-update_all_code' in sys.argv:
+		cmd = 'cd PoolParty; git pull origin'
+		creds, latency = get_cluster_creds(nodes, False)
+		for n in nodes:
+			try:
+				result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
+			except Exception:
+				pass
+
 
 
 if __name__ == '__main__':
