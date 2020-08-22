@@ -109,7 +109,11 @@ def main():
 				result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
 			except Exception:
 				pass
-
+	elif '-node_info' in sys.argv and len(sys.argv) >= 3:
+		peer = sys.argv[2]
+		hostname, ip, pword, pk = setup.load_credentials(peer, False)
+		rpath = '/%s/PoolParty/code/0.3' % hostname
+		print utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
 
 
 if __name__ == '__main__':
