@@ -46,7 +46,7 @@ class Node:
 		return dt
 
 
-	def show():
+	def show(self):
 		ipstr = '\n'; n = 1
 		for addr in self.internal_ip.values():
 			ipstr += '  [%d] %s\n' % (n, addr)
