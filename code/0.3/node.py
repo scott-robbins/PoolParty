@@ -12,15 +12,22 @@ import os
 # effecively will require knowing this about each peer and organizing their coordination around these profiles. 
 
 class Node:
-	style = ''			# node style (WORKER, TALKER, ROUTER, HOLDER, etc...)
+	TALKER = false
+	ROUTER = false
+	HOARDER = True
+	WORKER = false	    # node style (WORKER, TALKER, ROUTER, HOLDER, etc...)
 	internal_ip = {}	# Not all machines will only have one active adapter?
 	external_ip = ''	# IP seen outisde of NAT
 	cpu_rating = 0.0	# computational power rating
 	trx_rating = 0.0	# network connectivity rating
 
+
 	def __init__(self, nickname):
 		self.external_ip = utils.get_ext_ip()
 		self.get_internal_addr()
+		for addr in self.internal_ip.values():
+			if addr == self.external_ip:
+				ROUTER = True
 		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
@@ -47,6 +54,10 @@ class Node:
 
 
 	def show(self):
+		traits = {'TALKER': self.TALKER,
+				  'ROUTER': self.ROUTER,
+				  'HOARDER': self.HOARDER,
+				  'WORKER': self.WORKER}
 		ipstr = '\n'; n = 1
 		for addr in self.internal_ip.values():
 			ipstr += '    [%d] %s\n' % (n, addr)
@@ -55,6 +66,10 @@ class Node:
 		result += '  - Internal IP(s): %s' % ipstr
 		result += '  - External IP: %s\n' % self.external_ip
 		result += '  - CPU Test Timing: %ss\n' % str(self.cpu_rating)
+		for ability in traits:
+			if traits[ability]:
+				result += '  - Node is a %s' ability
+
 		return result
 
 					
