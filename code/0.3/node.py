@@ -12,10 +12,10 @@ import os
 # effecively will require knowing this about each peer and organizing their coordination around these profiles. 
 
 class Node:
-	TALKER = false
-	ROUTER = false
+	TALKER = False
+	ROUTER = False
 	HOARDER = True
-	WORKER = false	    # node style (WORKER, TALKER, ROUTER, HOLDER, etc...)
+	WORKER = False	    # node style (WORKER, TALKER, ROUTER, HOLDER, etc...)
 	internal_ip = {}	# Not all machines will only have one active adapter?
 	external_ip = ''	# IP seen outisde of NAT
 	cpu_rating = 0.0	# computational power rating
