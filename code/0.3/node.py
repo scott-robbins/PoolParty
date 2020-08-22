@@ -34,9 +34,10 @@ class Node:
 		for line in utils.cmd('ifconfig | grep UP', False):
 			iface = line.split(':')[0].replace('\n','').replace(' ','')
 			flags = utils.arr2chstr(line.split(':')[1].split('<')[1:]).split('>')[0].split(',')
-			print flags
-			if 'RUNNING'  in flags:
+			# print flags
+			if 'RUNNING' in flags:
 				route = utils.cmd('ifconfig %s | grep inet | grep netmask' % iface, False)
+				print route
 				if 'LOOPBACK' not in flags:
 					self.internal_ip[iface] = route.pop().split(' netmask')[0].replace(' ','').split('inet')[1]
 
