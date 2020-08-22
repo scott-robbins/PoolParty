@@ -25,12 +25,8 @@ class Node:
 	def __init__(self, nickname):
 		self.external_ip = utils.get_ext_ip().replace('$','').replace(' ','')
 		self.get_internal_addr()
-		print self.external_ip
-		for addr in self.internal_ip.values():
-			print addr
-			if addr == self.external_ip:
-				ROUTER = True
-
+		if self.external_ip in self.internal_ip.values():
+			self.ROUTER = True
 		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
