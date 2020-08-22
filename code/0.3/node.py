@@ -49,12 +49,12 @@ class Node:
 	def show(self):
 		ipstr = '\n'; n = 1
 		for addr in self.internal_ip.values():
-			ipstr += '  [%d] %s\n' % (n, addr)
+			ipstr += '    [%d] %s\n' % (n, addr)
 			n += 1
-		result = '[*] Node Details [*]\n'
-		result += '\t- Internal IP(s): %s' % ipstr
-		result += '\t- External IP:\n' % self.external_ip
-		result += '\t- CPU Test Timing: %ss\n' % str(self.cpu_rating)
+		result = '[* --- < Node Details > --- *]\n'
+		result += '  - Internal IP(s): %s' % ipstr
+		result += '  - External IP: %s\n' % self.external_ip
+		result += '  - CPU Test Timing: %ss\n' % str(self.cpu_rating)
 		return result
 
 					
