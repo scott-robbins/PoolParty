@@ -28,6 +28,8 @@ class Node:
 		for addr in self.internal_ip.values():
 			if addr == self.external_ip:
 				ROUTER = True
+			else:
+				print self.internal_ip.values()
 		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
