@@ -112,7 +112,11 @@ def main():
 	elif '-node_info' in sys.argv and len(sys.argv) >= 3:
 		peer = sys.argv[2]
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
-		rpath = '/%s/PoolParty/code/0.3' % hostname
+		poolpath = '/PoolParty/code/0.3'
+		if hostname == 'root':
+			rpath = '/root' + poolpath
+		else:
+			rpath = '/home/%s' + poolpath
 		print utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
 
 

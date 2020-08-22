@@ -190,17 +190,14 @@ def create_tcp_socket(verbose):
 
 def execute_python_script(rmt_file_path, rmt_file, ip, uname, password, verbose):
 	# Create a temp script to execute the python on the remote machine
-	script = '#!/bin/bash\ncd %s\npython %s >> result.txt\n' % (rmt_file_path, rmt_file)
+	script = '#!/bin/bash\ncd %s\npython %s\n' % (rmt_file_path, rmt_file)
 	script += 'rm -- "$0"\n#EOF\n' # make the script self deleting for easier
 	open('tmpsc.sh','wb').write(script)
 	# transfer the file to the remote machine 
-	ssh_put_file(os.getcwd()+'/tmpsc.sh', '/%s'%uname, ip, uname, password)
+	ssh_put_file('tmpsc.sh', '/%s'%uname, ip, uname, password)
 	os.remove('tmpsc.sh')
 	# execute the script and retrieve the result (if any needs to be grabbed)
-	ssh_exec('bash /%s/tmpsc.sh;cat result.txt' % uname,ip,uname,password, True)
-	ssh_get_file(rmt_file_path,'result.txt',ip,uname,password)
-	result = open('result.txt','rb').read()
-	os.remove('result.txt')
+	result = ssh_exec('bash /%s/tmpsc.sh' % uname,ip,uname,password, True)
 	if verbose:
 		print result
 	return result
