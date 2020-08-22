@@ -20,7 +20,6 @@ class Node:
 
 	def __init__(self, nickname):
 		self.external_ip = utils.get_ext_ip()
-		hostname, ip, pword, pkey = setup.load_credentials(nickname, True)
 		self.get_internal_addr()
 		print self.test_cpu_power()
 
