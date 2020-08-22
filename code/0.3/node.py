@@ -25,14 +25,15 @@ class Node:
 	def __init__(self, nickname):
 		self.external_ip = utils.get_ext_ip().replace('$','').replace(' ','')
 		self.get_internal_addr()
-		if self.external_ip in self.internal_ip.values():
+		if self.external_ip in self.internal_ip:
 			self.ROUTER = True
 		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
 		# This is only working when run locally for raspberry pi. not sure why
-		self.internal_ip = utils.cmd('hostname -I',False).pop()
-
+		addrs = utils.cmd('hostname -I',False).pop().split(' ')
+		addrs.pop(-1)
+		self.internal_ip =  addrs
 
 	def test_cpu_power(self):
 		t0 = time.time()
