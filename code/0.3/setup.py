@@ -14,6 +14,7 @@ def add_client_cmdline():
 	if not os.path.isdir(os.getcwd()+'/PoolData/'):
 		os.mkdir(os.getcwd()+'/PoolData')
 	uname, password = create_credentials()
+	return uname
 
 def create_credentials():
 	if not os.path.isdir(os.getcwd()+'/PoolData/Creds'):
@@ -167,7 +168,16 @@ def main():
 
 	if ('--add' or '--add_cmd') in sys.argv:
 		completed = True
-		add_client_cmdline()
+		new_client = add_client_cmdline()
+		# Test that those creds work!!
+		delta, is_connected = test_cnx(new_client)
+		if not is_connected:
+			print '[!!] Unable to connect to Peer'
+		else:
+			print '[*] Successfully added Peer'
+			# download the github repo here
+			git_get = 'python setup.py --cmd_rmt %s git clone https://github.com/scott-robbins/PoolParty'
+			os.system(git_get % new_client)
 
 	if '--load' in sys.argv and len(sys.argv) >= 3:
 		completed = True
