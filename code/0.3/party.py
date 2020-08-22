@@ -40,7 +40,7 @@ class Node:
 		for i in range(10000):
 			l0.append(np.random.randint(0,1,1)[0])
 		l0 = np.array(l0).reshape(100, 100)
-		for i in range(1000):
+		for i in range(99):
 			l1 += np.array(l0[i,:]).sum()
 		dt = time.time() - t0
 		return dt
