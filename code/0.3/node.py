@@ -39,7 +39,7 @@ class Node:
 				route = utils.cmd('ifconfig %s | grep inet | grep netmask' % iface, False)
 				print route
 				if 'LOOPBACK' not in flags:
-					self.internal_ip[iface] = route.pop().split(' netmask')[0].replace(' ','').split('inet')[1]
+					self.internal_ip[iface] = route.pop().split('netmask')[0].split('inet')[1].replace(' ','')
 
 
 	def test_cpu_power(self):
