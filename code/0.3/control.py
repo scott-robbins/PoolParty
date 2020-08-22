@@ -116,8 +116,8 @@ def main():
 		if hostname == 'root':
 			rpath = '/root' + poolpath
 		else:
-			rpath = '/home/%s' + poolpath
-		print utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
+			rpath = '/home/%s%s' % (hostname,poolpath)
+		utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
 
 
 if __name__ == '__main__':

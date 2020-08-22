@@ -193,11 +193,11 @@ def execute_python_script(rmt_file_path, rmt_file, ip, uname, password, verbose)
 	script = '#!/bin/bash\ncd %s\npython %s\n' % (rmt_file_path, rmt_file)
 	script += 'rm -- "$0"\n#EOF\n' # make the script self deleting for easier
 	open('tmpsc.sh','wb').write(script)
-	# transfer the file to the remote machine 
-	ssh_put_file('tmpsc.sh', '/%s'%uname, ip, uname, password)
+	ssh_put_file('tmpsc.sh', '%s'%rmt_file_path, ip, uname, password)
 	os.remove('tmpsc.sh')
 	# execute the script and retrieve the result (if any needs to be grabbed)
-	result = ssh_exec('bash %s/tmpsc.sh' % rmt_file_path,ip,uname,password, True)
+	c = 'bash %s/tmpsc.sh' % rmt_file_path
+	result = ssh_exec(c ,ip,uname,password, True)
 	if verbose:
 		print result
 	return result
