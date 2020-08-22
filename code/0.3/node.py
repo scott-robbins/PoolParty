@@ -68,7 +68,7 @@ class Node:
 		result += '  - CPU Test Timing: %ss\n' % str(self.cpu_rating)
 		for ability in traits:
 			if traits[ability]:
-				result += '  - Node is a %s' ability
+				result += '  - Node is a %s' % ability
 
 		return result
 
