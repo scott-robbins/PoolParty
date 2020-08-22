@@ -197,7 +197,7 @@ def execute_python_script(rmt_file_path, rmt_file, ip, uname, password, verbose)
 	ssh_put_file('tmpsc.sh', '/%s'%uname, ip, uname, password)
 	os.remove('tmpsc.sh')
 	# execute the script and retrieve the result (if any needs to be grabbed)
-	result = ssh_exec('bash /%s/tmpsc.sh' % uname,ip,uname,password, True)
+	result = ssh_exec('bash /tmpsc.sh' % rpath,ip,uname,password, True)
 	if verbose:
 		print result
 	return result
