@@ -20,8 +20,8 @@ class Node:
 
 	def __init__(self, nickname):
 		self.external_ip = utils.get_ext_ip()
-		self.get_internal_addr()
-		print self.test_cpu_power()
+		self.internal_ip = self.get_internal_addr()
+		self.cpu_rating = self.test_cpu_power()
 
 	def get_internal_addr(self):
 		for line in utils.cmd('ifconfig | grep UP', False):
@@ -45,9 +45,22 @@ class Node:
 		dt = time.time() - t0
 		return dt
 
+
+	def show():
+		ipstr = '\n'; n = 1
+		for addr in self.internal_ip.values():
+			ipstr += '  [%d] %s\n' % (n, addr)
+			n += 1
+		result = '[*] Node Details [*]\n'
+		result += '\t- Internal IP(s): %s' % ipstr
+		result += '\t- External IP:\n' % self.external_ip
+		result += '\t- CPU Test Timing: %ss\n' % str(self.cpu_rating)
+		return result
+
 					
 def main():
-	Node('Test')
+	node = Node('Test')
+	print node.show()
 
 if __name__ == '__main__':
 	main()	
