@@ -37,8 +37,9 @@ class Node:
 			# print flags
 			if 'RUNNING' in flags:
 				route = utils.cmd('ifconfig %s | grep inet | grep netmask' % iface, False)
-				print route
+				
 				if 'LOOPBACK' not in flags:
+					print route.pop().split(' netmask ')[0]
 					self.internal_ip[iface] = route.pop().split(' netmask ')[0].split('inet ')[1].replace(' ','')
 
 
