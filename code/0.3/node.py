@@ -28,6 +28,9 @@ class Node:
 		if self.external_ip in self.internal_ip:
 			self.ROUTER = True
 		self.cpu_rating = self.test_cpu_power()
+		# Choosing based on an arbistrary value of 100ms
+		if self.cpu_rating < 0.1:
+			self.WORKER = True
 
 	def get_internal_addr(self):
 		# This is only working when run locally for raspberry pi. not sure why
