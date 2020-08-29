@@ -140,7 +140,10 @@ def main():
 		creds, latency = get_cluster_creds(nodes, False)
 		peerlist = ''
 		for i in nodes:
-			peerlist += creds[i][0] + '\n'
+			uname = creds[i][0]
+			ip = creds[i][1] # This might not be an external ip!!
+			#peerlist += i + '\n' # TODO: peerlist probably needs more info
+			peerlist += '%s %s %s\n' % (i, uname, ip)
 		open('peerlist.txt','wb').write(peerlist)
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
@@ -154,13 +157,14 @@ def main():
 				rpath = '/root' + poolpath
 			else:
 				rpath = '/home/%s%s' % (hname,poolpath)
-			print '- contacting %s' % rmt_peer
 			utils.execute_python_script(rpath, 'node.py %s -show' % rmt_peer, ip, hname, pword, False)
-			# [2] - Distribute peerlist, request any data the node has to tell
+			
+			# [2] - Distribute peerlist
 			peerloc = '%s/PoolData/Shares' % rpath
 			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', peerloc,ip,hname,pword)
 
-		# [3] - 
+			# [3] - See if node has any new data available
+
 		
 
 if __name__ == '__main__':

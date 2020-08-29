@@ -42,10 +42,12 @@ class Node:
             os.mkdir(os.getcwd()+'/PoolData')
         if not os.path.isdir(os.getcwd()+'/PoolData/Shares'):
             os.mkdir(os.getcwd()+'/PoolData/Shares')
-
             # create file for initializing peer list
             peers = os.getcwd()+'/PoolData/Shares/peerlist.txt'
             open(peers,'wb').write('%s\n' % self.name)
+        # Each node also has a folder for outputing data/messaging 
+        if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
+            os.mkdir(os.getcwd()+'/PoolData/NX')
 
     def get_internal_addr(self):
         addrs = utils.cmd('hostname -I',False).pop().split(' ')
