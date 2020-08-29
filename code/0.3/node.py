@@ -1,6 +1,7 @@
 import numpy as np
 import control
 import storage
+import socket
 import utils
 import setup
 import time
@@ -99,6 +100,8 @@ class Node:
                 peer_data.pop(-1)
                 self.PEERS = peer_data
                 received = True
+                client.close()
+                s.close()
             except socket.error:
                 received = False
                 pass

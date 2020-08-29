@@ -1,6 +1,7 @@
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
+import socket
 import setup
 import utils 
 import time 
@@ -70,6 +71,18 @@ def test_computational_power():
 	nodes = get_node_names()
 	creds, null = get_cluster_creds(nodes, False)
 
+def send_peer_list(port, receiver, names):
+	sent = False
+	while not sent:
+		try:
+			s = utils.create_tcp_socket()
+			s.connect((reciever, port))
+			s.send(utils.arr2str(names))
+			s.close()
+		except socket.error:
+			sent = False
+			pass
+	return sent
 
 def main():
 	nodes = get_node_names()
@@ -122,9 +135,16 @@ def main():
 
 	elif '--run-master' in sys.argv:
 		# This the mode for running the local machine as a master node in the pool
+		creds, latency = get_cluster_creds(nodes, False)
+		peerlist = ''
+		for i in nodes:
+			peerlist += creds[i][0] + '\n'
+		print peerlist 
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
-			hname, ip, pword, pk = setup.load_credentials(rmt_peer, False)
+			ip = creds[rmt_peer][1]
+			hname = creds[rmt_peer][0]
+			pword = creds[rmt_peer][2]
 			# The default installation of PoolParty for each node should be
 			# in the home folder of the hostame being connected to
 			poolpath = '/PoolParty/code/0.3'
@@ -133,8 +153,9 @@ def main():
 			else:
 				rpath = '/home/%s%s' % (hname,poolpath)
 			utils.execute_python_script(rpath, 'node.py -show', ip, hname, pword, False)
-		# [2] - Distribute peerlist, request any data the node has to tell
-
+			# [2] - Distribute peerlist, request any data the node has to tell
+			utils.execute_python_script(rpath, 'node.py -update_peer_list 54123', ip, hname, pword, False)
+			send_peer_list(54123, ip, peerlist)
 		# [3] - 
 		
 
