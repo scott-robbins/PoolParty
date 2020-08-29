@@ -48,6 +48,7 @@ class Node:
         # Each node also has a folder for outputing data/messaging 
         if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
             os.mkdir(os.getcwd()+'/PoolData/NX')
+            open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write('')
 
     def get_internal_addr(self):
         addrs = utils.cmd('hostname -I',False).pop().split(' ')
@@ -85,6 +86,11 @@ class Node:
                 result += '  - Node is a %s\n' % ability
         return result
 
+    def add_job_flag(self, flag_message):
+        if os path.isfile(os.getcwd()+'/PoolData/NX/requests.txt'):
+            open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write(flag_message)
+        else:
+            open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write(flag_message)
 
 def main():
     if len(sys.argv) < 2:
@@ -95,12 +101,22 @@ def main():
     if '-show' in sys.argv:
         print node.show()
 
+    # check peer list to see what is pingable?
+
     # if node.HOARDER:
         # Resynchronize Local Hashtable/Files 
     
-    # if node.ROUTER:
-        # Might want to start a service as a listener
+    if node.ROUTER:
+        has_routes = False
+        # not only ping peers, but request from master ext ips of nodes too
+        # even better would be to try and create a direct connection to test
+        if os.path.isfile(os.getcwd()+'/PoolData/NX/nat.txt'):
+            has_routes = True
+        if not has_routes:
+            # print '[*] Requesting Network Routing Info'
+            node.add_job_flag('? NAT Info')
 
+    
 
 
 if __name__ == '__main__':

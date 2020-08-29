@@ -86,6 +86,10 @@ def send_peer_list(port, receiver, names):
 			pass
 	return sent
 
+
+
+
+
 def main():
 	nodes = get_node_names()
 	
@@ -163,8 +167,9 @@ def main():
 			peerloc = '%s/PoolData/Shares' % rpath
 			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', peerloc,ip,hname,pword)
 
-			# [3] - See if node has any new data available
-
+			# [3] - See if node has any new data/requests available
+			show_req = 'ls -la %s/PoolData/NX/requests.txt' % rpath
+			req_size = utils.ssh_exec(show_req, ip, hname, pword, True)
 		
 
 if __name__ == '__main__':
