@@ -141,6 +141,8 @@ def main():
 
 	elif '--run-master' in sys.argv:
 		# This the mode for running the local machine as a master node in the pool
+		if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
+			os.mkdir(os.getcwd()+'/PoolData/NX')
 		creds, latency = get_cluster_creds(nodes, False)
 		peerlist = ''
 		for i in nodes:
@@ -175,8 +177,7 @@ def main():
 				req_loc = '%s/PoolData/NX' % rpath
 				if utils.ssh_get_file_del(req_loc, 'requests.txt', ip, hname, pword):
 					print '[*] request data recieved'
-					os.system('cat requests.txt')
-					os.system('mv requests.txt %s_req.txt' % rmt_peer)
+					os.system('mv requests.txt PoolData/NX/%s_req.txt' % rmt_peer)
 					# delete remote file after?
 				else:
 					print '[!!] unable to retrieve request data'
