@@ -92,7 +92,7 @@ class Node:
         peers = []
         while not received:
             try:
-                s = utils.create_tcp_socket()
+                s = utils.create_tcp_socket(True)
                 s.bind(('0.0.0.0', port))
                 s.listen(5)
                 client, caddr = s.accept()
