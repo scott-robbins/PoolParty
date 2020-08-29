@@ -4,8 +4,10 @@ from Crypto.Cipher import AES
 from threading import Thread
 try:
 	import paramiko
+	MIKO = True
 except ImportError:
 	print '[!!] Cannot use Paramiko'
+	MIKO = False
 import warnings
 import base64
 import socket
@@ -91,7 +93,7 @@ def cmd(command, verbose):
 	return swap('cmd.txt', True)
 
 def ssh_exec(cmd, ip_address, uname, password, verbose):
-	client = paramiko.SSHClient()
+	client = paramiko.SSHClient()	# TODO: Add no Miko error handling
 	client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
 	reply = ''
 	
@@ -110,17 +112,37 @@ def ssh_exec(cmd, ip_address, uname, password, verbose):
 		pass
 	return reply
 
+def ssh_exec_noreply(cmd, ip_address, uname, password):
+	client = paramiko.SSHClient
+	client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+	executed = False
+
+	try:	# actually connect and execute command
+		client.connect(ip_address, username=uname, password=password)
+		ssh_session = client.get_transport().open_session()
+		if ssh_session.active:
+			ssh_session.exec_command(cmd)
+			executed = True
+	except paramiko.SSHException:
+		pass
+	except paramiko.ssh_exception.NoValidConnectionsError:
+		pass
+	return executed
+
+
 def ssh_get_file(r_path, rmt_file, ip, uname, passwd):
+	# TODO: Add no Miko error handling
 	cmd = 'sshpass -p "%s" sftp %s@%s:%s/%s' % (passwd, uname, ip, r_path,rmt_file)
 	os.system(cmd)
 	return True
 
 def ssh_put_file(localfile, rpath, ip, uname, password):
+	# TODO: Add no Miko error handling
 	cmd1 = 'sshpass -p "%s" sftp %s@%s:%s' % (password,uname,ip,rpath)
 	cmd2 = " <<< $'put %s'" % (localfile)
 	getreq = cmd1+cmd2
 	open('tmp.sh','wb').write('#!/bin/bash\n%s\n#EOF'%getreq)
-	os.system('bash tmp.sh ')
+	os.system('bash tmp.sh >> /dev/null')
 	os.remove('tmp.sh')
 	return True
 
