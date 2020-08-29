@@ -142,7 +142,13 @@ def ssh_get_file_del(r_path, rmt_file, ip, uname, passwd):
 	cmd_del_a = 'sshpass -p "%s" ssh %s@%s ' % (passwd, uname, ip)
 	cmd_del_b = "'rm %s/%s'" % (r_path, rmt_file)
 	cmd_full = cmd_get + cmd_del_a + cmd_del_b
-	os.system(cmd_full)	
+	deleted = False
+	try:
+		os.system(cmd_full)
+		deleted = True
+	except OSError:
+		pass
+	return deleted	
 
 def ssh_put_file(localfile, rpath, ip, uname, password):
 	# TODO: Add no Miko error handling
