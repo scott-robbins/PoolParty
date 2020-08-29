@@ -190,7 +190,7 @@ def create_tcp_socket(verbose):
 
 def execute_python_script(rmt_file_path, rmt_file, ip, uname, password, verbose):
 	# Create a temp script to execute the python on the remote machine
-	script = '#!/bin/bash\ncd %s\npython %s\n' % (rmt_file_path, rmt_file)
+	script = '#!/bin/bash\ncd %s\npython %s &\n' % (rmt_file_path, rmt_file)
 	script += 'rm -- "$0"\n#EOF\n' # make the script self deleting for easier
 	open('tmpsc.sh','wb').write(script)
 	ssh_put_file('tmpsc.sh', '%s'%rmt_file_path, ip, uname, password)

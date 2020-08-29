@@ -141,7 +141,7 @@ def main():
 		peerlist = ''
 		for i in nodes:
 			peerlist += creds[i][0] + '\n'
-		print peerlist 
+		open('peerlist.txt','wb').write(peerlist)
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
 			ip = creds[rmt_peer][1]
@@ -154,10 +154,10 @@ def main():
 				rpath = '/root' + poolpath
 			else:
 				rpath = '/home/%s%s' % (hname,poolpath)
-			utils.execute_python_script(rpath, 'node.py -show', ip, hname, pword, False)
+			#utils.execute_python_script(rpath, 'node.py -show', ip, hname, pword, False)
 			# [2] - Distribute peerlist, request any data the node has to tell
-			utils.execute_python_script(rpath, 'node.py -update_peer_list 54123', ip, hname, pword, False)
-			send_peer_list(54123, ip, peerlist)
+			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', poolpath+'/PoolData/Shares/',ip,hname,pword)
+
 		# [3] - 
 		
 
