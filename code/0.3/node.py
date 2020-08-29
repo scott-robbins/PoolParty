@@ -87,7 +87,7 @@ class Node:
         return result
 
     def add_job_flag(self, flag_message):
-        if os path.isfile(os.getcwd()+'/PoolData/NX/requests.txt'):
+        if os.path.isfile(os.getcwd()+'/PoolData/NX/requests.txt'):
             open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write(flag_message)
         else:
             open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write(flag_message)
