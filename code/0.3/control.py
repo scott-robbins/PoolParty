@@ -73,12 +73,14 @@ def test_computational_power():
 
 def send_peer_list(port, receiver, names):
 	sent = False
+	print ' [*] Sending Peerlist to %s:%d' % (receiver, port)
 	while not sent:
 		try:
-			s = utils.create_tcp_socket()
-			s.connect((reciever, port))
+			s = utils.create_tcp_socket(False)
+			s.connect((receiver, port))
 			s.send(utils.arr2str(names))
 			s.close()
+			sent = True
 		except socket.error:
 			sent = False
 			pass

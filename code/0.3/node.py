@@ -38,6 +38,8 @@ class Node:
 
     def initialize(self):
         # Create Folder for Shared Data
+        if not os.path.isdir(os.getcwd()+'/PoolData'):
+            os.mkdir(os.getcwd()+'/PoolData')
         if not os.path.isdir(os.getcwd()+'/PoolData/Shares'):
             os.mkdir(os.getcwd()+'/PoolData/Shares')
 
