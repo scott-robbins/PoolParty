@@ -91,7 +91,7 @@ def main():
         name = sys.argv[1]
     node = Node('Test')
     if '-show' in sys.argv:
-        node.show()
+        print node.show()
 
     # if node.HOARDER:
         # Resynchronize Local Hashtable/Files 
