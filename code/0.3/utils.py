@@ -140,7 +140,7 @@ def ssh_get_file_del(r_path, rmt_file, ip, uname, passwd):
 	# Function for getting file and deleting remote copy in one command
 	cmd_get = 'sshpass -p "%s" sftp %s@%s:%s/%s; ' % (passwd, uname, ip, r_path,rmt_file)
 	cmd_del_a = 'sshpass -p "%s" ssh %s@%s ' % (passwd, uname, ip)
-    cmd_del_b = "'rm %s/%s'" % (r_path, rmt_file)
+	cmd_del_b = "'rm %s/%s'" % (r_path, rmt_file)
 	cmd_full = cmd_get + cmd_del_a + cmd_del_b
 	os.system(cmd_full)	
 
