@@ -150,7 +150,7 @@ def main():
 			ip = creds[i][1] # This might not be an external ip!!
 			#peerlist += i + '\n' # TODO: peerlist probably needs more info
 			peerlist += '%s %s %s\n' % (i, uname, ip)
-		open('/PoolData/NX/peerlist.txt','wb').write(peerlist)
+		open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(peerlist)
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
 			ip = creds[rmt_peer][1]
