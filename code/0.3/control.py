@@ -169,8 +169,17 @@ def main():
 
 			# [3] - See if node has any new data/requests available
 			show_req = 'ls -la %s/PoolData/NX/requests.txt' % rpath
-			req_size = utils.ssh_exec(show_req, ip, hname, pword, True)
-		
+			req_size = utils.ssh_exec(show_req, ip, hname, pword, False)
+			if len(req_size) > 1:
+				print '[*] %s has request data available' % rmt_peer
+				req_loc = '%s/PoolData/NX' % rpath
+				if utils.ssh_get_file(req_loc, 'requests.txt', ip, hname, pword):
+					print '[*] request data recieved'
+					os.system('cat requests.txt')
+					os.system('mv requests.txt %s_req.txt' % rmt_peer)
+					# delete remote file after?
+				else:
+					print '[!!] unable to retrieve request data'
 
 if __name__ == '__main__':
 	main()
