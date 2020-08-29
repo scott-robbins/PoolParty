@@ -173,7 +173,7 @@ def main():
 			if len(req_size) > 1:
 				print '[*] %s has request data available' % rmt_peer
 				req_loc = '%s/PoolData/NX' % rpath
-				if utils.ssh_get_file(req_loc, 'requests.txt', ip, hname, pword):
+				if utils.ssh_get_file_del(req_loc, 'requests.txt', ip, hname, pword):
 					print '[*] request data recieved'
 					os.system('cat requests.txt')
 					os.system('mv requests.txt %s_req.txt' % rmt_peer)

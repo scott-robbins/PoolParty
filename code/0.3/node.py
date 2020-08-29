@@ -115,7 +115,7 @@ def main():
             has_routes = True
         if not has_routes:
             # print '[*] Requesting Network Routing Info'
-            node.add_job_flag('? NAT Info')
+            node.add_job_flag('? NAT Info\n')
 
     
 
