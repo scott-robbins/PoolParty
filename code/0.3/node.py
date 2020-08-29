@@ -27,10 +27,11 @@ class Node:
     def __init__(self, nickname):
         self.name = nickname
         self.get_internal_addr()
+        self.external_ip = utils.get_ext_ip().replace('$','').replace(' ','')
         if self.external_ip in self.internal_ip:
             self.ROUTER = True
         self.cpu_rating = self.test_cpu_power()
-        self.external_ip = utils.get_ext_ip().replace('$','').replace(' ','')
+
         # Choosing based on an arbistrary value of 100ms
         if self.cpu_rating < 0.1:
             self.WORKER = True
