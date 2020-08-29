@@ -150,7 +150,7 @@ def main():
 			ip = creds[i][1] # This might not be an external ip!!
 			#peerlist += i + '\n' # TODO: peerlist probably needs more info
 			peerlist += '%s %s %s\n' % (i, uname, ip)
-		open('peerlist.txt','wb').write(peerlist)
+		open('/PoolData/NX/peerlist.txt','wb').write(peerlist)
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
 			ip = creds[rmt_peer][1]
@@ -166,7 +166,7 @@ def main():
 			utils.execute_python_script(rpath, 'node.py %s -show' % rmt_peer, ip, hname, pword, False)
 			
 			# [2] - Distribute peerlist
-			peerloc = '%s/PoolData/Shares' % rpath
+			peerloc = '%s/PoolData/NX' % rpath
 			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', peerloc,ip,hname,pword)
 
 			# [3] - See if node has any new data/requests available

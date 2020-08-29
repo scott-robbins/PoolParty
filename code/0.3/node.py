@@ -50,6 +50,16 @@ class Node:
         if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
             os.mkdir(os.getcwd()+'/PoolData/NX')
             open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write('')
+        # node is a worker it needs folder for  JOBS
+        if self.WORKER:
+            if not os.path.isdir(os.getcwd()+'/PoolData/Jobs'):
+                os.mkdir(os.getcwd()+'/PoolData/Jobs')
+
+    def check_jobs(self):
+        if not self.WORKER:
+            return 0
+        else
+            return len(utils.cmd('ls %s' % (os.getcwd()+'/PoolData/Jobs'))) - 1
 
     def get_internal_addr(self):
         addrs = utils.cmd('hostname -I',False).pop().split(' ')
@@ -102,10 +112,17 @@ def main():
     if '-show' in sys.argv:
         print node.show()
 
-    # check peer list to see what is pingable?
+    if node.WORKER:
+        JOB_LIMIT = 10
+        # notify that it's available for jobs if none are present 
+        active = node.check_jobs()
+        if JOB_LIMIT > active > 0: # TODO: What is the job limit?
+            N = JOB_LIMIT - active
+            node.add_job_flag('! Can take %d more jobs' % N) 
 
-    # if node.HOARDER:
+    if node.HOARDER:
         # Resynchronize Local Hashtable/Files 
+        node.add_job_flag('? Files/Data\n')
     
     if node.ROUTER:
         has_routes = False
@@ -116,6 +133,8 @@ def main():
         if not has_routes:
             # print '[*] Requesting Network Routing Info'
             node.add_job_flag('? NAT Info\n')
+
+
 
     
 
