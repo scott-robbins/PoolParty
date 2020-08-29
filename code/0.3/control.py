@@ -157,7 +157,8 @@ def main():
 			print '- contacting %s' % rmt_peer
 			utils.execute_python_script(rpath, 'node.py %s -show' % rmt_peer, ip, hname, pword, False)
 			# [2] - Distribute peerlist, request any data the node has to tell
-			utils.ssh_put_file(os.getcwd()+'/PoolData/Shares/peerlist.txt', rpath,ip,hname,pword)
+			peerloc = '%s/PoolData/Shares' % rpath
+			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', peerloc,ip,hname,pword)
 
 		# [3] - 
 		
