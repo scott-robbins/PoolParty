@@ -109,6 +109,7 @@ def main():
 				result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
 			except Exception:
 				pass
+
 	elif '-node_info' in sys.argv and len(sys.argv) >= 3:
 		peer = sys.argv[2]
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
@@ -119,6 +120,23 @@ def main():
 			rpath = '/home/%s%s' % (hostname,poolpath)
 		utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
 
+	elif '--run-master' in sys.argv:
+		# This the mode for running the local machine as a master node in the pool
+		# [1] - Check that all nodes are connected, and are running this software
+		for rmt_peer in nodes:
+			hname, ip, pword, pk = setup.load_credentials(rmt_peer, False)
+			# The default installation of PoolParty for each node should be
+			# in the home folder of the hostame being connected to
+			poolpath = '/PoolParty/code/0.3'
+			if hname == 'root':
+				rpath = '/root' + poolpath
+			else:
+				rpath = '/home/%s%s' % (hname,poolpath)
+			utils.execute_python_script(rpath, 'node.py -show', ip, hname, pword, False)
+		# [2] - Distribute peerlist, request any data the node has to tell
+
+		# [3] - 
+		
 
 if __name__ == '__main__':
 	main()

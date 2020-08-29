@@ -33,11 +33,10 @@ def data256sum(data):
 def file256sum(filename):
 	sha256_hash = hashlib.sha256()
 	with open(filename,"rb") as f:
-	    # Read and update hash string value in blocks of 4K
-	    for byte_block in iter(lambda: f.read(4096),b""):
-	        sha256_hash.update(byte_block)
-	    return sha256_hash.hexdigest()
-
+		# Read and update hash string value in blocks of 4K
+		for byte_block in iter(lambda: f.read(4096),b""):
+			sha256_hash.update(byte_block)
+	return sha256_hash.hexdigest()
 
 def divide_hashsum(hashsum, N_NODES):
 	segments = np.linspace(0,63,N_NODES+1).astype(np.int)
@@ -57,18 +56,4 @@ def choose_largest_chunk(buckets):
 		slots.append(int(section, 16))  # convert to 16-bit integer
 	# return the largest bucket
 	return np.where(np.array(slots) == np.array(slots).max()) 
-
-
-
-
-def main():
-	# All sums have a 64 character string output
-	# Nodes are given files for storage based on distributed of bits in
-	# the hash and how we choose to divide up the segments of this hash
-	# (depending on the number of nodes)
-
-
-
-if __name__ == '__main__':
-	main()
 
