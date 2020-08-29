@@ -154,9 +154,9 @@ def main():
 				rpath = '/root' + poolpath
 			else:
 				rpath = '/home/%s%s' % (hname,poolpath)
-			#utils.execute_python_script(rpath, 'node.py -show', ip, hname, pword, False)
+			utils.execute_python_script(rpath, 'node.py %s -show' % rmt_peer, ip, hname, pword, False)
 			# [2] - Distribute peerlist, request any data the node has to tell
-			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', poolpath+'/PoolData/Shares/',ip,hname,pword)
+			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', rpath,ip,hname,pword)
 
 		# [3] - 
 		

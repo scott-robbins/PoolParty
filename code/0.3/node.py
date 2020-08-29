@@ -84,41 +84,12 @@ class Node:
         return result
 
 
-    def update_peer_list(self):
-        peers = os.getcwd()+'/PoolData/Shares/peerlist.txt'
-        new_list = utils.arr2str(self.PEERS)
-        open(peers, 'wb').write(new_list)
-
-    def get_peerlist(self, port):
-        received = False
-        peers = []
-        while not received:
-            try:
-                s = utils.create_tcp_socket(True)
-                s.bind(('0.0.0.0', port))
-                s.listen(5)
-                client, caddr = s.accept()
-                peer_data = client.recv(4096).split('\n')
-                peer_data.pop(-1)
-                self.PEERS = peer_data
-                received = True
-                client.close()
-                s.close()
-            except socket.error:
-                received = False
-                pass
-        return received, peers
-
-
 def main():
+    if len(sys.argv) < 2:
+        name = 'Test'
+    else:
+        name = sys.argv[1]
     node = Node('Test')
-
-    # Update Peer List (or try to)
-    if '-update_peer_list' in sys.argv and len(sys.argv) > 2:
-        incoming_port = int(sys.argv[2])
-        node.get_peerlist(incoming_port)
-        node.update_peer_list()
-
     if '-show' in sys.argv:
         node.show()
 
