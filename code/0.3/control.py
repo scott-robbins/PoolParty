@@ -88,13 +88,16 @@ def send_peer_list(port, receiver, names):
 
 def parse_request_file(req_filename, peername):
 	raw_req = open(req_filename, 'rb').read().split('\n')
-	for line in raw_req:
-		req_type = line.split(' ')[0]
-		if req_type == '!':
-			# request for more jobs (worker)
-			n = int(line.split(' more jobs'[0].split().split(' can take ')[1]))
-			print '- %s is has bandwidth for %d more tasks' % (peername, )
-
+	if len(raw_req) > 1:
+		for line in raw_req:
+			print line
+			req_type = line.split(' ')[0]
+			if req_type == '!':
+				# request for more jobs (worker)
+				n = int(line.split(' more jobs'[0].split().split(' can take ')[1]))
+				print '- %s is has bandwidth for %d more tasks' % (peername, )
+	else:
+		print raw_req
 
 def main():
 	nodes = get_node_names()
@@ -178,7 +181,7 @@ def main():
 
 			# [3] - See if node has any new data/requests available
 			show_req = 'ls -la %s/PoolData/NX/requests.txt' % rpath
-			req_size = utils.ssh_exec(show_req, ip, hname, pword, True)
+			req_size = utils.ssh_exec(show_req, ip, hname, pword, False)
 			if len(req_size) > 1:
 				print '[*] %s has request data available' % rmt_peer
 				req_loc = '%s/PoolData/NX' % rpath
