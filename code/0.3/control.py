@@ -94,14 +94,14 @@ def parse_request_file(req_filename, peername):
 			if req_type == '!':
 				# request for more jobs (worker)
 				n_jobs = int(line.split(' more jobs')[0].split(' Can take ')[1])
-				print '- %s is has bandwidth for %d more tasks' % (peername, n)
+				print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
 			if req_type == '?':
 				op = line.split(' ')[1]
 				if op == 'NAT':
 					print '- %s is requesting NAT data' % (peername)
 	else:
 		n_jobs = int(raw_req.split(' more jobs')[0].split(' Can take ')[1])
-		print '- %s is has bandwidth for %d more tasks' % (peername, n)
+		print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
 	return n
 
 
