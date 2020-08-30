@@ -113,7 +113,7 @@ def ssh_exec(cmd, ip_address, uname, password, verbose):
 	return reply
 
 def ssh_exec_noreply(cmd, ip_address, uname, password):
-	client = paramiko.SSHClient
+	client = paramiko.SSHClient()
 	client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
 	executed = False
 
@@ -129,6 +129,7 @@ def ssh_exec_noreply(cmd, ip_address, uname, password):
 		pass
 	return executed
 
+# def ssh_exec_proxy(cmd, ip_address, uname, passwd)
 
 def ssh_get_file(r_path, rmt_file, ip, uname, passwd):
 	# TODO: Add no Miko error handling
