@@ -93,10 +93,17 @@ def parse_request_file(req_filename, peername):
 			req_type = line.split(' ')[0]
 			if req_type == '!':
 				# request for more jobs (worker)
-				n = int(line.split(' more jobs')[0].split(' Can take ')[1])
+				n_jobs = int(line.split(' more jobs')[0].split(' Can take ')[1])
 				print '- %s is has bandwidth for %d more tasks' % (peername, n)
+			if req_type == '?':
+				op = line.split(' ')[1]
+				if op == 'NAT':
+					print '- %s is requesting NAT data' % (peername)
 	else:
-		print raw_req
+		n_jobs = int(raw_req.split(' more jobs')[0].split(' Can take ')[1])
+		print '- %s is has bandwidth for %d more tasks' % (peername, n)
+	return n
+
 
 def main():
 	nodes = get_node_names()
@@ -188,7 +195,7 @@ def main():
 					print '[*] request data recieved'
 					os.system('mv requests.txt PoolData/NX/%s_req.txt' % rmt_peer)
 					# TODO: Parse requests because some might trigger actions from master
-					parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%rmt_peer, rmt_peer)
+					n_tasks = parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%rmt_peer, rmt_peer)
 				else:
 					print '[!!] unable to retrieve request data'
 
