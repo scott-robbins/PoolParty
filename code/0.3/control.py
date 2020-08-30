@@ -186,12 +186,12 @@ def main():
 			else:
 				rpath = '/home/%s%s' % (hname,poolpath)
 			utils.execute_python_script(rpath, 'node.py %s -dump_info' % rmt_peer, ip, hname, pword, False)
-			utils.ssh_get_file(rpath+'/PoolData/NX/','self.txt',ip,hname,pword)
-			if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):	
+			utils.ssh_get_file(rpath+'/PoolData/NX','self.txt',ip,hname,pword)
+			if os.path.isfile(os.getcwd()+'/self.txt'):	
 				for line in utils.swap('self.txt', True):
-					if '[1]' in line.split(' ') or '[2]' in line.split(' '):
+					if '  - External IP' in line.split(': '):
 						print line
-
+					
 			# [2] - Distribute peerlist
 			peerloc = '%s/PoolData/NX' % rpath
 			utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', peerloc,ip,hname,pword)
