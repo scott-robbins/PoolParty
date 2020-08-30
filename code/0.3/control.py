@@ -94,8 +94,9 @@ def parse_request_file(req_filename, peername):
 			req_type = line.split(' ')[0]
 			if req_type == '!':
 				# request for more jobs (worker)
-				n = int(line.split(' more jobs')[0].split(' can take ')[1])
-				print '- %s is has bandwidth for %d more tasks' % (peername, n)
+				# n = int(line.split(' more jobs')[0].split(' can take ')[1])
+				print line.split(' more jobs')[0]
+				# print '- %s is has bandwidth for %d more tasks' % (peername, n)
 	else:
 		print raw_req
 
@@ -177,7 +178,7 @@ def main():
 			
 			# [2] - Distribute peerlist
 			peerloc = '%s/PoolData/NX' % rpath
-			utils.ssh_put_file(os.getcwd()+'/peerlist.txt', peerloc,ip,hname,pword)
+			utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', peerloc,ip,hname,pword)
 
 			# [3] - See if node has any new data/requests available
 			show_req = 'ls -la %s/PoolData/NX/requests.txt' % rpath
