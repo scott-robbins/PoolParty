@@ -116,7 +116,6 @@ def main():
         JOB_LIMIT = 10
         # notify that it's available for jobs if none are present 
         active = node.check_jobs()
-        
         if JOB_LIMIT > active >= 0: # TODO: What is the job limit?
             N = JOB_LIMIT - active
             node.add_job_flag('! Can take %d more jobs\n' % N) 
