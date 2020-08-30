@@ -88,13 +88,15 @@ def send_peer_list(port, receiver, names):
 
 def parse_request_file(req_filename, peername):
 	raw_req = open(req_filename, 'rb').read().split('\n')
+	n_jobs = -1; op = ''
 	if len(raw_req) > 1:
 		for line in raw_req:
 			req_type = line.split(' ')[0]
 			if req_type == '!':
 				# request for more jobs (worker)
 				n_jobs = int(line.split(' more jobs')[0].split(' Can take ')[1])
-				print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
+				if n_jobs > 0:
+					print '- %s has bandwidth for %d more tasks' % (peername, n_jobs)
 			if req_type == '?':
 				op = line.split(' ')[1]
 				if op == 'NAT':
@@ -102,7 +104,7 @@ def parse_request_file(req_filename, peername):
 	else:
 		n_jobs = int(raw_req.split(' more jobs')[0].split(' Can take ')[1])
 		print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
-	return n_jobs
+	return n_jobs, op
 
 
 def main():
