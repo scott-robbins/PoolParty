@@ -86,8 +86,14 @@ def send_peer_list(port, receiver, names):
 			pass
 	return sent
 
-
-
+def parse_request_file(req_filename, peername):
+	raw_req = open(req_filename, 'rb').read().split('\n')
+	for line in raw_req:
+		req_type = line.split(' ')[0]
+		if req_type == '!':
+			# request for more jobs (worker)
+			n = int(line.split(' more jobs'[0].split().split(' can take ')[1]))
+			print '- %s is has bandwidth for %d more tasks' % (peername, )
 
 
 def main():
@@ -151,6 +157,7 @@ def main():
 			#peerlist += i + '\n' # TODO: peerlist probably needs more info
 			peerlist += '%s %s %s\n' % (i, uname, ip)
 		open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(peerlist)
+		
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
 			ip = creds[rmt_peer][1]
@@ -178,9 +185,11 @@ def main():
 				if utils.ssh_get_file_del(req_loc, 'requests.txt', ip, hname, pword):
 					print '[*] request data recieved'
 					os.system('mv requests.txt PoolData/NX/%s_req.txt' % rmt_peer)
-					# delete remote file after?
+					# TODO: Parse requests because some might trigger actions from master
+					parse_request_file(os.getcwd()+'/PoolData/NX/requests.txt', rmt_peer)
 				else:
 					print '[!!] unable to retrieve request data'
+
 
 if __name__ == '__main__':
 	main()
