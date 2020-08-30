@@ -57,7 +57,7 @@ class Node:
 
     def check_jobs(self):
         if not self.WORKER:
-            return 0
+            return -1
         else:
             return len(utils.cmd('ls %s' % (os.getcwd()+'/PoolData/Jobs'), False))
 
@@ -116,8 +116,8 @@ def main():
         JOB_LIMIT = 10
         # notify that it's available for jobs if none are present 
         active = node.check_jobs()
-        print active
-        if JOB_LIMIT > active > 0: # TODO: What is the job limit?
+        
+        if JOB_LIMIT > active >= 0: # TODO: What is the job limit?
             N = JOB_LIMIT - active
             node.add_job_flag('! Can take %d more jobs' % N) 
 
