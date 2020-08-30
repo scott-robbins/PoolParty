@@ -240,7 +240,7 @@ def main():
 		# operations they were seen to be requesting. 
 		for nodename in nodes:
 			node_stats = network_data[nodename]
-			if len(node_stats['pending_operations']):
+			if 'pending_operations' in node_stats.keys():
 				if 'NAT' in node_stats['pending_operations']:
 					# compile routing info for this peer
 					nat_dat = dump_nat_info(network_data)
