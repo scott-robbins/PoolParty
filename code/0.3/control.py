@@ -178,7 +178,7 @@ def main():
 
 			# [3] - See if node has any new data/requests available
 			show_req = 'ls -la %s/PoolData/NX/requests.txt' % rpath
-			req_size = utils.ssh_exec(show_req, ip, hname, pword, False)
+			req_size = utils.ssh_exec(show_req, ip, hname, pword, True)
 			if len(req_size) > 1:
 				print '[*] %s has request data available' % rmt_peer
 				req_loc = '%s/PoolData/NX' % rpath

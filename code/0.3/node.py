@@ -58,7 +58,7 @@ class Node:
     def check_jobs(self):
         if not self.WORKER:
             return 0
-        else
+        else:
             return len(utils.cmd('ls %s' % (os.getcwd()+'/PoolData/Jobs'))) - 1
 
     def get_internal_addr(self):
