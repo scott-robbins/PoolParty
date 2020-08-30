@@ -59,7 +59,7 @@ class Node:
         if not self.WORKER:
             return 0
         else:
-            return len(utils.cmd('ls %s' % (os.getcwd()+'/PoolData/Jobs'))) - 1
+            return len(utils.cmd('ls %s' % (os.getcwd()+'/PoolData/Jobs')), False) - 1
 
     def get_internal_addr(self):
         addrs = utils.cmd('hostname -I',False).pop().split(' ')

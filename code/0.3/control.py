@@ -186,7 +186,7 @@ def main():
 					print '[*] request data recieved'
 					os.system('mv requests.txt PoolData/NX/%s_req.txt' % rmt_peer)
 					# TODO: Parse requests because some might trigger actions from master
-					parse_request_file(os.getcwd()+'/PoolData/NX/requests.txt', rmt_peer)
+					parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%rmt_peer, rmt_peer)
 				else:
 					print '[!!] unable to retrieve request data'
 
