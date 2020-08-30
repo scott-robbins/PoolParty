@@ -102,7 +102,7 @@ def parse_request_file(req_filename, peername):
 	else:
 		n_jobs = int(raw_req.split(' more jobs')[0].split(' Can take ')[1])
 		print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
-	return n
+	return n_jobs
 
 
 def main():
