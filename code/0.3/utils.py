@@ -144,7 +144,7 @@ def ssh_get_file_del(r_path, rmt_file, ip, uname, passwd):
 	cmd_full = cmd_get + cmd_del_a + cmd_del_b
 	deleted = False
 	try:
-		os.system(cmd_full+' >> /dev/nunll')
+		os.system(cmd_full+' >> /dev/null')
 		deleted = True
 	except OSError:
 		pass
