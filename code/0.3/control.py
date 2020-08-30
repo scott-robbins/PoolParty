@@ -88,7 +88,7 @@ def send_peer_list(port, receiver, names):
 
 def parse_request_file(req_filename, peername):
 	raw_req = open(req_filename, 'rb').read().split('\n')
-	n_jobs = -1; op = ''
+	n_jobs = -1; ops = []
 	if len(raw_req) > 1:
 		for line in raw_req:
 			req_type = line.split(' ')[0]
@@ -101,10 +101,14 @@ def parse_request_file(req_filename, peername):
 				op = line.split(' ')[1]
 				if op == 'NAT':
 					print '- %s is requesting NAT data' % (peername)
+					ops.append(op)
+				if op == 'Files/Data':
+					print '- %s is available for data storage' % peername
+					ops.append('Data')
 	else:
 		n_jobs = int(raw_req.split(' more jobs')[0].split(' Can take ')[1])
 		print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
-	return n_jobs, op
+	return n_jobs, ops
 
 
 def main():
@@ -181,8 +185,11 @@ def main():
 				rpath = '/root' + poolpath
 			else:
 				rpath = '/home/%s%s' % (hname,poolpath)
-			utils.execute_python_script(rpath, 'node.py %s -show' % rmt_peer, ip, hname, pword, False)
-			
+			utils.execute_python_script(rpath, 'node.py %s -dump_info' % rmt_peer, ip, hname, pword, False)
+			if utils.ssh_get_file(rpath+'/PoolData/NX/','self.txt',ip,hname,pword):
+				for line in utils.swap('self.txt', True):
+					if '[1]' in line.split(' '):
+						print line	
 			# [2] - Distribute peerlist
 			peerloc = '%s/PoolData/NX' % rpath
 			utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', peerloc,ip,hname,pword)
@@ -196,10 +203,13 @@ def main():
 				if utils.ssh_get_file_del(req_loc, 'requests.txt', ip, hname, pword):
 					print '[*] request data recieved'
 					os.system('mv requests.txt PoolData/NX/%s_req.txt' % rmt_peer)
-					# TODO: Parse requests because some might trigger actions from master
-					n_tasks = parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%rmt_peer, rmt_peer)
+					# Parse requests because some might trigger actions 
+					n_tasks, operations = parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%rmt_peer, rmt_peer)
 				else:
 					print '[!!] unable to retrieve request data'
+					n_tasks = -1
+					operations = []
+				# Handle operations the node is requesting
 
 
 if __name__ == '__main__':

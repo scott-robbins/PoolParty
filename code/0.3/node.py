@@ -112,6 +112,9 @@ def main():
     if '-show' in sys.argv:
         print node.show()
 
+    if '-dump_info' in sys.argv:
+        open(os.getcwd()+'/PoolData/NX/self.txt', 'wb').write(node.show())
+
     if node.WORKER:
         JOB_LIMIT = 10
         # notify that it's available for jobs if none are present 
