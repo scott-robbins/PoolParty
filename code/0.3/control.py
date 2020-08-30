@@ -111,9 +111,22 @@ def parse_request_file(req_filename, peername):
 	return n_jobs, ops
 
 
+def dump_nat_info(net_data):
+	names = net_data.keys()
+	data = ''
+	for name in names:
+		try:
+			dat = net_data[name]
+			name = net_data[name]['node']
+			addr = net_data[name]['ext_ip']
+			data += '%s: %s\n' % (name, addr)
+		except KeyError:
+			pass
+	return data
+
 def main():
 	nodes = get_node_names()
-	
+	network_data = {}
 	
 	if '-cmd_all' in sys.argv and len(sys.argv) >=3:
 		creds, latency = get_cluster_creds(nodes, False)
@@ -167,8 +180,14 @@ def main():
 		creds, latency = get_cluster_creds(nodes, False)
 		peerlist = ''
 		for i in nodes:
+			node_data = {}
 			uname = creds[i][0]
 			ip = creds[i][1] # This might not be an external ip!!
+			node_data['node'] = i 
+			node_data['hostname'] = uname 
+			node_data['ip'] = ip
+			node_data['passwd'] = creds[i][2]
+			network_data[i] = node_data
 			#peerlist += i + '\n' # TODO: peerlist probably needs more info
 			peerlist += '%s %s %s\n' % (i, uname, ip)
 		open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(peerlist)
@@ -190,10 +209,12 @@ def main():
 			if os.path.isfile(os.getcwd()+'/self.txt'):	
 				for line in utils.swap('self.txt', True):
 					if '  - External IP' in line.split(': '):
-						print line
-					
+						ext_ip = line.split(': ')[1].replace('\n', '')
+						network_data[rmt_peer]['ext_ip'] = ext_ip
+
 			# [2] - Distribute peerlist
 			peerloc = '%s/PoolData/NX' % rpath
+			network_data[rmt_peer]['peer_loc'] = peerloc
 			utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', peerloc,ip,hname,pword)
 
 			# [3] - See if node has any new data/requests available
@@ -212,7 +233,25 @@ def main():
 					n_tasks = -1
 					operations = []
 				# Handle operations the node is requesting
+				network_data[rmt_peer]['pending_operations'] = operations
+				network_data[rmt_peer]['task_queue'] = n_tasks
 
-
+		# [4] - After cycling through all nodes for updates, service any outstanding
+		# operations they were seen to be requesting. 
+		for nodename in nodes:
+			node_stats = network_data[nodename]
+			if len(node_stats['pending_operations']):
+				if 'NAT' in node_stats['pending_operations']:
+					# compile routing info for this peer
+					nat_dat = dump_nat_info(network_data)
+					open('natdat.txt','wb').write(nat_dat)
+					# Distribute peer routing info to this peer
+					utils.ssh_put_file(os.getcwd()+'/natdat.txt',
+					 				   network_data[nodename]['peer_loc'],
+					 				   network_data[nodename]['ip'],
+					 				   network_data[nodename]['hostname'],
+					 				   network_data[nodename]['passwd'])
+					print '[*] NAT Data sent to %s' % nodename
+					os.remove('natdat.txt')
 if __name__ == '__main__':
 	main()
