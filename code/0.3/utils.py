@@ -142,12 +142,14 @@ def ssh_get_file_del(r_path, rmt_file, ip, uname, passwd):
 	cmd_del_a = 'sshpass -p "%s" ssh %s@%s ' % (passwd, uname, ip)
 	cmd_del_b = "'rm %s/%s'" % (r_path, rmt_file)
 	cmd_full = cmd_get + cmd_del_a + cmd_del_b
+	open('tmp.sh','wb').write('#!/bin/bash\n%s\n#EOF')
 	deleted = False
 	try:
-		os.system(cmd_full+' >> /dev/null')
+		os.system('bash tmp.sh >> /dev/null')
 		deleted = True
 	except OSError:
 		pass
+	os.remove('tmp.sh')
 	return deleted	
 
 def ssh_put_file(localfile, rpath, ip, uname, password):

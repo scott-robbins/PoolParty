@@ -119,7 +119,7 @@ def main():
         
         if JOB_LIMIT > active >= 0: # TODO: What is the job limit?
             N = JOB_LIMIT - active
-            node.add_job_flag('! Can take %d more jobs' % N) 
+            node.add_job_flag('! Can take %d more jobs\n' % N) 
 
     if node.HOARDER:
         # Resynchronize Local Hashtable/Files 
