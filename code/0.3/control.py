@@ -90,7 +90,6 @@ def parse_request_file(req_filename, peername):
 	raw_req = open(req_filename, 'rb').read().split('\n')
 	if len(raw_req) > 1:
 		for line in raw_req:
-			print line
 			req_type = line.split(' ')[0]
 			if req_type == '!':
 				# request for more jobs (worker)
