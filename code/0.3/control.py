@@ -93,9 +93,8 @@ def parse_request_file(req_filename, peername):
 			req_type = line.split(' ')[0]
 			if req_type == '!':
 				# request for more jobs (worker)
-				# n = int(line.split(' more jobs')[0].split(' can take ')[1])
-				print line.split(' more jobs')[0]
-				# print '- %s is has bandwidth for %d more tasks' % (peername, n)
+				n = int(line.split(' more jobs')[0].split(' Can take ')[1])
+				print '- %s is has bandwidth for %d more tasks' % (peername, n)
 	else:
 		print raw_req
 
