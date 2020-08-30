@@ -158,7 +158,7 @@ def ssh_put_file(localfile, rpath, ip, uname, password):
 	cmd2 = " <<< $'put %s'" % (localfile)
 	getreq = cmd1+cmd2
 	open('tmp.sh','wb').write('#!/bin/bash\n%s\n#EOF'%getreq)
-	os.system('bash tmp.sh >> /dev/null')
+	os.system('bash tmp.sh')
 	os.remove('tmp.sh')
 	return True
 
