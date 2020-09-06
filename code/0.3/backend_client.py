@@ -21,8 +21,7 @@ class BackendClient:
 	def identify(self):
 		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','')
 		hname = utils.cmd('whoami', False).pop().replace('\n','')
-		print int_ip
-		print hname
+		
 		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
 			print '[!!] Unable to load credentials'
 			exit()
@@ -30,11 +29,14 @@ class BackendClient:
 			for line in open(os.getcwd()+'/PoolData/NX/peerlist.txt', 'rb').readlines():
 				line = line.replace('\n', '')
 				data = line.split(' ')
-				print data
+				
 				if data[1] == hname and data[2] == int_ip:
 					self.name = data[0]
 					print '[*] Starting BackendClient as %s' % self.name
 					break
+				else:
+					print data[1]==hname
+					print data[2]==int_ip
 
 	def request_shares(self, peer_name, peer_ip):
 		reply = ''
