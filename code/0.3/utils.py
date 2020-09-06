@@ -80,6 +80,8 @@ def load_credentials(filepath):
 
     <output(s): username (str), ip (str), passwd (str) >
 	"""
+	if filepath == 'Server':
+		filepath = os.getcwd()+'/PoolData/Creds/Server@root.creds'
 	username = ''
 	ip = ''
 	passwd = ''
@@ -202,7 +204,7 @@ def crawl_dir(file_path, hash, verbose):
 def start_listener(port):
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		# s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s.bind(('0.0.0.0', port))
 		s.listen(5)
 	except socket.error:
