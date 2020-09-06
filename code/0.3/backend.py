@@ -17,6 +17,7 @@ class BackendListener:
 
 	def __init__(self):
 		self.serve_sock = self.create_server_socket()
+		self.run()
 
 	def create_server_socket(self):
 		# Create a server socket (this one should support multi-threading)
@@ -24,15 +25,18 @@ class BackendListener:
 		soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		print("Socket created")
 		try:
-			soc.bind((host, port))
+			soc.bind(('0.0.0.0', self.inbound_port))
 		except:
 			print("Bind failed. Error : " + str(sys.exc_info()))
 			sys.exit()
 		soc.listen(6) # queue up to 6 requests
+		self.running = True
 		return soc
    
   	def run(self):
   		start = time.time()
+  		sdate, stime = utils.create_timestamp()
+  		print '[*] Server Started [%s - %s]' % (sdate, stime)
   		try:
   			while self.running:
   				client, client_addr = self.serve_sock.accept()
