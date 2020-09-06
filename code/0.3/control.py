@@ -228,7 +228,7 @@ def main():
 						network_data[rmt_peer]['ext_ip'] = ext_ip
 
 			# [2] - Distribute peerlist
-			peerloc = '%s/PoolData/NX' % rpath
+			peerloc = '%s/PoolData' % rpath
 			network_data[rmt_peer]['peer_loc'] = peerloc
 			utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', peerloc,ip,hname,pword)
 
@@ -264,7 +264,7 @@ def main():
 					open('natdat.txt','wb').write(nat_dat)
 					# Distribute peer routing info to this peer
 					utils.ssh_put_file(os.getcwd()+'/natdat.txt',
-					 				   network_data[nodename]['peer_loc'],
+					 				   network_data[nodename]['peer_loc']+'/NX',
 					 				   network_data[nodename]['ip'],
 					 				   network_data[nodename]['hostname'],
 					 				   network_data[nodename]['passwd'])
@@ -276,10 +276,10 @@ def main():
 					for file in os.listdir(os.getcwd()+'/PoolData/Creds'):
 						fname = os.getcwd()+'/PoolData/Creds/' + file
 						utils.ssh_put_file(fname, 
-										   network_data['peerloc'],
-										   network_data['ip'],
-										   network_data['hostname'],
-										   network_data['passwd'])
+										   network_data[nodename]['peer_loc']+'/Creds',
+										   network_data[nodename]['ip'],
+										   network_data[nodename]['hostname'],
+										   network_data[nodename]['passwd'])
 	else:
 		usage()
 
