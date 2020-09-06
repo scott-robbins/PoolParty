@@ -79,6 +79,7 @@ class BackendAPI:
 		try:
 			while self.running:
 				client, caddr = s.accept()
+				print '[*] %s has connected' % caddr[0]
 				# Do something 
 				raw_request = client.recv(65535)
 				api_fcn = raw_request.split(' :::: ')[0]
@@ -129,6 +130,7 @@ class BackendClient:
 		c.connect((self.server_addr, 54123))
 		c.send('NAT :::: ? %s' % pname)
 		result = c.recv(1024)
+		print result
 		c.close()
 		return result 
 
