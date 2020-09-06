@@ -133,8 +133,9 @@ class BackendClient:
 		return result 
 
 def main():
-	if '-back' in sys.argv:
-		BackendAPI(node.Node())
+	if '-back' in sys.argv and len(sys.argv) > 2:
+		name = sys.argv[2]
+		BackendAPI(node.Node(name))
 
 	if '-nat?' in sys.argv and len(sys.argv) > 2:
 		peer_name = sys.argv[2]
