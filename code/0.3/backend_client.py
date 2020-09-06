@@ -15,6 +15,7 @@ class BackendClient:
 
 	def __init__(self):
 		self.running = True
+		self.identify()
 		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, True)
 
 	def identify(self):
