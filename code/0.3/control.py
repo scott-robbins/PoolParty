@@ -105,6 +105,9 @@ def parse_request_file(req_filename, peername):
 				if op == 'Files/Data':
 					print '- %s is available for data storage' % peername
 					ops.append('Data')
+				if op == 'CREDS':
+					print '- %s is requesting Peer Credentials' % peername
+					ops.append('CREDS')
 	else:
 		n_jobs = int(raw_req.split(' more jobs')[0].split(' Can take ')[1])
 		print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
