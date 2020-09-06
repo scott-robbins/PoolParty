@@ -19,8 +19,8 @@ class BackendClient:
 		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, True)
 
 	def identify(self):
-		int_ip = utils.cmd('hostname -I', False).pop()
-		hname = utils.cmd('whoami', False).pop()
+		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','')
+		hname = utils.cmd('whoami', False).pop().replace('\n','')
 		print int_ip
 		print hname
 		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
