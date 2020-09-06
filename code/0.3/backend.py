@@ -76,7 +76,9 @@ class BackendAPI:
 	def run(self):
 		start_time = time.time()
 		ldate, ltime = utils.create_timestamp()
-		s = utils.start_listener(self.inbound)
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.bind(('0.0.0.0', self.inbound))
+		s.listen(5)
 		try:
 			while self.running:
 				client, caddr = s.accept()
@@ -126,6 +128,7 @@ class BackendClient:
 
 
 	def get_peer_ip(self, pname):
+		print 'Requesting NAT info for %s from server %s' % (pname, self.server_addr)
 		c = utils.create_tcp_socket(False)
 		c.connect((self.server_addr, 54123))
 		c.send('NAT :::: ? %s' % pname)
