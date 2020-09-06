@@ -1,12 +1,20 @@
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
+from threading import Thread
 import socket
 import setup
 import utils 
 import time 
 import sys 
 import os 
+
+FB = '\033[1m'
+FI = '\033[3m'
+FR = '\033[31m'
+FB = '\033[32m'
+FG = '\033[34m'
+FE = '\033[0m'
 
 def get_cluster_creds(user_nodes, check_cnx):
 	node_creds = {}
@@ -127,6 +135,26 @@ def dump_nat_info(net_data):
 			pass
 	return data
 
+def nx_dat_init():
+	nx_data = {}
+	if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
+		os.mkdir(os.getcwd()+'/PoolData/NX')
+	creds, latency = get_cluster_creds(nodes, False)
+	peerlist = ''
+	for i in nodes:
+		node_data = {}
+		uname = creds[i][0]
+		ip = creds[i][1] # This might not be an external ip!!
+		node_data['node'] = i 
+		node_data['hostname'] = uname 
+		node_data['ip'] = ip
+		node_data['passwd'] = creds[i][2]
+		nx_data[i] = node_data
+		#peerlist += i + '\n' # TODO: peerlist probably needs more info
+		peerlist += '%s %s %s\n' % (i, uname, ip)
+	open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(peerlist)
+	return nx_data
+
 def usage():
 	print '[!!] Incorrect Usage'
 	print '$ python control.py < mode > '
@@ -141,7 +169,7 @@ def usage():
 
 def main():
 	nodes = get_node_names()
-	network_data = {}
+	
 	
 	if '-cmd-all' in sys.argv and len(sys.argv) >=3:
 		creds, latency = get_cluster_creds(nodes, False)
@@ -190,22 +218,7 @@ def main():
 
 	elif '--run-master' in sys.argv:	# TODO: break this code into functions!! its getting messy
 		# This the mode for running the local machine as a master node in the pool
-		if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
-			os.mkdir(os.getcwd()+'/PoolData/NX')
-		creds, latency = get_cluster_creds(nodes, False)
-		peerlist = ''
-		for i in nodes:
-			node_data = {}
-			uname = creds[i][0]
-			ip = creds[i][1] # This might not be an external ip!!
-			node_data['node'] = i 
-			node_data['hostname'] = uname 
-			node_data['ip'] = ip
-			node_data['passwd'] = creds[i][2]
-			network_data[i] = node_data
-			#peerlist += i + '\n' # TODO: peerlist probably needs more info
-			peerlist += '%s %s %s\n' % (i, uname, ip)
-		open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(peerlist)
+		network_data = nx_dat_init()
 		
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
