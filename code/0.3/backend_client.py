@@ -27,7 +27,7 @@ class BackendClient:
 			exit()
 		else:
 			for line in open(os.getcwd()+'/PoolData/NX/peerlist.txt', 'rb').readlines():
-				line = line.replace('\n', '')
+				line = line.replace('\n', '').replace(' ','')
 				data = line.split(' ')
 				
 				if data[1] == hname and data[2] == int_ip:
