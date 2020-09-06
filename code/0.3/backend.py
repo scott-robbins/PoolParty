@@ -40,9 +40,9 @@ class BackendListener:
   		try:
   			while self.running:
   				client, client_addr = self.serve_sock.accept()
-  				Thread(target=client_handler, args=(client, client_addr)).start()
+  				Thread(target=self.client_handler, args=(client, client_addr)).start()
   		except KeyboardInterrupt:
-  			print '[!!] Server Killed [Uptime %s seconds]' % (start - time.time())
+  			print '[!!] Server Killed [Uptime %s seconds]' % (time.time() - start)
   			self.running = False
   		self.serve_sock.close()
 
