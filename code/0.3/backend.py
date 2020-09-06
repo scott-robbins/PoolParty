@@ -33,7 +33,8 @@ class BackendAPI:
 		return api_methods
 
 	def nat_trav(self, c, ci, api_req):
-		if '?' in api_req.split(' '):
+		print 'handling nat request'
+		if '?' in api_req.split(''):
 			print '[*] %s is requesting NAT info for %s' % (ci[0], api_req.split('?')[1])
 			# They are requesting NAT for another peer
 			preq = api_req.split(' : ')[1]
@@ -42,11 +43,11 @@ class BackendAPI:
 				ext_ip = line.split(':')[1].replace(' ','').replace('\n','')
 				if name == preq:
 					c.send(line) # TODO: Add ecryption to API stuff???
-		c.close()
+		return c
 
 	def share_hashlist(self, c, ci, api_req):
 		req = api_req.split('?')
-		c.close()
+		return c
 	
 	def self_identify(self):
 		# First need to establish identity
@@ -85,10 +86,9 @@ class BackendAPI:
 				api_fcn = raw_request.split(' :::: ')[0]
 				prequest = raw_request.split(' :::: ')[1]
 				if api_fcn in self.api.keys():
-					# client = self.api[api_fcn](client, caddr, raw_request.split(' :::: ')[1])
-					cthread = Thread(target=self.api[api_fcn], args=(client, caddr, prequest))
-					cthread.start()
-				# client.close()
+					client = self.api[api_fcn](client, caddr, raw_request.split(' :::: ')[1])
+					
+				client.close()
 		except KeyboardInterrupt:
 			self.running = False
 			pass
