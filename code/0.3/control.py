@@ -253,6 +253,8 @@ def main():
 		for nodename in nodes:
 			node_stats = network_data[nodename]
 			if 'pending_operations' in node_stats.keys():
+				print 'DEBUGGING** Operations:'
+				print node_stats['pending_operations']
 				if 'NAT' in node_stats['pending_operations']:
 					# compile routing info for this peer
 					nat_dat = dump_nat_info(network_data)
@@ -268,6 +270,13 @@ def main():
 				# If flagged, transfer credentials to the node
 				if 'CREDS' in node_stats['pending_operations']:
 					print '%s is requesting Peer Credentials ' % nodename
+					for file in os.listdir(os.getcwd()+'/PoolData/Creds'):
+						fname = os.getcwd()+'/PoolData/Creds/' + file
+						utils.ssh_put_file(fname, 
+										   network_data['peerloc'],
+										   network_data['ip'],
+										   network_data['hostname'],
+										   network_data['passwd'])
 	else:
 		usage()
 
