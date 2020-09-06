@@ -265,6 +265,9 @@ def main():
 					 				   network_data[nodename]['passwd'])
 					print '[*] NAT Data sent to %s' % nodename
 					os.remove('natdat.txt')
+				# If flagged, transfer credentials to the node
+				if 'CREDS' in node_stats['pending_operations']:
+					print '%s is requesting Peer Credentials ' % nodename
 	else:
 		usage()
 

@@ -31,11 +31,9 @@ class BackendClient:
 				data = line.split(' ')
 				
 				if data[1].replace(' ','') == hname and data[2].replace(' ','') == int_ip:
-					self.name = data[0]
+					self.name = data[0].replace(' ','')
 					print '[*] Starting BackendClient as %s' % self.name
 					break
-				else:
-					print '%s != %s ? [%s]' % (data[2], int_ip, str(data[2]==int_ip))
 
 	def request_shares(self, peer_name, peer_ip):
 		reply = ''

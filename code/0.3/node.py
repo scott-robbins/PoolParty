@@ -65,6 +65,10 @@ class Node:
         if self.WORKER:
             if not os.path.isdir(os.getcwd()+'/PoolData/Jobs'):
                 os.mkdir(os.getcwd()+'/PoolData/Jobs')
+        # indicate whether node needs peer creds for encrypted communication
+        if not os.path.isdir(os.getcwd()+'/PoolData/Creds'):
+            os.mkdir(os.getcwd()+'/PoolData/Creds')
+            self.add_job_flag('? CREDS')
 
     def check_jobs(self):
         if not self.WORKER:
