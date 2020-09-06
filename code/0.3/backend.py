@@ -54,7 +54,7 @@ class BackendListener:
   		api_req = raw_req.split(' :::: ')[0]
   		api_dat = raw_req.split(' :::: ')[1]
   		# API_DAT MUST REQUIRE NODES NAME TO LOAD CORRECT PUBLIC KEY FOR ENCRYPTION 
-  		peer = raw_req.split(' :::: ')[1].split(' ;;;; ')[0]
+  		peer = raw_req.split(' :::: ')[1].split(' ;;;; ')[0].replace(' ','')
   		try:
   			n, i, pw, pk = control.load_credentials(peer, False)
   			# TODO: ADD ENCRYPTION TO API REQUESTS!!!!

@@ -135,25 +135,25 @@ def dump_nat_info(net_data):
 			pass
 	return data
 
-def nx_dat_init():
+def nx_dat_init(ns):
 	nx_data = {}
 	if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
 		os.mkdir(os.getcwd()+'/PoolData/NX')
-	creds, latency = get_cluster_creds(nodes, False)
+	cs, latency = get_cluster_creds(ns, False)
 	peerlist = ''
-	for i in nodes:
+	for i in ns:
 		node_data = {}
-		uname = creds[i][0]
-		ip = creds[i][1] # This might not be an external ip!!
+		uname = cs[i][0]
+		ip = cs[i][1] # This might not be an external ip!!
 		node_data['node'] = i 
 		node_data['hostname'] = uname 
 		node_data['ip'] = ip
-		node_data['passwd'] = creds[i][2]
+		node_data['passwd'] = cs[i][2]
 		nx_data[i] = node_data
 		#peerlist += i + '\n' # TODO: peerlist probably needs more info
 		peerlist += '%s %s %s\n' % (i, uname, ip)
 	open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(peerlist)
-	return nx_data
+	return nx_data, cs
 
 def usage():
 	print '[!!] Incorrect Usage'
@@ -218,7 +218,7 @@ def main():
 
 	elif '--run-master' in sys.argv:	# TODO: break this code into functions!! its getting messy
 		# This the mode for running the local machine as a master node in the pool
-		network_data = nx_dat_init()
+		network_data, creds = nx_dat_init(nodes)
 		
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:

@@ -37,7 +37,7 @@ class BackendClient:
 
 	def request_shares(self, peer_name, peer_ip):
 		reply = ''
-		api_request = '?SHARES :::: %s ;;;;' % self.name
+		api_request = '?SHARES :::: %s ;;;; ' % self.name
 		# TODO: ADD ENCRYPTION!!
 		try:
 			s = utils.create_tcp_socket(False)
