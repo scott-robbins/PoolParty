@@ -24,12 +24,12 @@ class BackendListener:
 		soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		print("Socket created")
 		try:
-    		soc.bind((host, port))
+			soc.bind((host, port))
 		except:
- 			print("Bind failed. Error : " + str(sys.exc_info()))
-  			sys.exit()
-  		soc.listen(6) # queue up to 6 requests
-  		return soc
+			print("Bind failed. Error : " + str(sys.exc_info()))
+			sys.exit()
+		soc.listen(6) # queue up to 6 requests
+		return soc
    
   	def run(self):
   		start = time.time()
