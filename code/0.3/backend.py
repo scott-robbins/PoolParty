@@ -63,12 +63,12 @@ class BackendListener:
   		if not os.path.isdir(share_path):
   			reply += '0 Shared Files'
   		else:
-  			contents = utils.crawl_dir(share_path, False, False)
+  			contents, h = utils.crawl_dir(share_path, False, False)
   			reply = utils.arr2str(contents['file'])
   		# ADD ENCRYPTION TO API REQUESTS!!!!
   		c.send(reply)
   		return c
-  		
+
 
 def main():
 	bas = BackendListener()	
