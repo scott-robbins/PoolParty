@@ -28,12 +28,13 @@ class BackendAPI:
 		api_methods = {}
 		# if its a router node be sure to add NAT methods to backend 
 		if self.node.ROUTER:
-			api_methods{'?NAT': self.nat_trav}
+			api_methods{'NAT': self.nat_trav}
 		# Add standard (common) functions
 		return api_methods
 
 	def nat_trav(self, c, ci, api_req):
-		if '?' in api_req.split('NAT'):
+		if '?' in api_req.split(' '):
+			print '[*] %s is requesting NAT info for %s' % (ci[0], api_req.split('?')[1])
 			# They are requesting NAT for another peer
 			preq = api_req.split(' : ')[1]
 			for line in open(os.getcwd()+'/PoolData/NX/natdat.txt', 'rb').readlines():
@@ -95,8 +96,51 @@ class BackendAPI:
 		# close server socket when not running
 		s.close()
 
+class BackendClient:
+
+	def __init__(self):
+		self.server_name, self.server_addr, self.server_cred = utils.load_credentials('Server')
+		self.identify()
+
+	def identify(self):
+		# First need to establish identity
+		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
+			print '[!!] Cannot Start BackendAPI without setting up identity (see node.py)'
+			if not os.path.isfile(os.getcwd()+'/PoolData/NX/requests.txt'):
+				open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write('? NAT Info\n')
+			else:
+				open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write('? NAT Info\n')
+			exit() #  can ask master for it but probably cant continue?
+		myaddr = utils.cmd('hostname -I',False).pop().split(' ')
+        myaddr.pop(-1)
+		# Load Peerlist
+		for line in utils.swap(os.getcwd()+'/PoolData/NX/peerlist.txt', False):
+			if len(line):
+				# peer = {}
+				# peer['netname']   = line.split(' ')[0]
+				# peer['hostname']  = line.split(' ')[1]
+				# peer['ipaddress'] = line.split(' ')[2]
+				# choose self from peerlist
+				if line.split(' ')[2] == myaddr:
+					self.network_name = line.split(' ')[2]
+
+
+	def get_peer_ip(self, pname):
+		c = utils.create_tcp_socket()
+		c.connect((self.server_addr, 54123))
+		c.send('NAT :::: ? %s' % pname)
+		result = c.recv(1024)
+		c.close()
+		return result 
+
 def main():
-	BackendAPI(Node())
+	if '-back' in sys.argv:
+		BackendAPI(Node())
+
+	if '-nat?' in sys.argv and len(sys.argv) > 2:
+		peer_name = sys.argv[2]
+		abc = BackendClient() # API Backend Client
+		print abc.get_peer_ip(peer_name)
 
 if __name__ == '__main__':
 	main()
