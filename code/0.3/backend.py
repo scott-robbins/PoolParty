@@ -17,6 +17,7 @@ class BackendListener:
 
 	def __init__(self):
 		self.serve_sock = self.create_server_socket()
+		self.actions = {'?SHARES': self.show_shares}
 		self.run()
 
 	def create_server_socket(self):
@@ -27,9 +28,9 @@ class BackendListener:
 		try:
 			soc.bind(('0.0.0.0', self.inbound_port))
 		except:
-			print("Bind failed. Error : " + str(sys.exc_info()))
+			print("[!!] Unable to Bind Socket. Error : " + str(sys.exc_info()))
 			sys.exit()
-		soc.listen(6) # queue up to 6 requests
+		soc.listen(self.request_limit) # queue up to request limit
 		self.running = True
 		return soc
    
@@ -50,9 +51,24 @@ class BackendListener:
   		raw_req = c.recv(2046)
   		print 'Parsing API request from %s:%d' % (ci[0], ci[1])
   		api_req = raw_req.split(' :::: ')[0]
+  		# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
+  		if api_req in self.actions.keys():
+  			# API functions must take these params and return client sock
+  			c = self.actions[api_req](c, ci)
   		c.close()
 
-
+  	def show_shares(self, c, ci):
+  		share_path = os.getcwd()+'/PoolData/Shares'
+  		reply = ''
+  		if not os.path.isdir(share_path):
+  			reply += '0 Shared Files'
+  		else:
+  			contents = utils.crawl_dir(share_path, False, False)
+  			reply = utils.arr2str(contents['file'])
+  		# ADD ENCRYPTION TO API REQUESTS!!!!
+  		c.send(reply)
+  		return c
+  		
 
 def main():
 	bas = BackendListener()	
