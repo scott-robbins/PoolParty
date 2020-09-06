@@ -19,8 +19,8 @@ class BackendClient:
 		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, True)
 
 	def identify(self):
-		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','')
-		hname = utils.cmd('whoami', False).pop().replace('\n','')
+		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','').replace(' ','')
+		hname = utils.cmd('whoami', False).pop().replace('\n','').replace(' ','')
 		
 		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
 			print '[!!] Unable to load credentials'
@@ -34,8 +34,8 @@ class BackendClient:
 					self.name = data[0]
 					print '[*] Starting BackendClient as %s' % self.name
 					break
-				# else:
-				# 	print '%s != %s ? [%s]' % (data[2], int_ip, str(data[2]==int_ip))
+				else:
+					print '%s != %s ? [%s]' % (data[2], int_ip, str(data[2]==int_ip))
 
 	def request_shares(self, peer_name, peer_ip):
 		reply = ''
