@@ -1,3 +1,4 @@
+from threading import Thread
 import numpy as np
 import control
 import storage
@@ -14,13 +15,37 @@ class BackendAPI:
 	running = True
 	peers = {}
 	network_name = ''
-	def __init__(self):
-		self.initialize()
+
+	def __init__(self, Node):
+		self.node = Node
+		# Initialize the backend based on type of node
+		self.api = self.initialize()
 		# define actions here
 		self.run()
 
 	def initialize(self):
 		self.self_identify()
+		api_methods = {}
+		# if its a router node be sure to add NAT methods to backend 
+		if self.node.ROUTER:
+			api_methods{'?NAT': self.nat_trav}
+		# Add standard (common) functions
+		return api_methods
+
+	def nat_trav(self, c, ci, api_req):
+		if '?' in api_req.split('NAT'):
+			# They are requesting NAT for another peer
+			preq = api_req.split(' : ')[1]
+			for line in open(os.getcwd()+'/PoolData/NX/natdat.txt', 'rb').readlines():
+				name = line.split(':')[0]
+				ext_ip = line.split(':')[1].replace(' ','').replace('\n','')
+				if name == preq:
+					c.send(line) # TODO: Add ecryption to API stuff???
+		c.close()
+
+	def share_hashlist(self, c, ci, api_req):
+		req = api_req.split('?')
+		c.close()
 	
 	def self_identify(self):
 		# First need to establish identity
@@ -55,7 +80,14 @@ class BackendAPI:
 			while self.running:
 				client, caddr = s.accept()
 				# Do something 
-				client.close()
+				raw_request = client.recv(65535)
+				api_fcn = raw_request.split(' :::: ')[0]
+				prequest = raw_request.split(' :::: ')[1]
+				if api_fcn in self.api.keys():
+					# client = self.api[api_fcn](client, caddr, raw_request.split(' :::: ')[1])
+					cthread = Thread(target=self.api[api_fcn], args=(client, caddr, prequest))
+					cthread.start()
+				# client.close()
 		except KeyboardInterrupt:
 			self.running = False
 			pass
@@ -64,7 +96,7 @@ class BackendAPI:
 		s.close()
 
 def main():
-	BackendAPI()
+	BackendAPI(Node())
 
 if __name__ == '__main__':
 	main()
