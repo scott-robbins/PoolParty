@@ -46,6 +46,17 @@ class Node:
             # create file for initializing peer list
             peers = os.getcwd()+'/PoolData/Shares/peerlist.txt'
             open(peers,'wb').write('%s\n' % self.name)
+        else: # LOAD Shares and prep hashtables 
+            local_shares = {}
+            local_shares['files'] = os.listdir(os.getcwd()+'/PoolData/Shares')
+            for sharefile in local_shares['files']:
+                filehash = utils.get_sha256_sum(os.getcwd()+'/PoolData/Shares/'+sharefile,False)
+                filesize = os.path.getsize(os.getcwd()+'/PoolData/Shares/'+sharefile)
+                local_shares[sharefile] = {}
+                local_shares[sharefile]['hash'] = filehash
+                local_shares[sharefile]['size'] = filesize
+            # this will be useful for quickly telling peer about what this node has
+            print local_shares # FOR DEBUGGING 
         # Each node also has a folder for outputing data/messaging 
         if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
             os.mkdir(os.getcwd()+'/PoolData/NX')

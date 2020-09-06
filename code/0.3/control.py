@@ -124,11 +124,23 @@ def dump_nat_info(net_data):
 			pass
 	return data
 
+def usage():
+	print '[!!] Incorrect Usage'
+	print '$ python control.py < mode > '
+	print 'Valid Modes: '
+	print '\t--cmd-all'
+	print '\t--get-file'
+	print '\t--put-file'
+	print '\t--update-all'
+	print '\t--node-info'
+	print '\t--run-master'
+
+
 def main():
 	nodes = get_node_names()
 	network_data = {}
 	
-	if '-cmd_all' in sys.argv and len(sys.argv) >=3:
+	if '-cmd-all' in sys.argv and len(sys.argv) >=3:
 		creds, latency = get_cluster_creds(nodes, False)
 		for n in nodes:
 			cmd = utils.arr2chstr(sys.argv[2:])
@@ -137,7 +149,7 @@ def main():
 			except Exception:
 				pass
 
-	elif '-get_file' in sys.argv and len(sys.argv) >= 4:
+	elif '--get-file' in sys.argv and len(sys.argv) >= 4:
 		remote_file = sys.argv[2]
 		peer = sys.argv[3]
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
@@ -146,7 +158,7 @@ def main():
 		if utils.ssh_get_file(rpath, rfile, ip, hostname, pword):
 			print '[*] File Received'
 
-	elif '-put_file' in sys.argv and len(sys.argv) >= 5:
+	elif '--put-file' in sys.argv and len(sys.argv) >= 5:
 		local_file = sys.argv[2]
 		remote_path = sys.argv[3]
 		peer = sys.argv[4]
@@ -154,7 +166,7 @@ def main():
 		if utils.ssh_put_file(local_file, remote_path, ip, hostname, pword):
 			print '[*] File Transfer Complete'
 
-	elif '-update_all_code' in sys.argv:
+	elif '--update-all' in sys.argv:
 		cmd = 'cd PoolParty; git pull origin'
 		creds, latency = get_cluster_creds(nodes, False)
 		for n in nodes:
@@ -163,7 +175,7 @@ def main():
 			except Exception:
 				pass
 
-	elif '-node_info' in sys.argv and len(sys.argv) >= 3:
+	elif '--node-info' in sys.argv and len(sys.argv) >= 3:
 		peer = sys.argv[2]
 		hostname, ip, pword, pk = setup.load_credentials(peer, False)
 		poolpath = '/PoolParty/code/0.3'
@@ -173,7 +185,7 @@ def main():
 			rpath = '/home/%s%s' % (hostname,poolpath)
 		utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
 
-	elif '--run-master' in sys.argv:
+	elif '--run-master' in sys.argv:	# TODO: break this code into functions!! its getting messy
 		# This the mode for running the local machine as a master node in the pool
 		if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
 			os.mkdir(os.getcwd()+'/PoolData/NX')
@@ -253,5 +265,9 @@ def main():
 					 				   network_data[nodename]['passwd'])
 					print '[*] NAT Data sent to %s' % nodename
 					os.remove('natdat.txt')
+	else:
+		usage()
+
+
 if __name__ == '__main__':
 	main()

@@ -2,6 +2,8 @@ from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
 from threading import Thread
+import matplotlib.pyplot as plt
+import numpy as np
 try:
 	import paramiko
 	MIKO = True
@@ -46,6 +48,11 @@ def arr2chstr(content):
 
 def get_ext_ip():
 	return cmd('curl -s https://api.ipify.org',False).pop()
+
+def get_internal_addr():
+	addrs = cmd('hostname -I',False).pop().split(' ')
+	addrs.pop(-1)
+	return addrs
 
 def create_timestamp():
     date = time.localtime(time.time())
