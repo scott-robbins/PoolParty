@@ -35,8 +35,7 @@ class BackendClient:
 					print '[*] Starting BackendClient as %s' % self.name
 					break
 				else:
-					print data[1]==hname
-					print data[2]==int_ip
+					print '%s != %s ? [%s]' % (data[1], hname, str(data[1]==hname))
 
 	def request_shares(self, peer_name, peer_ip):
 		reply = ''
