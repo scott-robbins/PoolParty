@@ -58,8 +58,7 @@ class BackendAPI:
 				open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write('? NAT Info\n')
 			exit() #  can ask master for it but probably cant continue?
 		myaddr = utils.cmd('hostname -I',False).pop().split(' ')
-        myaddr.pop(-1)
-		# Load Peerlist
+		myaddr.pop(-1)
 		for line in utils.swap(os.getcwd()+'/PoolData/NX/peerlist.txt', False):
 			if len(line):
 				peer = {}
@@ -112,7 +111,7 @@ class BackendClient:
 				open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write('? NAT Info\n')
 			exit() #  can ask master for it but probably cant continue?
 		myaddr = utils.cmd('hostname -I',False).pop().split(' ')
-        myaddr.pop(-1)
+		myaddr.pop(-1)
 		# Load Peerlist
 		for line in utils.swap(os.getcwd()+'/PoolData/NX/peerlist.txt', False):
 			if len(line):
@@ -126,7 +125,7 @@ class BackendClient:
 
 
 	def get_peer_ip(self, pname):
-		c = utils.create_tcp_socket()
+		c = utils.create_tcp_socket(False)
 		c.connect((self.server_addr, 54123))
 		c.send('NAT :::: ? %s' % pname)
 		result = c.recv(1024)
