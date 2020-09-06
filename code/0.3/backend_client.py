@@ -27,15 +27,15 @@ class BackendClient:
 			exit()
 		else:
 			for line in open(os.getcwd()+'/PoolData/NX/peerlist.txt', 'rb').readlines():
-				line = line.replace('\n', '').replace(' ','')
+				line = line.replace('\n', '')
 				data = line.split(' ')
 				
-				if data[1] == hname and data[2] == int_ip:
+				if data[1].replace(' ','') == hname and data[2].replace(' ','') == int_ip:
 					self.name = data[0]
 					print '[*] Starting BackendClient as %s' % self.name
 					break
-				else:
-					print '%s != %s ? [%s]' % (data[2], int_ip, str(data[2]==int_ip))
+				# else:
+				# 	print '%s != %s ? [%s]' % (data[2], int_ip, str(data[2]==int_ip))
 
 	def request_shares(self, peer_name, peer_ip):
 		reply = ''
