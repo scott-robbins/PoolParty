@@ -28,7 +28,7 @@ class BackendAPI:
 		api_methods = {}
 		# if its a router node be sure to add NAT methods to backend 
 		if self.node.ROUTER:
-			api_methods{'NAT': self.nat_trav}
+			api_methods = {'NAT': self.nat_trav}
 		# Add standard (common) functions
 		return api_methods
 
