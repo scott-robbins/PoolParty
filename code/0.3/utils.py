@@ -2,7 +2,6 @@ from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
 from threading import Thread
-import matplotlib.pyplot as plt
 import numpy as np
 try:
 	import paramiko
