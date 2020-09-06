@@ -10,142 +10,48 @@ import time
 import sys
 import os
 
-class BackendAPI:
-	inbound = 54132
-	running = True
-	peers = {}
-	network_name = ''
-
-	def __init__(self, Node):
-		self.node = Node
-		# Initialize the backend based on type of node
-		self.api = self.initialize()
-		# define actions here
-		self.run()
-
-	def initialize(self):
-		self.self_identify()
-		api_methods = {}
-		# if its a router node be sure to add NAT methods to backend 
-		if self.node.ROUTER:
-			api_methods = {'NAT': self.nat_trav}
-		# Add standard (common) functions
-		return api_methods
-
-	def nat_trav(self, c, ci, api_req):
-		print 'handling nat request'
-		if '?' in api_req.split(''):
-			print '[*] %s is requesting NAT info for %s' % (ci[0], api_req.split('?')[1])
-			# They are requesting NAT for another peer
-			preq = api_req.split(' : ')[1]
-			for line in open(os.getcwd()+'/PoolData/NX/natdat.txt', 'rb').readlines():
-				name = line.split(':')[0]
-				ext_ip = line.split(':')[1].replace(' ','').replace('\n','')
-				if name == preq:
-					c.send(line) # TODO: Add ecryption to API stuff???
-		return c
-
-	def share_hashlist(self, c, ci, api_req):
-		req = api_req.split('?')
-		return c
-	
-	def self_identify(self):
-		# First need to establish identity
-		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
-			print '[!!] Cannot Start BackendAPI without setting up identity (see node.py)'
-			if not os.path.isfile(os.getcwd()+'/PoolData/NX/requests.txt'):
-				open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write('? NAT Info\n')
-			else:
-				open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write('? NAT Info\n')
-			exit() #  can ask master for it but probably cant continue?
-		myaddr = utils.cmd('hostname -I',False).pop().split(' ')
-		myaddr.pop(-1)
-		for line in utils.swap(os.getcwd()+'/PoolData/NX/peerlist.txt', False):
-			if len(line):
-				peer = {}
-				peer['netname']   = line.split(' ')[0]
-				peer['hostname']  = line.split(' ')[1]
-				peer['ipaddress'] = line.split(' ')[2]
-				# choose self from peerlist
-				if peer['ipaddress'] == myaddr:
-					self.network_name = peer['ipaddress']
-				else:
-					self.peers[peer['ipaddress']] = peer
-
-
-	def run(self):
-		start_time = time.time()
-		ldate, ltime = utils.create_timestamp()
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.bind(('0.0.0.0', self.inbound))
-		s.listen(5)
-		try:
-			while self.running:
-				client, caddr = s.accept()
-				print '[*] %s has connected' % caddr[0]
-				# Do something 
-				raw_request = client.recv(65535)
-				api_fcn = raw_request.split(' :::: ')[0]
-				prequest = raw_request.split(' :::: ')[1]
-				if api_fcn in self.api.keys():
-					client = self.api[api_fcn](client, caddr, raw_request.split(' :::: ')[1])
-					
-				client.close()
-		except KeyboardInterrupt:
-			self.running = False
-			pass
-		uptime = time.time() - start_time
-		# close server socket when not running
-		s.close()
-
-class BackendClient:
+class BackendListener:
+	inbound_port = 54123
+	request_limit = 10
+	running = False
 
 	def __init__(self):
-		self.server_name, self.server_addr, self.server_cred = utils.load_credentials('Server')
-		self.identify()
+		self.serve_sock = self.create_server_socket()
 
-	def identify(self):
-		# First need to establish identity
-		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
-			print '[!!] Cannot Start BackendAPI without setting up identity (see node.py)'
-			if not os.path.isfile(os.getcwd()+'/PoolData/NX/requests.txt'):
-				open(os.getcwd()+'/PoolData/NX/requests.txt', 'wb').write('? NAT Info\n')
-			else:
-				open(os.getcwd()+'/PoolData/NX/requests.txt', 'a').write('? NAT Info\n')
-			exit() #  can ask master for it but probably cant continue?
-		myaddr = utils.cmd('hostname -I',False).pop().split(' ')
-		myaddr.pop(-1)
-		# Load Peerlist
-		for line in utils.swap(os.getcwd()+'/PoolData/NX/peerlist.txt', False):
-			if len(line):
-				# peer = {}
-				# peer['netname']   = line.split(' ')[0]
-				# peer['hostname']  = line.split(' ')[1]
-				# peer['ipaddress'] = line.split(' ')[2]
-				# choose self from peerlist
-				if line.split(' ')[2] == myaddr:
-					self.network_name = line.split(' ')[2]
+	def create_server_socket(self):
+		# Create a server socket (this one should support multi-threading)
+		soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		print("Socket created")
+		try:
+    		soc.bind((host, port))
+		except:
+ 			print("Bind failed. Error : " + str(sys.exc_info()))
+  			sys.exit()
+  		soc.listen(6) # queue up to 6 requests
+  		return soc
+   
+  	def run(self):
+  		start = time.time()
+  		try:
+  			while self.running:
+  				client, client_addr = self.serve_sock.accept()
+  				Thread(target=client_handler, args=(client, client_addr)).start()
+  		except KeyboardInterrupt:
+  			print '[!!] Server Killed [Uptime %s seconds]' % (start - time.time())
+  			self.running = False
+  		self.serve_sock.close()
+
+  	def client_handler(self, c, ci):
+  		raw_req = c.recv(2046)
+  		print 'Parsing API request from %s:%d' % (ci[0], ci[1])
+  		api_req = raw_req.split(' :::: ')[0]
+  		c.close()
 
 
-	def get_peer_ip(self, pname):
-		print 'Requesting NAT info for %s from server %s' % (pname, self.server_addr)
-		c = utils.create_tcp_socket(False)
-		c.connect((self.server_addr, 54123))
-		c.send('NAT :::: ? %s' % pname)
-		result = c.recv(1024)
-		print result
-		c.close()
-		return result 
 
 def main():
-	if '-back' in sys.argv and len(sys.argv) > 2:
-		name = sys.argv[2]
-		BackendAPI(node.Node(name))
-
-	if '-nat?' in sys.argv and len(sys.argv) > 2:
-		peer_name = sys.argv[2]
-		abc = BackendClient() # API Backend Client
-		print abc.get_peer_ip(peer_name)
+	bas = BackendListener()	
 
 if __name__ == '__main__':
 	main()
