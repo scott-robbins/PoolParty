@@ -65,6 +65,7 @@ class BackendListener:
   		try:
   			n, i, pw, pk = control.load_credentials(peer, False)
   			cipher_rsa = PKCS1_OAEP.new(pk)
+  			print cipher_rsa
 			enc_session_key = cipher_rsa.encrypt(session_key)
 			print enc_session_key
 			print '* sending encrypted reply: %s' % enc_session_key
