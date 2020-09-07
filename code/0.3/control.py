@@ -220,6 +220,28 @@ def peer_checkin(peer, netdata, cred):
 	netdat = update_requests(peer, rpath, netdat, ip, hname, pword)
 	return netdat
 
+def upload_nat_data(name, netdata):
+	nat_dat = dump_nat_info(netdata)
+	open('natdat.txt','wb').write(nat_dat)
+	# Distribute peer routing info to this peer
+	utils.ssh_put_file(os.getcwd()+'/natdat.txt',
+					   netdata[name]['peer_loc']+'/NX',
+					   netdata[name]['ip'],
+					   netdata[name]['hostname'],
+					   netdata[name]['passwd'])
+	print '[*] NAT Data sent to %s' % name
+	os.remove('natdat.txt')
+
+def upload_creds(name, netdata):
+	for file in os.listdir(os.getcwd()+'/PoolData/Creds'):
+		fname = os.getcwd()+'/PoolData/Creds/' + file
+		utils.ssh_put_file(fname, 
+						   netdata[name]['peer_loc']+'/Creds',
+						   netdata[name]['ip'],
+						   netdata[name]['hostname'],
+						   netdata[name]['passwd'])
+
+
 def main():
 	nodes = get_node_names()
 	
@@ -276,6 +298,9 @@ def main():
 		
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
+			# reduced steps 2-3 to this one function to clean this up
+			# cant seem to improve speed with multithreading though because I need results of each loop
+			# and cant seem to figure out how to save each loop result while also multithreading
 			peer_checkin(rmt_peer, network_data, creds)
 			
 		# [4] - After cycling through all nodes for updates, service any outstanding
@@ -283,29 +308,13 @@ def main():
 		for nodename in nodes:
 			node_stats = network_data[nodename]
 			if 'pending_operations' in node_stats.keys():
-	
 				if 'NAT' in node_stats['pending_operations']:
 					# compile routing info for this peer
-					nat_dat = dump_nat_info(network_data)
-					open('natdat.txt','wb').write(nat_dat)
-					# Distribute peer routing info to this peer
-					utils.ssh_put_file(os.getcwd()+'/natdat.txt',
-					 				   network_data[nodename]['peer_loc']+'/NX',
-					 				   network_data[nodename]['ip'],
-					 				   network_data[nodename]['hostname'],
-					 				   network_data[nodename]['passwd'])
-					print '[*] NAT Data sent to %s' % nodename
-					os.remove('natdat.txt')
+					upload_nat_data(nodename, network_data)
 				# If flagged, transfer credentials to the node
 				if 'CREDS' in node_stats['pending_operations']:
 					print '%s is requesting Peer Credentials ' % nodename
-					for file in os.listdir(os.getcwd()+'/PoolData/Creds'):
-						fname = os.getcwd()+'/PoolData/Creds/' + file
-						utils.ssh_put_file(fname, 
-										   network_data[nodename]['peer_loc']+'/Creds',
-										   network_data[nodename]['ip'],
-										   network_data[nodename]['hostname'],
-										   network_data[nodename]['passwd'])
+					upload_creds(nodename, network_data)
 	else:
 		usage()
 
