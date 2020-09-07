@@ -67,7 +67,6 @@ class BackendListener:
   		if api_req in self.actions.keys():
   			# API functions must take these params and return client sock
   			c = self.actions[api_req](c, ci, api_dat, k)
-  		
   		c.close()
 
   	def show_shares(self, c, ci, req_dat, key):
@@ -93,7 +92,7 @@ class BackendListener:
   			file_data = 'Unable to find %s' % req_dat
   		# ADD ENCRYPTION TO API REQUESTS !!!!
   		# c.send(file_data)
-  		c.send(utils.EncodeAES(AES.new(base64.b64decode(keys)), file_data))
+  		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), file_data))
   		return c
 
 
