@@ -69,37 +69,36 @@ class BackendListener:
   		# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
   		if api_req in self.actions.keys():
   			# API functions must take these params and return client sock
-  			c = self.actions[api_req](c, ci, api_dat)
+  			c = self.actions[api_req](c, ci, api_dat, k)
   		
   		c.close()
 
-  	def show_shares(self, c, ci, req_dat):
+  	def show_shares(self, c, ci, req_dat, key):
   		share_path = os.getcwd()+'/PoolData/Shares'
   		reply = ''
   		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
   		sess_id = '%s@%s' % (peer, ci[0])
-		key = base64.b64decode(self.session_keys[sess_id])
   		if not os.path.isdir(share_path):
   			reply += '0 Shared Files'
   		else:
   			contents, h = utils.crawl_dir(share_path, False, False)
   			reply += utils.arr2str(contents['file'])
   		# ADD ENCRYPTION TO API REQUESTS!!!!
-  		c.send(utils.EncodeAES(AES.new(key), reply))
+  		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), reply))
   		return c
 
-  	def send_sharefile(self, c, ci, req_dat):
+  	def send_sharefile(self, c, ci, req_dat, key):
   		share_path = os.getcwd()+'/PoolData/Shares'
   		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
   		sess_id = '%s@%s' % (peer, ci[0])
-  		key = base64.b64decode(self.session_keys[sess_id])
+  		# key = base64.b64decode(self.session_keys[sess_id])
   		if req_dat in os.listdir(share_path):
   			file_data = open(share_path+'/'+req_dat, 'rb').read()
   		else:
   			file_data = 'Unable to find %s' % req_dat
   		# ADD ENCRYPTION TO API REQUESTS !!!!
   		# c.send(file_data)
-  		c.send(utils.EncodeAES(AES.new(key), file_data))
+  		c.send(utils.EncodeAES(AES.new(base64.b64decode(keys)), file_data))
   		return c
 
 
