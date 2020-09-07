@@ -121,7 +121,6 @@ def parse_request_file(req_filename, peername):
 		print '- %s is has bandwidth for %d more tasks' % (peername, n_jobs)
 	return n_jobs, ops
 
-
 def dump_nat_info(net_data):
 	names = net_data.keys()
 	data = ''
@@ -269,8 +268,7 @@ def main():
 		for nodename in nodes:
 			node_stats = network_data[nodename]
 			if 'pending_operations' in node_stats.keys():
-				print 'DEBUGGING** Operations:'
-				print node_stats['pending_operations']
+	
 				if 'NAT' in node_stats['pending_operations']:
 					# compile routing info for this peer
 					nat_dat = dump_nat_info(network_data)

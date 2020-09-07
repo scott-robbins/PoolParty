@@ -1,8 +1,10 @@
+from Crypto.Random import get_random_bytes
 from threading import Thread
 import numpy as np
 import control
 import storage
 import socket
+import base64
 import utils
 import setup
 import node
@@ -14,6 +16,7 @@ class BackendListener:
 	inbound_port = 54123
 	request_limit = 10
 	running = False
+	session_keys = {}
 
 	def __init__(self):
 		self.serve_sock = self.create_server_socket()
@@ -55,8 +58,14 @@ class BackendListener:
   		api_dat = raw_req.split(' :::: ')[1]
   		# API_DAT MUST REQUIRE NODES NAME TO LOAD CORRECT PUBLIC KEY FOR ENCRYPTION 
   		peer = raw_req.split(' :::: ')[1].split(' ;;;; ')[0].replace(' ','')
+  		sess_id = '%s@%s' % (peer, ci[0])
+  		if sess_id not in self.session_keys.keys():
+  			self.session_keys[sess_id] = base64.b64encode(get_random_bytes(32))
   		try:
   			n, i, pw, pk = control.load_credentials(peer, False)
+  			cipher_rsa = PKCS1_OAEP.new(pk)
+			enc_session_key = cipher_rsa.encrypt(session_key)
+			c.send(enc_session_key)
   			# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
   			if api_req in self.actions.keys():
   				# API functions must take these params and return client sock
@@ -69,23 +78,30 @@ class BackendListener:
   	def show_shares(self, c, ci, req_dat):
   		share_path = os.getcwd()+'/PoolData/Shares'
   		reply = ''
+  		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
+  		sess_id = '%s@%s' % (peer, ci[0])
+		key = base64.b64decode(self.session_keys[sess_id])
   		if not os.path.isdir(share_path):
   			reply += '0 Shared Files'
   		else:
   			contents, h = utils.crawl_dir(share_path, False, False)
   			reply = utils.arr2str(contents['file'])
   		# ADD ENCRYPTION TO API REQUESTS!!!!
-  		c.send(reply)
+  		c.send(utils.EncodeAES(AES.new(key), reply))
   		return c
 
   	def send_sharefile(self, c, ci, req_dat):
   		share_path = os.getcwd()+'/PoolData/Shares'
+  		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
+  		sess_id = '%s@%s' % (peer, ci[0])
+  		key = base64.b64decode(self.session_keys[sess_id])
   		if req_dat in os.listdir(share_path):
   			file_data = open(share_path+'/'+req_dat, 'rb').read()
   		else:
   			file_data = 'Unable to find %s' % req_dat
   		# ADD ENCRYPTION TO API REQUESTS !!!!
-  		c.send(file_data)
+  		# c.send(file_data)
+  		c.send(utils.EncodeAES(AES.new(key), file_data))
   		return c
 
 
