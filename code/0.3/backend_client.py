@@ -18,7 +18,7 @@ class BackendClient:
 	def __init__(self):
 		self.running = True
 		self.identify()
-		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, F)
+		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, False)
 
 	def identify(self):
 		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','').replace(' ','')
