@@ -62,7 +62,9 @@ class BackendListener:
   		if sess_id not in self.session_keys.keys():
   			self.session_keys[sess_id] = base64.b64encode(get_random_bytes(32))
   		try:
+  			print peer
   			n, i, pw, pk = control.load_credentials(peer, False)
+  			print n
   			cipher_rsa = PKCS1_OAEP.new(pk)
 			enc_session_key = cipher_rsa.encrypt(session_key)
 			print enc_session_key
