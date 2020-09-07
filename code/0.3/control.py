@@ -166,17 +166,70 @@ def usage():
 	print '\t--node-info'
 	print '\t--run-master'
 
+def check_oneself(peer, netdat, cred):
+	i = cred[peer][1]
+	h = cred[peer][0]
+	p = cred[peer][2]
+	# The default installation of PoolParty for each node should be
+	# in the home folder of the hostame being connected to
+	poolp = '/PoolParty/code/0.3'
+	if h == 'root':
+		rpath = '/root' + poolp
+	else:
+		rpath = '/home/%s%s' % (h,poolp)
+	utils.execute_python_script(rpath, 'node.py %s -dump_info' % peer, i, h, p, False)
+	utils.ssh_get_file(rpath+'/PoolData/NX','self.txt',i,h,p)
+	if os.path.isfile(os.getcwd()+'/self.txt'):	
+		for line in utils.swap('self.txt', True):
+			if '  - External IP' in line.split(': '):
+				ext_ip = line.split(': ')[1].replace('\n', '')
+				netdat[peer]['ext_ip'] = ext_ip
+	return netdat, poolp, i, h, p, rpath
+
+def distribute_peerlist(peer, rpth, netdat, i, h, p):
+	ploc = '%s/PoolData' % rpth
+	netdat[peer]['peer_loc'] = ploc
+	utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', ploc,i,h,p)
+	return netdat
+
+def update_requests(peer, rpth, netdat, i, h, p):
+	sreq = 'ls -la %s/PoolData/NX/requests.txt' % rpth
+	req_size = utils.ssh_exec(sreq, i, h, p, False)
+	req_loc = '%s/PoolData/NX' % rpth
+	if len(req_size) > 1:
+		print '[*] %s has request data available' % peer
+	if utils.ssh_get_file_del(req_loc, 'requests.txt', i, h, p):
+		print '[*] request data recieved'
+		os.system('mv requests.txt PoolData/NX/%s_req.txt' % peer)
+		# Parse requests because some might trigger actions 
+		n_tasks, operations = parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%peer, peer)
+	else:
+		print '[!!] unable to retrieve request data'
+		n_tasks = -1
+		operations = []
+	# Handle operations the node is requesting
+	netdat[peer]['pending_operations'] = operations
+	netdat[peer]['task_queue'] = n_tasks
+	return netdat
+
+def peer_checkin(peer, netdata, cred):
+	netdat, rpath, ip, hname,pword, rpath = check_oneself(peer, netdata, cred)
+	# [2] - Distribute peerlist
+	netdat = distribute_peerlist(peer, rpath, netdat, ip, hname, pword)
+	# [3] - See if node has any new data/requests available
+	netdat = update_requests(peer, rpath, netdat, ip, hname, pword)
+	return netdat
 
 def main():
 	nodes = get_node_names()
 	
 	
-	if '-cmd-all' in sys.argv and len(sys.argv) >=3:
+	if '--cmd-all' in sys.argv and len(sys.argv) >=3:
 		creds, latency = get_cluster_creds(nodes, False)
 		for n in nodes:
 			cmd = utils.arr2chstr(sys.argv[2:])
 			try:
-				Thread(target=utils.ssh_exec, args=(cmd, creds[n][1], creds[n][0], creds[n][2], True))
+				Thread(target=utils.ssh_exec, args=(cmd, creds[n][1], creds[n][0], creds[n][2], True)).start()
 				# result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
 			except Exception:
 				pass
@@ -223,48 +276,8 @@ def main():
 		
 		# [1] - Check that all nodes are connected, and are running this software
 		for rmt_peer in nodes:
-			ip = creds[rmt_peer][1]
-			hname = creds[rmt_peer][0]
-			pword = creds[rmt_peer][2]
-			# The default installation of PoolParty for each node should be
-			# in the home folder of the hostame being connected to
-			poolpath = '/PoolParty/code/0.3'
-			if hname == 'root':
-				rpath = '/root' + poolpath
-			else:
-				rpath = '/home/%s%s' % (hname,poolpath)
-			utils.execute_python_script(rpath, 'node.py %s -dump_info' % rmt_peer, ip, hname, pword, False)
-			utils.ssh_get_file(rpath+'/PoolData/NX','self.txt',ip,hname,pword)
-			if os.path.isfile(os.getcwd()+'/self.txt'):	
-				for line in utils.swap('self.txt', True):
-					if '  - External IP' in line.split(': '):
-						ext_ip = line.split(': ')[1].replace('\n', '')
-						network_data[rmt_peer]['ext_ip'] = ext_ip
-
-			# [2] - Distribute peerlist
-			peerloc = '%s/PoolData' % rpath
-			network_data[rmt_peer]['peer_loc'] = peerloc
-			utils.ssh_put_file(os.getcwd()+'/PoolData/NX/peerlist.txt', peerloc,ip,hname,pword)
-
-			# [3] - See if node has any new data/requests available
-			show_req = 'ls -la %s/PoolData/NX/requests.txt' % rpath
-			req_size = utils.ssh_exec(show_req, ip, hname, pword, False)
-			if len(req_size) > 1:
-				print '[*] %s has request data available' % rmt_peer
-				req_loc = '%s/PoolData/NX' % rpath
-				if utils.ssh_get_file_del(req_loc, 'requests.txt', ip, hname, pword):
-					print '[*] request data recieved'
-					os.system('mv requests.txt PoolData/NX/%s_req.txt' % rmt_peer)
-					# Parse requests because some might trigger actions 
-					n_tasks, operations = parse_request_file(os.getcwd()+'/PoolData/NX/%s_req.txt'%rmt_peer, rmt_peer)
-				else:
-					print '[!!] unable to retrieve request data'
-					n_tasks = -1
-					operations = []
-				# Handle operations the node is requesting
-				network_data[rmt_peer]['pending_operations'] = operations
-				network_data[rmt_peer]['task_queue'] = n_tasks
-
+			peer_checkin(rmt_peer, network_data, creds)
+			
 		# [4] - After cycling through all nodes for updates, service any outstanding
 		# operations they were seen to be requesting. 
 		for nodename in nodes:
