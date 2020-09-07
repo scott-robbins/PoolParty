@@ -59,11 +59,8 @@ class BackendListener:
   		api_dat = raw_req.split(' :::: ')[1]
   		# API_DAT MUST REQUIRE NODES NAME TO LOAD CORRECT PUBLIC KEY FOR ENCRYPTION 
   		peer = raw_req.split(' :::: ')[1].split(' ;;;; ')[0].replace(' ','')
-  		sess_id = '%s@%s' % (peer, ci[0])
   		k = base64.b64encode(get_random_bytes(16))
-  		# self.session_keys[sess_id] =  base64.b64encode(get_random_bytes(16))
   		n, i, pw, pk = control.load_credentials(peer, False)
-  		# cipher_rsa = PKCS1_OAEP.new(pk.publickey()).encrypt(k)
 		enc_session_key = PKCS1_OAEP.new(pk.publickey()).encrypt(k)
 		c.send(enc_session_key)
   		# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
@@ -90,8 +87,6 @@ class BackendListener:
   	def send_sharefile(self, c, ci, req_dat, key):
   		share_path = os.getcwd()+'/PoolData/Shares'
   		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
-  		sess_id = '%s@%s' % (peer, ci[0])
-  		# key = base64.b64decode(self.session_keys[sess_id])
   		if req_dat in os.listdir(share_path):
   			file_data = open(share_path+'/'+req_dat, 'rb').read()
   		else:

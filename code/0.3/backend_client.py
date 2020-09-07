@@ -49,8 +49,9 @@ class BackendClient:
 			s.connect((peer_ip, 54123))
 			s.send(api_request)
 			# enc_sess_key = s.recv(65535)
-			enc_sess_key = s.recv(2535)
-			print len(enc_sess_key)
+			enc_sess_key = s.recv(2048)
+			# For some reason this occasionaly fails? They key comes across write as 256bytes it works 
+			# but sometimes it comes in as 344bytes? no idea why, super confusing and unpredictable
 			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
 			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
 		except socket.error:
@@ -60,10 +61,26 @@ class BackendClient:
 			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
 			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
 			pass
-
 		s.close()
 		return reply
-		
+
+	def request_file(self, fname, peer, peer_ip):
+		reply = ''
+		api_request = '*SHARES :::: %s ;;;; ' % self.name
+		private_key = RSA.importKey(open(os.getcwd()+'/PoolData/Creds/'+self.name+'.pem').read())
+		cipher_rsa = PKCS1_OAEP.new(private_key)
+		try:
+			s = utils.create_tcp_socket(False)
+			s.connect((peer_ip, 54123))
+			s.send(api_request)
+			enc_sess_key = s.recv(2048) # Again, not sure why this occassionaly fails?
+			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
+			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
+		except socket.error:
+			print '[!!] Error making API request to %s' % peer_ip
+			pass
+		s.close()
+		return reply
 
 def main():
 	client = BackendClient()
@@ -74,10 +91,12 @@ def main():
 		remote_shares = client.request_shares(peer_name, ip)
 		print '%s has:\n%s' % (peer_name, remote_shares)
 
-	if '-get' in sys.argv and len(sys.argv) > 2:
+	if '-get' in sys.argv and len(sys.argv) > 3:
 		peer_name = sys.argv[2];
+		remote_file = sys.argv[3]
 		hname, ip, pword, pkey = control.load_credentials(peer_name, True)
-		
+		file_data = client.request_file(remote_file, peer_name, ip)
+		print '[*] %d bytes transferred' % len(file_data)
 
 if __name__ == '__main__':
 	main()
