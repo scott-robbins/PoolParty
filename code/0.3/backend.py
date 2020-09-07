@@ -95,6 +95,7 @@ class BackendListener:
   		# c.send(file_data)
   		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), file_data))
   		chk_sum = utils.cmd('sha256sum PoolData/Shares/%s' % rmt_file, False).pop().split(' ')[0]
+  		print chk_sum
   		c.send(chk_sum)
   		return c
 
