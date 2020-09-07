@@ -61,11 +61,11 @@ class BackendListener:
   		sess_id = '%s@%s' % (peer, ci[0])
   		if sess_id not in self.session_keys.keys():
   			self.session_keys[sess_id] = base64.b64encode(get_random_bytes(32))
-  		
   		try:
   			n, i, pw, pk = control.load_credentials(peer, False)
   			cipher_rsa = PKCS1_OAEP.new(pk)
 			enc_session_key = cipher_rsa.encrypt(session_key)
+			print enc_session_key
 			print '* sending encrypted reply: %s' % enc_session_key
 			c.send(enc_session_key)
   			# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
