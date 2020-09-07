@@ -28,7 +28,7 @@ class BackendListener:
 		self.run()
 
 	def identify(self):
-		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','').replace(' ','')
+		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','').split(' ')[0]
 		hname = utils.cmd('whoami', False).pop().replace('\n','').replace(' ','')
 		
 		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
