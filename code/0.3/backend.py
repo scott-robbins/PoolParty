@@ -63,14 +63,13 @@ class BackendListener:
   		if sess_id not in self.session_keys.keys():
   			self.session_keys[sess_id] = base64.b64encode(get_random_bytes(32))
   		n, i, pw, pk = control.load_credentials(peer, False)
-  		cipher_rsa = PKCS1_OAEP.new(pk.publicKey())
+  		cipher_rsa = PKCS1_OAEP.new(pk.publickey())
 		enc_session_key = cipher_rsa.encrypt(self.session_keys[sess_id])
 		c.send(enc_session_key)
   		# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
   		if api_req in self.actions.keys():
   			# API functions must take these params and return client sock
   			c = self.actions[api_req](c, ci, api_dat)
-  		
   		
   		c.close()
 

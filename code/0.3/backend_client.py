@@ -3,6 +3,7 @@ from threading import Thread
 import numpy as np
 import control
 import storage
+import base64
 import socket
 import utils
 import setup
