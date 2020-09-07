@@ -41,7 +41,8 @@ class BackendClient:
 		reply = ''
 		api_request = '?SHARES :::: %s ;;;; ' % self.name
 		# TODO: ADD ENCRYPTION!!
-		cipher_rsa = PKCS1_OAEP.new(self.pk)
+		private_key = RSA.importKey(open(os.getcwd()+'/PoolData/Creds/'+self.name+'.pem').read())
+		cipher_rsa = PKCS1_OAEP.new(private_key)
 		try:
 			s = utils.create_tcp_socket(False)
 			s.connect((peer_ip, 54123))
