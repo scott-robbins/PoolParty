@@ -75,7 +75,7 @@ class BackendListener:
 
   	def show_shares(self, c, ci, req_dat):
   		share_path = os.getcwd()+'/PoolData/Shares'
-  		reply = ''
+  		reply = 'SHARED FILES:\n'
   		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
   		sess_id = '%s@%s' % (peer, ci[0])
 		key = base64.b64decode(self.session_keys[sess_id])
@@ -83,8 +83,8 @@ class BackendListener:
   			reply += '0 Shared Files'
   		else:
   			contents, h = utils.crawl_dir(share_path, False, False)
-  			reply = utils.arr2str(contents['file'])
-  			print reply
+  			reply += utils.arr2str(contents['file'])
+  		reply.pop(-1)
   		# ADD ENCRYPTION TO API REQUESTS!!!!
   		c.send(utils.EncodeAES(AES.new(key), reply))
   		return c

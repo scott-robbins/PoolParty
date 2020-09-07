@@ -18,7 +18,7 @@ class BackendClient:
 	def __init__(self):
 		self.running = True
 		self.identify()
-		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, True)
+		self.hname, self.ip, self.pword, self.pk = control.load_credentials(self.name, F)
 
 	def identify(self):
 		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','').replace(' ','')
@@ -47,11 +47,17 @@ class BackendClient:
 			s.connect((peer_ip, 54123))
 			s.send(api_request)
 			# enc_sess_key = s.recv(65535)
-			sess_key = base64.b64decode(cipher_rsa.decrypt(s.recv(65535)))
+			enc_sess_key = s.recv(65535)
+			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
 			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
 		except socket.error:
 			print '[!!] Error making API request to %s' % peer_ip
 			pass
+		except ValueError:
+			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
+			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
+			pass
+
 		s.close()
 		return reply
 		
@@ -61,7 +67,7 @@ def main():
 
 	if '-shares' in sys.argv and len(sys.argv) > 2:
 		peer_name = sys.argv[2];
-		hname, ip, pword, pkey = control.load_credentials(peer_name, True)
+		hname, ip, pword, pkey = control.load_credentials(peer_name, False)
 		remote_shares = client.request_shares(peer_name, ip)
 		print '%s has:\n%s' % (peer_name, remote_shares)
 
