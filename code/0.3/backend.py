@@ -93,6 +93,8 @@ class BackendListener:
   		# ADD ENCRYPTION TO API REQUESTS !!!!
   		# c.send(file_data)
   		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), file_data))
+  		chksum = utils.cmd('sha256sum %s/%s' % (share_path, req_dat), False).pop().split(' ')[0]
+  		c.send(chksum)
   		return c
 
 
