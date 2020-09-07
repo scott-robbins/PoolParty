@@ -60,12 +60,13 @@ class BackendListener:
   		# API_DAT MUST REQUIRE NODES NAME TO LOAD CORRECT PUBLIC KEY FOR ENCRYPTION 
   		peer = raw_req.split(' :::: ')[1].split(' ;;;; ')[0].replace(' ','')
   		sess_id = '%s@%s' % (peer, ci[0])
+  		k = base64.b64encode(get_random_bytes(24))
   		if sess_id not in self.session_keys.keys():
   			print '[*] Assinging %s a new Session ID' % peer
-  			self.session_keys[sess_id] = base64.b64encode(get_random_bytes(24))
+  			self.session_keys[sess_id] = k
   		n, i, pw, pk = control.load_credentials(peer, False)
   		cipher_rsa = PKCS1_OAEP.new(pk.publickey())
-		enc_session_key = cipher_rsa.encrypt(sess_id)
+		enc_session_key = cipher_rsa.encrypt(k)
 		c.send(enc_session_key)
   		# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
   		if api_req in self.actions.keys():
