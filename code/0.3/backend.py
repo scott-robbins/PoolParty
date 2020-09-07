@@ -87,7 +87,7 @@ class BackendListener:
   		share_path = os.getcwd()+'/PoolData/Shares'
   		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
   		rmt_file = req_dat.split(' ;;;; ')[1]
-  		if req_dat in os.listdir(share_path):
+  		if os.path.isfile(share_path+'/'+rmt_file):
   			file_data = open(share_path+'/'+rmt_file, 'rb').read()
   		else:
   			file_data = 'Unable to find %s' % rmt_file
@@ -95,7 +95,7 @@ class BackendListener:
   		# c.send(file_data)
   		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), file_data))
   		chk_sum = utils.cmd('sha256sum PoolData/Shares/%s' % rmt_file, False).pop().split(' ')[0]
-  		print share_path+'/'+rmt_file
+  		
   		c.send(chk_sum)
   		return c
 
