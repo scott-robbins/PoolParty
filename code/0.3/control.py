@@ -2,6 +2,7 @@ from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from threading import Thread
+import base64
 import socket
 import setup
 import utils 
