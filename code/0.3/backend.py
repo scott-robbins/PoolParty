@@ -86,14 +86,15 @@ class BackendListener:
   	def send_sharefile(self, c, ci, req_dat, key):
   		share_path = os.getcwd()+'/PoolData/Shares'
   		peer = req_dat.split(' ;;;; ')[0].replace(' ','')
+  		rmt_file = req_dat.split(' ;;;; ')[1]
   		if req_dat in os.listdir(share_path):
-  			file_data = open(share_path+'/'+req_dat, 'rb').read()
+  			file_data = open(share_path+'/'+rmt_file, 'rb').read()
   		else:
-  			file_data = 'Unable to find %s' % req_dat
+  			file_data = 'Unable to find %s' % rmt_file
   		# ADD ENCRYPTION TO API REQUESTS !!!!
   		# c.send(file_data)
   		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), file_data))
-  		chk_sum = utils.cmd('sha256sum PoolData/Shares/%s' % req_dat, False).pop().split(' ')[0]
+  		chk_sum = utils.cmd('sha256sum PoolData/Shares/%s' % rmt_file, False).pop().split(' ')[0]
   		c.send(chksum)
   		return c
 

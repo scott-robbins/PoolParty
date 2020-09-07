@@ -66,7 +66,7 @@ class BackendClient:
 
 	def request_file(self, fname, peer, peer_ip):
 		reply = ''
-		api_request = '*SHARES :::: %s ;;;; ' % self.name
+		api_request = '*SHARES :::: %s ;;;; %s' % (self.name, fname)
 		private_key = RSA.importKey(open(os.getcwd()+'/PoolData/Creds/'+self.name+'.pem').read())
 		cipher_rsa = PKCS1_OAEP.new(private_key)
 		try:
