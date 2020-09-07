@@ -76,11 +76,13 @@ class BackendClient:
 			enc_sess_key = s.recv(2048) # Again, not sure why this occassionaly fails?
 			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
 			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
+			open(os.getcwd()+'/PoolData/Shares/'+fname,'wb').write(reply)
+			chk_sum = utils.cmd('sha256sum PoolData/Shares/%s' % fname, False).pop().split(' ')[0]
 		except socket.error:
 			print '[!!] Error making API request to %s' % peer_ip
 			pass
 		s.close()
-		return reply
+		return reply, chk_sum
 
 def main():
 	client = BackendClient()
@@ -95,8 +97,9 @@ def main():
 		peer_name = sys.argv[2];
 		remote_file = sys.argv[3]
 		hname, ip, pword, pkey = control.load_credentials(peer_name, True)
-		file_data = client.request_file(remote_file, peer_name, ip)
+		file_data, file_hash = client.request_file(remote_file, peer_name, ip)
 		print '[*] %d bytes transferred' % len(file_data)
+		print file_hash
 
 if __name__ == '__main__':
 	main()
