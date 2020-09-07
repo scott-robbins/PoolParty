@@ -43,6 +43,8 @@ class BackendClient:
 			s = utils.create_tcp_socket(False)
 			s.connect((peer_ip, 54123))
 			s.send(api_request)
+			sess_key = s.recv(65535)
+			print sess_key
 			reply = s.recv(65535)
 		except socket.error:
 			print '[!!] Error making API request to %s' % peer_ip
