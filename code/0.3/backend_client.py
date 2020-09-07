@@ -87,9 +87,7 @@ class BackendClient:
 			print '[!!] Error making API request to %s' % peer_ip
 			pass
 		s.close()
-		print 'Checksum Sent:\t%s' % chk_val
-		print 'Checksum Local:\t%s' % chk_sum
-		return reply, (chk_sum==chk_val)
+		return len(reply)
 
 def main():
 	client = BackendClient()

@@ -176,7 +176,8 @@ def main():
 		for n in nodes:
 			cmd = utils.arr2chstr(sys.argv[2:])
 			try:
-				result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
+				Thread(target=utils.ssh_exec, args=(cmd, creds[n][1], creds[n][0], creds[n][2], True))
+				# result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
 			except Exception:
 				pass
 

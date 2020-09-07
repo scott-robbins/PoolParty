@@ -21,7 +21,7 @@ class BackendListener:
 
 	def __init__(self):
 		self.serve_sock = self.create_server_socket()
-		self.actions = {'?SHARES': self.show_shares,
+		self.actions = {'?SHARES':  self.show_shares,
 						 '*SHARES': self.send_sharefile}
 		self.run()
 
@@ -63,7 +63,6 @@ class BackendListener:
   		n, i, pw, pk = control.load_credentials(peer, False)
 		enc_session_key = PKCS1_OAEP.new(pk.publickey()).encrypt(k)
 		c.send(enc_session_key)
-  		# TODO: ADD ENCRYPTION TO API REQUESTS!!!!
   		if api_req in self.actions.keys():
   			# API functions must take these params and return client sock
   			c = self.actions[api_req](c, ci, api_dat, k)
