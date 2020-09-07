@@ -1,3 +1,4 @@
+from Crypto.Cipher import AES, PKCS1_OAEP
 from threading import Thread
 import numpy as np
 import control
@@ -39,13 +40,13 @@ class BackendClient:
 		reply = ''
 		api_request = '?SHARES :::: %s ;;;; ' % self.name
 		# TODO: ADD ENCRYPTION!!
+		cipher_rsa = PKCS1_OAEP.new(self.pk)
 		try:
 			s = utils.create_tcp_socket(False)
 			s.connect((peer_ip, 54123))
 			s.send(api_request)
-			sess_key = s.recv(65535)
-			print sess_key
-			reply = s.recv(65535)
+			# enc_sess_key = s.recv(65535)
+			sess_key = base64.b64decode(cipher_rsa.decrypt(s.recv(65535)))
 		except socket.error:
 			print '[!!] Error making API request to %s' % peer_ip
 			pass
