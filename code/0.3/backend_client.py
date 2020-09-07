@@ -89,9 +89,9 @@ class BackendClient:
 		s.close()
 		return len(reply)
 
-	def request_info(self, peer, peer_ip):
+	def request_info(self, peer_ip):
 		reply = ''
-		api_request = '?INFO :::: %s ;;;;' % peer
+		api_request = '?INFO :::: %s ;;;;' % self.name
 		private_key = RSA.importKey(open(os.getcwd()+'/PoolData/Creds/'+self.name+'.pem').read())
 		cipher_rsa = PKCS1_OAEP.new(private_key)
 		try:
@@ -125,7 +125,7 @@ def main():
 	if '-info' in sys.argv and len(sys.argv) > 2:
 		peer_name = sys.argv[2]
 		hname, ip, pword, pkey = control.load_credentials(peer_name, False)
-		print client.request_info(peer_name, ip)
+		print client.request_info(ip)
 
 if __name__ == '__main__':
 	main()
