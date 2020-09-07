@@ -60,7 +60,7 @@ class BackendListener:
   		# API_DAT MUST REQUIRE NODES NAME TO LOAD CORRECT PUBLIC KEY FOR ENCRYPTION 
   		peer = raw_req.split(' :::: ')[1].split(' ;;;; ')[0].replace(' ','')
   		sess_id = '%s@%s' % (peer, ci[0])
-  		k = base64.b64encode(get_random_bytes(24))
+  		k = base64.b64encode(get_random_bytes(32))
   		if sess_id not in self.session_keys.keys():
   			print '[*] Assinging %s a new Session ID' % peer
   			self.session_keys[sess_id] = k
