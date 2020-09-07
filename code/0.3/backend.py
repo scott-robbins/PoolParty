@@ -43,6 +43,11 @@ class BackendListener:
 					self.name = data[0].replace(' ','')
 					print '[*] Starting BackendClient as %s' % self.name
 					break
+				else:
+					print hname
+					print int_ip
+					print data[1].replace(' ', '')
+					print data[2].replace(' ', '')
 
 	def create_server_socket(self):
 		# Create a server socket (this one should support multi-threading)
