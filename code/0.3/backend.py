@@ -3,7 +3,6 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from threading import Thread
 import numpy as np
 import control
-import storage
 import socket
 import base64
 import utils
@@ -20,10 +19,30 @@ class BackendListener:
 	session_keys = {}
 
 	def __init__(self):
+		self.identify()
+		self.node = node.Node(self.name)
 		self.serve_sock = self.create_server_socket()
 		self.actions = {'?SHARES':  self.show_shares,
-						 '*SHARES': self.send_sharefile}
+						 '*SHARES': self.send_sharefile,
+						 '?INFO': self.show_node_info}
 		self.run()
+
+	def identify(self):
+		int_ip = utils.cmd('hostname -I', False).pop().replace('\n','').replace(' ','')
+		hname = utils.cmd('whoami', False).pop().replace('\n','').replace(' ','')
+		
+		if not os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
+			print '[!!] Unable to load credentials'
+			exit()
+		else:
+			for line in open(os.getcwd()+'/PoolData/NX/peerlist.txt', 'rb').readlines():
+				line = line.replace('\n', '')
+				data = line.split(' ')
+				
+				if data[1].replace(' ','') == hname and data[2].replace(' ','') == int_ip:
+					self.name = data[0].replace(' ','')
+					print '[*] Starting BackendClient as %s' % self.name
+					break
 
 	def create_server_socket(self):
 		# Create a server socket (this one should support multi-threading)
@@ -94,10 +113,13 @@ class BackendListener:
   		# c.send(file_data)
   		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), file_data))
   		chk_sum = utils.cmd('sha256sum PoolData/Shares/%s' % rmt_file, False).pop().split(' ')[0]
-  		
   		c.send(chk_sum)
   		return c
 
+  	def show_node_info(self, c, ci, req_dat, key):
+  		info = self.node.show()
+  		c.send(utils.EncodeAES(AES.new(base64.b64decode(key)), info))
+  		return c
 
 def main():
 	bas = BackendListener()	

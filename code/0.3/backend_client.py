@@ -89,6 +89,23 @@ class BackendClient:
 		s.close()
 		return len(reply)
 
+	def request_info(self, peer, peer_ip):
+		reply = ''
+		api_request = '?INFO :::: %s ;;;;' % peer
+		private_key = RSA.importKey(open(os.getcwd()+'/PoolData/Creds/'+self.name+'.pem').read())
+		cipher_rsa = PKCS1_OAEP.new(private_key)
+		try:
+			s = utils.create_tcp_socket(False)
+			s.connect((peer_ip, 54123))
+			s.send(api_request)
+			enc_sess_key = s.recv(2048) # Again, not sure why this occassionaly fails?
+			sess_key = base64.b64decode(cipher_rsa.decrypt(enc_sess_key))
+			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
+		except socket.error:
+			print '[!!] Error making API request to %s' % peer_ip
+			pass
+		return reply
+
 def main():
 	client = BackendClient()
 
@@ -104,6 +121,11 @@ def main():
 		hname, ip, pword, pkey = control.load_credentials(peer_name, True)
 		file_data, file_hash = client.request_file(remote_file, peer_name, ip)
 		print '[*] %d bytes transferred' % len(file_data)
+
+	if '-info' in sys.argv and len(sys.argv) > 2:
+		peer_name = sys.argv[2]
+		hname, ip, pword, pkey = control.load_credentials(peer_name, False)
+		print client.request_info(peer_name, ip)
 
 if __name__ == '__main__':
 	main()

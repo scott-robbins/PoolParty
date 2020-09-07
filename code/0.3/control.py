@@ -293,7 +293,7 @@ def main():
 			rpath = '/home/%s%s' % (hostname,poolpath)
 		utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
 
-	elif '--run-master' in sys.argv:	# TODO: break this code into functions!! its getting messy
+	elif '--run-master' in sys.argv:
 		# This the mode for running the local machine as a master node in the pool
 		network_data, creds = nx_dat_init(nodes)
 		
