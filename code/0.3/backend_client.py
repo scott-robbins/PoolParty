@@ -48,6 +48,7 @@ class BackendClient:
 			s.send(api_request)
 			# enc_sess_key = s.recv(65535)
 			sess_key = base64.b64decode(cipher_rsa.decrypt(s.recv(65535)))
+			reply = utils.DecodeAES(AES.new(sess_key), s.recv(65535))
 		except socket.error:
 			print '[!!] Error making API request to %s' % peer_ip
 			pass
