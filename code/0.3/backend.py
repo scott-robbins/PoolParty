@@ -63,7 +63,7 @@ class BackendListener:
   		# k = base64.b64encode(get_random_bytes(32))
   		if sess_id not in self.session_keys.keys():
   			print '[*] Assinging %s a new Session ID' % peer
-  			self.session_keys[sess_id] =  base64.b64encode(get_random_bytes(32))
+  			self.session_keys[sess_id] =  base64.b64encode(get_random_bytes(16))
   		n, i, pw, pk = control.load_credentials(peer, False)
   		# cipher_rsa = PKCS1_OAEP.new(pk.publickey()).encrypt(k)
 		enc_session_key = PKCS1_OAEP.new(pk.publickey()).encrypt(self.session_keys[sess_id])
