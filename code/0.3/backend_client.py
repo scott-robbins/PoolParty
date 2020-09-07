@@ -102,7 +102,7 @@ def main():
 		hname, ip, pword, pkey = control.load_credentials(peer_name, True)
 		file_data, file_hash = client.request_file(remote_file, peer_name, ip)
 		print '[*] %d bytes transferred' % len(file_data)
-		print file_hash
+		print file_data
 
 if __name__ == '__main__':
 	main()
