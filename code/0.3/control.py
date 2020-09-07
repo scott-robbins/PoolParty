@@ -278,7 +278,8 @@ def main():
 		creds, latency = get_cluster_creds(nodes, False)
 		for n in nodes:
 			try:
-				result = utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
+				# utils.ssh_exec(cmd, creds[n][1], creds[n][0], creds[n][2], True)
+				Thread(target=utils.ssh_exec, args=(cmd, creds[n][1], creds[n][0], creds[n][2], True)).start()
 			except Exception:
 				pass
 
