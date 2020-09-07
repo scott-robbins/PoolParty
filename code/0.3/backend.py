@@ -84,7 +84,6 @@ class BackendListener:
   		else:
   			contents, h = utils.crawl_dir(share_path, False, False)
   			reply += utils.arr2str(contents['file'])
-  		reply.pop(-1)
   		# ADD ENCRYPTION TO API REQUESTS!!!!
   		c.send(utils.EncodeAES(AES.new(key), reply))
   		return c
