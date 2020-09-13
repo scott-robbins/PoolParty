@@ -15,6 +15,9 @@ import os
 
 class BackendClient:
 	running = False
+	remote_stun = 54321
+	local_stun = 12345
+	share_port = 6969
 
 	def __init__(self):
 		self.running = True
@@ -106,6 +109,17 @@ class BackendClient:
 			pass
 		return reply
 
+	def p2p_file_transfer(self, server_name, peer_name):
+		ldate, ltime = utils.create_timestamp()
+		sName, sIP, sPword, sPK = setup.load_credentials(server_name, False)
+		pName, pIP, pPword, pPK = setup.load_credentials(peer_name, False)
+		log_file = 'p2pDataFrom%s_%s_%s.p2p' % (peer_name, ldate.replace('/',''), ltime.replace(':',''))
+		creds = 'sshpass -p "%s" ' % sPword
+		cmd = cred + 'ssh -L %d:localhost:%d  %s@%s nc -lp %d >> %s' %\
+			(self.local_stun, self.remote_stun, sName, sIP, self.share_port, log_file)
+		return log_file
+
+
 def main():
 	client = BackendClient()
 
@@ -126,6 +140,11 @@ def main():
 		peer_name = sys.argv[2]
 		hname, ip, pword, pkey = control.load_credentials(peer_name, False)
 		print client.request_info(peer_name, ip)
+
+	if '-p2p-recv' in sys.argv and len(sys.argv) > 3:
+		srvr_name = sys.argv[2]
+		peer_name = sys.argv[3]
+		client.p2p_file_transfer(srvr_name, peer_name)
 
 if __name__ == '__main__':
 	main()
