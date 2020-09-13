@@ -61,7 +61,6 @@ def main():
 			exit()
 		# TODO; Encrypt it with personal key so identity is assured too
 		cmd = 'cat %s | nc %s %d' % (file, sIP, port)
-		print cmd
 		os.system(cmd)
 
 	elif '--sync-shares' in sys.argv:
