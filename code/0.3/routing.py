@@ -20,6 +20,9 @@ def main():
 		update_peerdata()
 
 	# Easy NAT using SSH Tunneling 
+	# TODO: 
+	# MESSAGES ARE NOT ENCRYPTED COMING ACROSS ONE HALF THOUGH BUT EASILY
+	# COULD BE! 
 	if '--p2p-dump' in sys.argv and len(sys.argv) > 3:
 		srvr = sys.argv[2]
 		peer = sys.argv[3]
@@ -41,6 +44,27 @@ def main():
 		cmd = cred + 'ssh -L %d:localhost:%d %s@%s nc -lvp %d ' %\
 		 (local_stun, remote_stun, srvName, srvIP, shared_port)
 		print '[*] Remote Peer Can directly tunnel to you through port %d' % shared_port
+		os.system(cmd)
+
+	if '--p2p-send-shared' in sys.argv and len(sys.argv) > 2:
+		file = sys.argv[2]
+		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
+		if not os.path.isfile(file):
+			print '[!!] Cannot find %s' % file
+			exit()
+		# TODO; Encrypt it with personal key so identity is assured too
+		cmd = 'cat %s | nc %s %d' % (file, sIP, shared_port)
+		os.system(cmd)
+
+	if '--p2p-send' in sys.argv and len(sys.argv) > 3:
+		file = sys.argv[2]
+		port = int(sys.argv[3])
+		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
+		if not os.path.isfile(file):
+			print '[!!] Cannot find %s' % file
+			exit()
+		# TODO; Encrypt it with personal key so identity is assured too
+		cmd = 'cat %s | nc %s %d' % (file, sIP, port)
 		os.system(cmd)
 
 if __name__ == '__main__':
