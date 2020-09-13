@@ -9,7 +9,6 @@ def update_peerdata():
 	if not os.path.isdir('PoolData/Creds'):
 		print '[!!] Credentials are missing'
 
-
 def main():
 	# IP Addresses change overtime, so peers need to be able to update their CRED 
 	# registered in the database. 
@@ -42,7 +41,7 @@ def main():
 		cmd = cred + 'ssh -L %d:localhost:%d %s@%s nc -lvp %d ' %\
 		 (local_stun, remote_stun, srvName, srvIP, shared_port)
 		print '[*] Remote Peer Can directly tunnel to you through port %d' % shared_port
-		print cmd
+		os.system(cmd)
 
 if __name__ == '__main__':
 	main()
