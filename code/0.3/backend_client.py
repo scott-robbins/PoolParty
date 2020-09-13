@@ -109,10 +109,10 @@ class BackendClient:
 			pass
 		return reply
 
-	def p2p_file_transfer(self, server_name, peer_name):
+	def p2p_file_transfer(self, server_name):
 		ldate, ltime = utils.create_timestamp()
 		sName, sIP, sPword, sPK = setup.load_credentials(server_name, False)
-		pName, pIP, pPword, pPK = setup.load_credentials(peer_name, False)
+		# pName, pIP, pPword, pPK = setup.load_credentials(peer_name, False)
 		log_file = 'p2pDataFrom%s_%s_%s.p2p' % (peer_name, ldate.replace('/',''), ltime.replace(':',''))
 		creds = 'sshpass -p "%s" ' % sPword
 		print '[*] Dumping Direct Peer Transfer to %s' % log_file
@@ -151,11 +151,11 @@ def main():
 		hname, ip, pword, pkey = control.load_credentials(peer_name, False)
 		print client.request_info(peer_name, ip)
 
-	if '-p2p-recv' in sys.argv and len(sys.argv) > 3:
+	if '-p2p-recv' in sys.argv and len(sys.argv) > 2:
 		srvr_name = sys.argv[2]
-		peer_name = sys.argv[3]
+		# peer_name = sys.argv[3]
 		print '[*] Starting P2P File Transfer'
-		client.p2p_file_transfer(srvr_name, peer_name)
+		client.p2p_file_transfer(srvr_name)
 
 	if '--upload' in sys.argv:
 		client.upload_to_cloud()

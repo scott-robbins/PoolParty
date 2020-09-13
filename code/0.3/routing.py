@@ -5,10 +5,6 @@ import time
 import sys
 import os 
 
-def update_peerdata():
-	if not os.path.isdir('PoolData/Creds'):
-		print '[!!] Credentials are missing'
-
 def main():
 	# IP Addresses change overtime, so peers need to be able to update their CRED 
 	# registered in the database. 
