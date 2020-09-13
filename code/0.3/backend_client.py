@@ -117,6 +117,7 @@ class BackendClient:
 		creds = 'sshpass -p "%s" ' % sPword
 		cmd = cred + 'ssh -L %d:localhost:%d  %s@%s nc -lp %d >> %s' %\
 			(self.local_stun, self.remote_stun, sName, sIP, self.share_port, log_file)
+		os.system(cmd)
 		return log_file
 
 
