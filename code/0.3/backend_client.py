@@ -126,7 +126,7 @@ class BackendClient:
 		share_path = '/root/PoolParty/code/0.3/PoolData/Shares'
 		creds = 'sshpass -p "%s" ' % sPword
 		cmd = 'rsync 0avzh PoolData/Shares %s' % (share_path)
-		print '[*] Uploading %s to %s' % (pathtosync, log_file)
+		print '[*] Uploading Local Shares to %s' % (log_file)
 		
 
 
