@@ -146,6 +146,7 @@ def main():
 	if '-p2p-recv' in sys.argv and len(sys.argv) > 3:
 		srvr_name = sys.argv[2]
 		peer_name = sys.argv[3]
+		print '[*] Starting P2P File Transfer'
 		client.p2p_file_transfer(srvr_name, peer_name)
 
 if __name__ == '__main__':
