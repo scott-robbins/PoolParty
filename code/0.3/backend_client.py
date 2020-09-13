@@ -115,6 +115,7 @@ class BackendClient:
 		pName, pIP, pPword, pPK = setup.load_credentials(peer_name, False)
 		log_file = 'p2pDataFrom%s_%s_%s.p2p' % (peer_name, ldate.replace('/',''), ltime.replace(':',''))
 		creds = 'sshpass -p "%s" ' % sPword
+		print '[*] Dumping Direct Peer Transfer to %s' % log_file
 		cmd = cred + 'ssh -L %d:localhost:%d  %s@%s nc -lp %d >> %s' %\
 			(self.local_stun, self.remote_stun, sName, sIP, self.share_port, log_file)
 		os.system(cmd)
