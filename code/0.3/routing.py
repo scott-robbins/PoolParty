@@ -67,6 +67,19 @@ def main():
 		cmd = 'cat %s | nc %s %d' % (file, sIP, port)
 		os.system(cmd)
 
+	if '--sync-shares' in sys.argv:
+		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
+		creds = 'sshpass -p %s ' % sWord
+		cmd = creds + 'rsync -azvh %s@%s:/root/PoolParty/code/0.3/PoolData/Shares PoolData/Shares' % (sName, sIP)
+		os.system(cmd)
+
+	if '--sync-routing' in sys.argv:
+		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
+		creds = 'sshpass -p %s ' % sWord
+		cmd = creds + 'rsync -azvh %s@%s:/root/PoolParty/code/0.3/PoolData/NX PoolData/NX' % (sName, sIP)
+		os.system(cmd)
+
+
 if __name__ == '__main__':
 	main()
 

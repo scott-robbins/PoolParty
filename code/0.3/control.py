@@ -316,6 +316,11 @@ def main():
 				if 'CREDS' in node_stats['pending_operations']:
 					print '%s is requesting Peer Credentials ' % nodename
 					upload_creds(nodename, network_data)
+	elif '--sync-shares' in sys.argv:
+		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
+		creds = 'sshpass -p %s ' % sWord
+		cmd = creds + 'rsync -azvh %s@%s:/root/PoolParty/code/0.3/PoolData/Shares PoolData/Shares' % (sName, sIP)
+		os.system(cmd)
 	else:
 		usage()
 

@@ -121,6 +121,14 @@ class BackendClient:
 		os.system(cmd)
 		return log_file
 
+	def upload_to_cloud(self):
+		sName, sIP, sPword, sPK = setup.load_credentials('Server', False)
+		share_path = '/root/PoolParty/code/0.3/PoolData/Shares'
+		creds = 'sshpass -p "%s" ' % sPword
+		cmd = 'rsync avzh PoolData/Shares %s' % (pathtosync, share_path)
+		print '[*] Uploading %s to %s' % (pathtosync, log_file)
+		
+
 
 def main():
 	client = BackendClient()
@@ -148,6 +156,9 @@ def main():
 		peer_name = sys.argv[3]
 		print '[*] Starting P2P File Transfer'
 		client.p2p_file_transfer(srvr_name, peer_name)
+
+	if '--upload' in sys.argv:
+		client.upload_to_cloud()
 
 if __name__ == '__main__':
 	main()
