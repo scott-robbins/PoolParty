@@ -125,7 +125,7 @@ class BackendClient:
 		sName, sIP, sPword, sPK = setup.load_credentials('Server', False)
 		share_path = '/root/PoolParty/code/0.3/PoolData/Shares'
 		creds = 'sshpass -p "%s" ' % sPword
-		cmd = 'rsync avzh PoolData/Shares %s' % (pathtosync, share_path)
+		cmd = 'rsync 0avzh PoolData/Shares %s' % (share_path)
 		print '[*] Uploading %s to %s' % (pathtosync, log_file)
 		
 
