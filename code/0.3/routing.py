@@ -19,30 +19,30 @@ def main():
 	# TODO: 
 	# MESSAGES ARE NOT ENCRYPTED COMING ACROSS ONE HALF THOUGH BUT EASILY
 	# COULD BE! 
-	if '--p2p-dump' in sys.argv and len(sys.argv) > 3:
+	elif '--p2p-dump' in sys.argv and len(sys.argv) > 3:
 		srvr = sys.argv[2]
 		peer = sys.argv[3]
 		srvName, srvIP, srvPword, srvPk = setup.load_credentials(srvr, False)
 		ldate, ltime = utils.create_timestamp()
 		log_file = 'p2pDataFrom%s_%s_%s.p2p' % (peer, ldate.replace('/',''), ltime.replace(':',''))
 		cred = 'sshpass -p "%s" ' % srvPword
-		cmd = cred + 'ssh -L %d:localhost:%d %s@%s nc -lvp %d >> %s' %\
+		cmd = cred + 'ssh -L %d:localhost:%d %s@%s nc -lp %d >> %s' %\
 		 (local_stun, remote_stun, srvName, srvIP, shared_port, log_file)
 		print '[*] Remote Peer Can directly tunnel to you through port %d' % shared_port
 		os.system(cmd)
 
-	if '--p2p-chat' in sys.argv and len(sys.argv) > 3:
+	elif '--p2p-chat' in sys.argv and len(sys.argv) > 3:
 		srvr = sys.argv[2]
 		peer = sys.argv[3]
 		srvName, srvIP, srvPword, srvPk = setup.load_credentials(srvr, False)
 		
 		cred = 'sshpass -p "%s" ' % srvPword
-		cmd = cred + 'ssh -L %d:localhost:%d %s@%s nc -lvp %d ' %\
+		cmd = cred + 'ssh -L %d:localhost:%d %s@%s nc -lp %d ' %\
 		 (local_stun, remote_stun, srvName, srvIP, shared_port)
 		print '[*] Remote Peer Can directly tunnel to you through port %d' % shared_port
 		os.system(cmd)
 
-	if '--p2p-send-shared' in sys.argv and len(sys.argv) > 2:
+	elif '--p2p-send-shared' in sys.argv and len(sys.argv) > 2:
 		file = sys.argv[2]
 		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
 		if not os.path.isfile(file):
@@ -52,7 +52,7 @@ def main():
 		cmd = 'cat %s | nc %s %d' % (file, sIP, shared_port)
 		os.system(cmd)
 
-	if '--p2p-send' in sys.argv and len(sys.argv) > 3:
+	elif '--p2p-send' in sys.argv and len(sys.argv) > 3:
 		file = sys.argv[2]
 		port = int(sys.argv[3])
 		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
@@ -61,15 +61,16 @@ def main():
 			exit()
 		# TODO; Encrypt it with personal key so identity is assured too
 		cmd = 'cat %s | nc %s %d' % (file, sIP, port)
+		print cmd
 		os.system(cmd)
 
-	if '--sync-shares' in sys.argv:
+	elif '--sync-shares' in sys.argv:
 		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
 		creds = 'sshpass -p %s ' % sWord
 		cmd = creds + 'rsync -azvh %s@%s:/root/PoolParty/code/0.3/PoolData/Shares PoolData/Shares' % (sName, sIP)
 		os.system(cmd)
 
-	if '--sync-routing' in sys.argv:
+	elif '--sync-routing' in sys.argv:
 		sName, sIP, sWord, sKey = setup.load_credentials('Server', False)
 		creds = 'sshpass -p %s ' % sWord
 		cmd = creds + 'rsync -azvh %s@%s:/root/PoolParty/code/0.3/PoolData/NX PoolData/NX' % (sName, sIP)
