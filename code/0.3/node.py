@@ -18,6 +18,7 @@ class Node:
 		# self identify
 		self.identify()
 		# determine roles if not already determined
+		self.whoami()
 		# log data about self for faster future loading
 		# check functions based on roles found
 
