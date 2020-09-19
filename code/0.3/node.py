@@ -27,7 +27,7 @@ class Node:
 		print "Identifying as %s" % myname
 
 		for name in control.get_node_names():
-			hname, addr, pw, pk = utils.load_credentials(name)
+			hname, addr, pw, pk = control.load_credentials(name,False)
 			if addr == intip and myname == hname:
 				print '[*] Found network name %s' % name
 				self.peername = name
