@@ -26,7 +26,7 @@ class Node:
 		intip = utils.get_internal_addr()
 		print "Identifying as %s" % myname
 
-		for name in utils.get_node_names():
+		for name in control.get_node_names():
 			hname, addr, pw, pk = utils.load_credentials(name, False)
 			if addr == intip and myname == hname:
 				print '[*] Found network name %s' % name
