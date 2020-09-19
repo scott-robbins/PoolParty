@@ -22,7 +22,7 @@ class Node:
 		# check functions based on roles found
 
 	def identify(self):
-		myname = utils.cmd('whoami -I', False)
+		myname = utils.cmd('whoami', False)
 		intip = utils.get_internal_address()
 		print "Identifying as %s" % myname
 
