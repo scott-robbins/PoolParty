@@ -49,6 +49,8 @@ class Node:
 def main():
 
 	node = Node()
-
 	if '--dump-info' in sys.argv:
 		print node.show()
+
+if __name__ == '__main__':
+	main()
