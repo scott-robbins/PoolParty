@@ -176,8 +176,8 @@ def main():
 		else:
 			print '[*] Successfully added Peer'
 			# download the github repo here
-			git_get = 'python setup.py --cmd_rmt %s git clone https://github.com/scott-robbins/PoolParty'
-			os.system(git_get % new_client)
+			#git_get = 'python setup.py --cmd_rmt %s git clone https://github.com/scott-robbins/PoolParty'
+			#os.system(git_get % new_client)
 
 	if '--load' in sys.argv and len(sys.argv) >= 3:
 		completed = True
