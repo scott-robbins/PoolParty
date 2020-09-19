@@ -45,7 +45,7 @@ class Node:
 		display = 'NODE INFO: %s\n' % self.peername
 		display += '\t-internal ip:\t%s\n' % self.internal_ip
 		display += '\t-external ip:\t%s\n' % self.external_ip
-
+		return display
 
 def main():
 
