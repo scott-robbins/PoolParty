@@ -23,7 +23,7 @@ class Node:
 
 	def identify(self):
 		myname = utils.cmd('whoami', False)
-		intip = utils.get_internal_address()
+		intip = utils.get_internal_addr()
 		print "Identifying as %s" % myname
 
 		for name in utils.get_node_names():
