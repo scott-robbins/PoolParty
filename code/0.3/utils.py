@@ -248,3 +248,13 @@ def execute_python_script(rmt_file_path, rmt_file, ip, uname, password, verbose)
 	return result
 
 
+def refresh_peers():
+	if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
+		print '[!!] No NX Folder Found'
+		exit()
+	if os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
+		os.remove(os.getcwd()+'/PoolData/NX/peerlist.txt')
+	content = ''
+	for name in cmd('ls PoolData/Creds/*.pem', False):
+		content += name.split('/')[-1].split('.pem')[0]+'\n'
+	open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(content)

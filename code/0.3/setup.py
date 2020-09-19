@@ -125,7 +125,7 @@ def test_cnx(pool_name):
 	dt = time.time() - start
 	return dt, connected
 
-def test_pool():
+def test_pool(verbose):
 	# Get All Nodes listed in creds
 		nodes = list(set(utils.cmd('ls PoolData/Creds/*.creds', False)))
 		timing = {}
@@ -133,7 +133,8 @@ def test_pool():
 		for name in nodes:
 			n = name.split('/').pop(-1).split('@')[0]
 			ping, cnx = test_cnx(n)
-			if cnx:
+			timing[ping] = n
+			if cnx and verbose:
 				# color the print out based on reply speed
 				if ping <= 0.75:
 					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.GREEN, ping,utils.FEND)
@@ -141,14 +142,14 @@ def test_pool():
 					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.YELLOW, ping,utils.FEND)
 				if 1.5 < ping :
 					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.YELLOW, ping,utils.FEND)
-				timing[ping] = n
+			
 		# also calculate fastest
 		best_time = np.min(list(set(timing.keys())))
 		best_node = timing[best_time]
 
 		# report connectivity
 		print '[*] %s is fastest' % best_node
-		return best_node, best_time
+		return best_node, best_time, timing
 
 def usage():
 	print '[!!] Incorrect usage [!!]\n'
@@ -203,7 +204,7 @@ def main():
 
 	if '--pool_cnx' in sys.argv:
 		completed = True
-		test_pool()
+		test_pool(verbose=True)
 
 	if not completed:
 		usage()

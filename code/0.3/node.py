@@ -34,7 +34,7 @@ class Node:
 				break
 	
 	def whoami(self):
-		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt':):
+		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):
 			os.remove(os.getcwd()+'/PoolData/NX/self.txt')
 		else:
 			self.external_ip = utils.get_ext_ip()

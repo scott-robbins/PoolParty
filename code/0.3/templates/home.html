@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Home </title>
+<script src='https://kit.fontawesome.com/a076d05399.js'></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee%20Hairline">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee%20Outline">
+<link href='https://fonts.googleapis.com/css?family=Galada' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<!-- -									CSS DATA 									-->
+<style>
+img.resize{
+  width: 50px;
+  height: 35px;
+}
+
+.header {
+  padding: 10px;
+  font-family: "{{ uname_font }}";
+  text-align: center;
+  background: #{{ dash_hex }};
+}
+.header h1 {
+  font-size: 55px;
+  color: {{ uname_color }};
+}
+
+.fa-check {
+  color: green;
+}
+/* Right column */
+.leftcolumn {
+  float: left;
+  width: 75%;
+  background-color: #f1f1f1;
+  padding-left: 5px;
+}
+
+.rightcolumn {
+  float: right;
+  width: 25%;
+  background-color: #f1f1f1;
+}
+
+/* Footer */
+.footer {
+  padding: 5px;
+  text-align: center;
+  background: #bbaadd;
+  margin-top: 10px;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #{{ user_toolbar }};
+}
+li {
+  float: left;
+  border-right:1px solid #bbb;
+}
+
+li:last-child {
+  border-right: none;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover:not(.active) {
+  background-color: #0FADED;  /* TODO: Make Customizable */
+}
+
+.active {
+  background-color: #4CAF50;
+}
+/* Right column */
+.leftcolumn {
+  float: left;
+  width: 40%;
+  background-color: #f1f1f1;
+  padding-left: 10px;
+}
+
+.rightcolumn {
+  float: right;
+  width: 35%;
+  background-color: #f1f1f1;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 80%;
+  border: 10px solid #ddd;
+}
+
+th, td {
+  text-align: center;
+  padding: 16px;
+}
+
+th:first-child, td:first-child {
+  text-align: left;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Footer */
+.footer {
+  padding: 5px;
+  bottom: 0;
+  width: 100%;
+  position: fixed;
+  text-align: center;
+  background: #{{ dash_hex }};
+  color: {{ uname_color }};
+  font-family: 'Galada';
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+.fa2 {font-size:50px;}
+
+</style>
+
+<body>
+
+<div class="header">
+  <h1> Dashboard </h1>    
+</div>
+
+<!-- Create Navbar -->
+<ul>
+  <li><a href="/Nodes">Nodes</a></li>
+  <li><a href="/Settings">Settings</a></li>
+  <li><a href="/Download">Download</a></li>
+  <li><a href="/Upload">Upload</a></li>
+  <li><a href="/Jobs">Jobs</a></li>
+  <li><a href="/Logs">Logs</a></li>
+  <li>{{current_date}} - {{ current_time }}</li>
+</ul>
+
+<div class="leftcolumn">
+	<div class="card">
+		<h2> Network Latency </h2>
+	<table>
+  	<tr>
+    	<th style="width:30%">Ping Sent </th>
+    	<th>Peers </th>
+  	</tr> {% for delay, peer in ping_data.items() %} <tr>
+    	<td>{{ delay }} ms </td>
+    	<td>{{ peer }} <i class="fa fa-check"></i></td>
+  	</tr>  
+ 	{% endfor %} 
+	</table>
+	</div>
+</div>  
+</table>
+
+<div class="rightcolumn">
+	<div class="card">
+		<h3><i class="fa fa-user"></i> {{ n_peers }} Peers on Network </h3>
+		<h3><i class="fa fa-folder"></i> {{ n_files }} Files Shared on Network</h3>
+		<!-- <h3> {{ n_files }} Files Shared on Network</h3> -->
+		<!-- <div id="div1" class="fa"></div> -->
+		<!-- <script>
+			function openfolder() {
+			  var a;
+			  a = document.getElementById("div1");
+			  a.innerHTML = "&#xf114;";
+			  setTimeout(function () {
+			      a.innerHTML = "&#xf115;";
+			    }, 1000);
+			}
+			openfolder();
+			setInterval(openfolder, 2000);
+		</script> -->
+		<h3><i class="fa fa-tasks"></i> {{ n_jobs }} Active Jobs</h3>
+	</div>
+</div>
+
+</body>
+<!-- Footer -->
+<div class="footer">
+  <h4><i> PoolParty 2020 </i> <img class="resize" src="/icon.png"> </h4>
+</div>
+</html>

@@ -241,6 +241,15 @@ def upload_creds(name, netdata):
 						   netdata[name]['hostname'],
 						   netdata[name]['passwd'])
 
+def show_info(peer_name, verbose):
+	hostname, ip, pword, pk = setup.load_credentials(peer_name, False)
+	poolpath = '/PoolParty/code/0.3'
+	if hostname == 'root':
+		rpath = '/root' + poolpath
+	else:
+		rpath = '/home/%s%s' % (hostname,poolpath)
+	result = utils.execute_python_script(rpath, 'node.py %s -dump_info' % peer, ip, hostname, pword, verbose)
+	return result
 
 def main():
 	nodes = get_node_names()
@@ -285,13 +294,7 @@ def main():
 
 	elif '--node-info' in sys.argv and len(sys.argv) >= 3:
 		peer = sys.argv[2]
-		hostname, ip, pword, pk = setup.load_credentials(peer, False)
-		poolpath = '/PoolParty/code/0.3'
-		if hostname == 'root':
-			rpath = '/root' + poolpath
-		else:
-			rpath = '/home/%s%s' % (hostname,poolpath)
-		utils.execute_python_script(rpath, 'node.py', ip, hostname, pword, False)
+		print show_info(peer, True)
 
 	elif '--run-master' in sys.argv:
 		# This the mode for running the local machine as a master node in the pool
