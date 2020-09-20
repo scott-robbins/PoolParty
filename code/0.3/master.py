@@ -33,14 +33,19 @@ class Settings:
 			for peer in peers:
 				pName = peer.split('\n')[0]
 				self.peers[pName] = {}
-		if os.path.isfile(os.getcwd()+'/PoolData/Local/settings.conf'):
+		if os.path.isfile(os.getcwd()+'/PoolData/Local/settings_avatars.conf'):
 			print '[*] Loading GUI Configurations'
 			config = utils.swap(os.getcwd()+'/PoolData/Local/settings_avatars.conf',False)
 			for line in config:
 				peer = line.split(' ')[0]
-				avatar = line.split(' ')[1]
-				self.peers[peer]['avatar'] = avatar
-
+				avatar = line.split(' ')[1].replace('\n','')
+				print os.getcwd()+avatar
+				if os.path.isfile(os.getcwd()+'/templates/assets/'+avatar):
+					self.peers[peer]['avatar'] = avatar
+					print '%s has avatar %s' % (peer, avatar)
+		else:
+			# DEFAULT AVATAR
+			self.peers[peer]['avatar'] = 'server.png'
 
 @app.route('/')
 def load():
@@ -117,7 +122,8 @@ def display_node_info(peer):
 							   name=peer,
 							   hostname=hostname,
 							   internal=internal,
-							   external=external)
+							   external=external,
+							   avatar=preferences.peers[peer]['avatar'])
 
 @app.route('/Settings')
 def customize_settings():
@@ -155,6 +161,15 @@ def add_node():
 	# TODO: The submission for this isnt working? Creates weird link
 	return render_template('add_node.html')
 
+# Server Avatars 
+@app.route('/Nodes/camera.png')
+def serve_camera():
+	return open(os.getcwd()+'/templates/assets/camera.png','rb').read()
+
+
+@app.route('/Nodes/server.png')
+def serve_server():
+	return open(os.getcwd()+'/templates/assets/server.png','rb').read()
 
 if __name__ == '__main__':
     app.run(port=80)
