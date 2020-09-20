@@ -22,7 +22,7 @@ class Node:
 
 	def identify(self):
 		self.hostname = utils.cmd('whoami', False).pop()
-		self.internal_ip = utils.get_internal_addr()
+		self.internal_ip = utils.get_internal_addr().pop(0)
 		self.external_ip = utils.get_ext_ip()
 		for name in control.get_node_names():
 			hname, addr, pw, pk = control.load_credentials(name,False)
