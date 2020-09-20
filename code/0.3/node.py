@@ -24,7 +24,7 @@ class Node:
 
 	def identify(self):
 		myname = utils.cmd('whoami', False)
-		self.internal_ip = utils.get_internal_addr()
+		self.internal_ip = utils.get_internal_addr().pop()
 
 		for name in control.get_node_names():
 			hname, addr, pw, pk = control.load_credentials(name,False)
@@ -41,10 +41,15 @@ class Node:
 			open(os.getcwd()+'/PoolData/NX/self.txt','wb').write(self.show())
 
 	def show(self):
+		info = {}
 		display = '\nNODE INFO: %s\n' % self.peername
 		display += '\t-name:\t%s\n' % self.hostname
 		display += '\t-internal ip:\t%s\n' % self.internal_ip
 		display += '\t-external ip:\t%s\n' % self.external_ip
+		# info['name'] = self.peername
+		# info['hostname'] = self.hostname
+		# info['internal'] = self.internal_ip
+		# info['exteral'] = self.external_ip
 		return display
 
 def main():
