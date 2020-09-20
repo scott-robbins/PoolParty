@@ -171,5 +171,14 @@ def serve_camera():
 def serve_server():
 	return open(os.getcwd()+'/templates/assets/server.png','rb').read()
 
+
+@app.route('/Nodes/speaker.png')
+def serve_server():
+	return open(os.getcwd()+'/templates/assets/speaker.png','rb').read()
+
+@app.route('/Nodes/gpu.png')
+def serve_gpu():
+	return open(os.getcwd()+'/templates/assets/gpu.png','rb').read()
+
 if __name__ == '__main__':
     app.run(port=80)
