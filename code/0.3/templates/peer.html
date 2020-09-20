@@ -1,11 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title> {{ peer }} </title>
-</head>
+<title> {{ name }} </title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <body>
-<p> Hostname: {{ hostname }} </p>
-<p> Internal IP: {{ internal }}</p>
-<p> External IP: {{ external }}</p>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<div class="w3-container">
+  <h2> {{ name }} Info</h2>
+
+  <div class="w3-card-4" style="width:70%">
+    <header class="w3-container w3-light-grey">
+      <h3>Hostname: {{ hostname }}</h3>
+    </header>
+    <div class="w3-container">
+      <p>{{ peer }} has no active jobs.</p>
+      <hr>
+      <img src="{{ avatar }}" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+      <p>Internal IP Address: {{ internal }} </p>
+      <p>External IP Address: {{ external }} </p>
+      <br>
+    </div>
+    <button class="w3-button w3-block w3-dark-grey">+ Connect to Machine</button>
+  </div>
+</div>
+
 </body>
 </html>
