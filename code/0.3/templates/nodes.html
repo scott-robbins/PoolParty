@@ -150,15 +150,16 @@ body {font-family: "Lato", sans-serif;}
   <div id="{{ node }}" class="tabcontent">
     <h3> {{ node }} </h3>
     {% for field, item in item.items() %}
-    {% if field == 'hostname' %}
-    <p> Hostname: {{ item }} </p>
-    {% endif %}
-    {% if field =='internal' %}
-    <p> Internal IP: {{ item }}</p>
-    {% endif %}
-    {% if field == 'external' %}
-    <p> External IP: {{ item }}</p>
-    {% endif %}
+      <p> field </p>
+      {% if field == 'hostname' %}
+      <p> Hostname: {{ item }} </p>
+      {% endif %}
+      {% if field =='internal' %}
+      <p> Internal IP: {{ item }}</p>
+      {% endif %}
+      {% if field == 'external' %}
+      <p> External IP: {{ item }}</p>
+      {% endif %}
 
     {% endfor %}
   </div>
