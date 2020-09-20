@@ -177,7 +177,7 @@ def check_oneself(peer, netdat, cred):
 		rpath = '/root' + poolp
 	else:
 		rpath = '/home/%s%s' % (h,poolp)
-	utils.execute_python_script(rpath, 'node.py %s -dump_info' % peer, i, h, p, False)
+	utils.execute_python_script(rpath, 'node.py %s --dump-info' % peer, i, h, p, False)
 	utils.ssh_get_file(rpath+'/PoolData/NX','self.txt',i,h,p)
 	if os.path.isfile(os.getcwd()+'/self.txt'):	
 		for line in utils.swap('self.txt', True):
@@ -248,7 +248,7 @@ def show_info(peer_name, verbose):
 		rpath = '/root' + poolpath
 	else:
 		rpath = '/home/%s%s' % (hostname,poolpath)
-	cmd = ('cd %s;'%rpath) + ' python node.py %s -dump_info ' % peer_name
+	cmd = ('cd %s;'%rpath) + ' python node.py %s --dump-info ' % peer_name
 	result = utils.ssh_exec(cmd, ip, hostname, pword, verbose)
 	return result
 

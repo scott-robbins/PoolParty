@@ -25,11 +25,10 @@ class Node:
 	def identify(self):
 		myname = utils.cmd('whoami', False)
 		self.internal_ip = utils.get_internal_addr()
-		print "Identifying as %s\n" % myname
 
 		for name in control.get_node_names():
 			hname, addr, pw, pk = control.load_credentials(name,False)
-			if addr == self.internal_ip and myname == hname:
+			if (addr == self.internal_ip) and (myname == hname):
 				print '[*] Found network name %s' % name
 				self.peername = name
 				break
@@ -42,7 +41,8 @@ class Node:
 			open(os.getcwd()+'/PoolData/NX/self.txt','wb').write(self.show())
 
 	def show(self):
-		display = 'NODE INFO: %s\n' % self.peername
+		display = '\nNODE INFO: %s\n' % self.peername
+		display += '\t-name:\t%s\n' % self.hostname
 		display += '\t-internal ip:\t%s\n' % self.internal_ip
 		display += '\t-external ip:\t%s\n' % self.external_ip
 		return display
