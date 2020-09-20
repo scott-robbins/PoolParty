@@ -40,7 +40,7 @@ class Node:
 			self.identify()
 			open(os.getcwd()+'/PoolData/NX/self.txt','wb').write(self.show())
 
-	def refresh():
+	def refresh(self):
 		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):
 			os.remove(os.getcwd()+'/PoolData/NX/self.txt')
 
