@@ -23,12 +23,12 @@ class Node:
 		# check functions based on roles found
 
 	def identify(self):
-		myname = utils.cmd('whoami', False)
+		self.hostname = utils.cmd('whoami', False)
 		self.internal_ip = utils.get_internal_addr().pop()
 
 		for name in control.get_node_names():
 			hname, addr, pw, pk = control.load_credentials(name,False)
-			if (addr == self.internal_ip) and (myname == hname):
+			if (addr == self.internal_ip) and (self.hname == hname):
 				print '[*] Found network name %s' % name
 				self.peername = name
 				break

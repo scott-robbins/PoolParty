@@ -250,7 +250,18 @@ def show_info(peer_name, verbose):
 		rpath = '/home/%s%s' % (hostname,poolpath)
 	cmd = ('cd %s;'%rpath) + ' python node.py %s --dump-info ' % peer_name
 	result = utils.ssh_exec(cmd, ip, hostname, pword, verbose)
-	return result
+	# Parse result 
+	info = {}
+	for line in result.split('\n'):
+		if len(line.split('\t'))>=2:
+			if '-name' in line.replace('\t','').split(':'):
+				info['hostname'] = line.split(':')[1].replace('\t','')
+			if '-internal ip' in line.replace('\t', '').split(':'):
+				info['internal'] = line.split(':')[1].replace('\t', '')
+			if '-external ip' in line.replace('\t','').split(':'):
+				info['external'] = line.split(':')[1].replace('\t','')
+	print info
+	return result, info
 
 def main():
 	nodes = get_node_names()
@@ -295,7 +306,8 @@ def main():
 
 	elif '--node-info' in sys.argv and len(sys.argv) >= 3:
 		peer = sys.argv[2]
-		print show_info(peer, True)
+		info, peer_dat = show_info(peer, True)
+		print info
 
 	elif '--run-master' in sys.argv:
 		# This the mode for running the local machine as a master node in the pool
