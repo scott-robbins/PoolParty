@@ -24,12 +24,12 @@ class Node:
 
 	def identify(self):
 		myname = utils.cmd('whoami', False)
-		intip = utils.get_internal_addr()
-		print "Identifying as %s" % myname
+		self.internal_ip = utils.get_internal_addr()
+		print "Identifying as %s\n" % myname
 
 		for name in control.get_node_names():
 			hname, addr, pw, pk = control.load_credentials(name,False)
-			if addr == intip and myname == hname:
+			if addr == self.internal_ip and myname == hname:
 				print '[*] Found network name %s' % name
 				self.peername = name
 				break

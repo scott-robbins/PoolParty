@@ -248,7 +248,8 @@ def show_info(peer_name, verbose):
 		rpath = '/root' + poolpath
 	else:
 		rpath = '/home/%s%s' % (hostname,poolpath)
-	result = utils.execute_python_script(rpath, 'node.py %s -dump_info' % peer, ip, hostname, pword, verbose)
+	cmd = ('cd %s;'%rpath) + ' python node.py %s -dump_info ' % peer_name
+	result = utils.ssh_exec(cmd, ip, hostname, pword, verbose)
 	return result
 
 def main():
