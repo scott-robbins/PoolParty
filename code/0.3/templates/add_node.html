@@ -38,22 +38,30 @@ div.container {
 </style>
 <body>
 
-<h3>Stacked Form</h3>
-<p>How to use CSS to create a stacked form:</p>
+<h3> Add Node </h3>
+<p>Complete form below to add node to Network:</p>
 
 <div class="container">
-  <form action="/action_page.php">
-    <label for="fname">First Name</label>
-    <input type="text" id="fname" name="firstname" placeholder="Your name..">
+  <form action="/createNode.html/">
+    <label for="fname">Peer Name</label>
+    <input type="text" id="pname" name="PeerName" placeholder="Enter name for network...">
 
-    <label for="lname">Last Name</label>
-    <input type="text" id="lname" name="lastname" placeholder="Your last name..">
+    <label for="hname">HostName</label>
+    <input type="text" id="hname" name="HostName" placeholder="Enter Hostname...">
 
-    <label for="country">Country</label>
-    <select id="country" name="country">
-      <option value="australia">Australia</option>
-      <option value="canada">Canada</option>
-      <option value="usa">USA</option>
+    <label for="ipaddr"> IP Address</label>
+    <input type="text" id="ipaddr" name="IPAddr" placeholder="Enter IP Address...">
+
+    <label for="pword"> Password </label>
+    <input type="hidden" name="pword" placeholder="Enter Password...">
+    <input type="text" id="pword" name="pword">
+
+    <label for="avatar">Avatar</label>
+    <select id="avatar" name="avatar">
+      <option value="work">Worker</option>
+      <option value="route">Router</option>
+      <option value="hoard">Hoarder</option>
+      <option value="cam">Camera</option>
     </select>
   
     <input type="submit" value="Submit">
