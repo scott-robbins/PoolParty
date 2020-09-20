@@ -60,11 +60,11 @@ def main():
 
 	node = Node()
 	if '--dump-info' in sys.argv:
-	for name in control.get_node_names():
-		h, ad, pw, pk = control.load_credentials(name,False)
-		if (ad == node.internal_ip):
-			print '[*] Found network name %s' % name
-	print node.show()
+		for name in control.get_node_names():
+			h, ad, pw, pk = control.load_credentials(name,False)
+			if (ad == node.internal_ip):
+				print '[*] Found network name %s' % name
+		print node.show()
 
 if __name__ == '__main__':
 	main()
