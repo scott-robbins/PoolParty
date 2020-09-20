@@ -149,11 +149,17 @@ body {font-family: "Lato", sans-serif;}
 {% for node, item in peers.items() %}
   <div id="{{ node }}" class="tabcontent">
     <h3> {{ node }} </h3>
-<!--     <p> Hostname: {{ hostname }} </p>
-    <p> Internal IP: {{ internal }}</p>
-    <p> External IP: {{ external }}</p> -->
     {% for field, item in item.items() %}
-    <p>< {{ field }} /p>
+    {{% if field == 'hostname' %}}
+    <p> Hostname: {{ item }} </p>
+    {{% endif %}}
+    {{% if field =='internal' %}}
+    <p> Internal IP: {{ item }}</p>
+    {{% endif %}}
+    {{% if field == 'external' %}}
+    <p> External IP: {{ item }}</p>
+    {{% %}}
+
     {% endfor %}
   </div>
 {% endfor %}
