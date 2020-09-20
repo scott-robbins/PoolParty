@@ -173,7 +173,7 @@ def serve_server():
 
 
 @app.route('/Nodes/speaker.png')
-def serve_server():
+def serve_speaker():
 	return open(os.getcwd()+'/templates/assets/speaker.png','rb').read()
 
 @app.route('/Nodes/gpu.png')
