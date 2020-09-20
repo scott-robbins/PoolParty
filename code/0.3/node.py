@@ -60,8 +60,14 @@ def main():
 
 	node = Node()
 	if '--dump-info' in sys.argv:
+		print node.internal_ip
+		print node.external_ip
+		print node.hostname
 		for name in control.get_node_names():
 			h, ad, pw, pk = control.load_credentials(name,False)
+			print name 
+			print h 
+			print ad
 			if (ad == node.internal_ip):
 				print '[*] Found network name %s' % name
 		print node.show()
