@@ -26,9 +26,7 @@ class Node:
 		self.external_ip = utils.get_ext_ip()
 		for name in control.get_node_names():
 			hname, addr, pw, pk = control.load_credentials(name,False)
-			print '%s : %s' % (addr, self.internal_ip) 
-			print '%s : %s' % (hname, self.hname)
-			if (addr == self.internal_ip) and (self.hname == hname):
+			if (addr == self.internal_ip):
 				print '[*] Found network name %s' % name
 				self.peername = name
 				break
