@@ -15,6 +15,7 @@ class Node:
 	role = None
 
 	def __init__(self):
+		self.refresh()
 		# determine roles if not already determined
 		self.whoami()
 		# log data about self for faster future loading
@@ -39,6 +40,10 @@ class Node:
 			self.identify()
 			open(os.getcwd()+'/PoolData/NX/self.txt','wb').write(self.show())
 
+	def refresh():
+		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):
+			os.remove(os.getcwd()+'/PoolData/NX/self.txt')
+
 	def show(self):
 		info = {}
 		display = '\nNODE INFO: %s\n' % self.peername
@@ -55,7 +60,11 @@ def main():
 
 	node = Node()
 	if '--dump-info' in sys.argv:
-		print node.show()
+	for name in control.get_node_names():
+		h, ad, pw, pk = control.load_credentials(name,False)
+		if (ad == node.internal_ip):
+			print '[*] Found network name %s' % name
+	print node.show()
 
 if __name__ == '__main__':
 	main()
