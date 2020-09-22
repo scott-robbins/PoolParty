@@ -50,10 +50,6 @@ class Node:
 		display += '\t-name:\t%s\n' % self.hostname
 		display += '\t-internal ip:\t%s\n' % self.internal_ip
 		display += '\t-external ip:\t%s\n' % self.external_ip
-		# info['name'] = self.peername
-		# info['hostname'] = self.hostname
-		# info['internal'] = self.internal_ip
-		# info['exteral'] = self.external_ip
 		return display
 
 def main():

@@ -39,13 +39,13 @@ class Settings:
 			for line in config:
 				peer = line.split(' ')[0]
 				avatar = line.split(' ')[1].replace('\n','')
-				print os.getcwd()+avatar
+				
 				if os.path.isfile(os.getcwd()+'/templates/assets/'+avatar):
 					self.peers[peer]['avatar'] = avatar
 					print '%s has avatar %s' % (peer, avatar)
 		else:
 			# DEFAULT AVATAR
-			self.peers[peer]['avatar'] = 'server.png'
+			self.peers[peer]['avatar'] = 'Server.png'
 
 @app.route('/')
 def load():
@@ -94,7 +94,10 @@ def home():
 @app.route('/Nodes')
 def node_list():
 	preferences = Settings()
-	return render_template('nodes.html', peers=preferences.peers)
+	localt, locald = utils.create_timestamp()
+	return render_template('nodes.html', peers=preferences.peers,
+										 current_date=locald,
+							   			 current_time=localt)
 
 @app.route('/Nodes/<peer>')
 def display_node_info(peer):
@@ -118,11 +121,14 @@ def display_node_info(peer):
 			internal = info['internal']
 		if 'external' in info.keys():
 			external = info['external']
+		localt, locald = utils.create_timestamp()
 		return render_template('peer.html', 
 							   name=peer,
 							   hostname=hostname,
 							   internal=internal,
 							   external=external,
+							   current_date=locald,
+							   current_time=localt,
 							   avatar=preferences.peers[peer]['avatar'])
 
 @app.route('/Settings')
@@ -162,21 +168,21 @@ def add_node():
 	return render_template('add_node.html')
 
 # Server Avatars 
-@app.route('/Nodes/camera.png')
+@app.route('/camera.png')
 def serve_camera():
 	return open(os.getcwd()+'/templates/assets/camera.png','rb').read()
 
 
-@app.route('/Nodes/server.png')
+@app.route('/server.png')
 def serve_server():
 	return open(os.getcwd()+'/templates/assets/server.png','rb').read()
 
 
-@app.route('/Nodes/speaker.png')
+@app.route('/speaker.png')
 def serve_speaker():
 	return open(os.getcwd()+'/templates/assets/speaker.png','rb').read()
 
-@app.route('/Nodes/gpu.png')
+@app.route('/gpu.png')
 def serve_gpu():
 	return open(os.getcwd()+'/templates/assets/gpu.png','rb').read()
 
