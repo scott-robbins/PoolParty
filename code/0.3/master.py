@@ -130,6 +130,16 @@ def display_node_info(peer):
 							   current_date=locald,
 							   current_time=localt,
 							   avatar=preferences.peers[peer]['avatar'])
+@app.route('/Console/<peer>', methods=['GET','POST'])
+def remote_control(peer):
+	hname, addr, pw, pk = control.load_credentials(peer,False)
+	if request.method == 'POST':
+		cmd_data = request.form.get("cmd")
+		print '$ %s' % cmd_data
+	if request.method == 'GET':
+		return render_template('console.html', peer=peer,
+											   hostname=hname,
+											   ipaddr=addr) 
 
 @app.route('/Settings')
 def customize_settings():
