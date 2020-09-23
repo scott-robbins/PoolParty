@@ -30,8 +30,11 @@ class Node:
 				print '[*] Found network name %s' % name
 				self.peername = name
 				break
+
 	
 	def whoami(self):
+		if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
+			os.mkdir(os.getcwd()+'/PoolData/NX')
 		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):
 			os.remove(os.getcwd()+'/PoolData/NX/self.txt')
 		else:
