@@ -25,16 +25,16 @@ class Settings:
 		# Load info about self
 		if not os.path.isdir(os.getcwd()+'/PoolData/Local/'):
 			os.mkdir('PoolData/Local/')
-			print '[*] No Configurations found. Running Default Layout'
+			# print '[*] No Configurations found. Running Default Layout'
 				# Load Info About Nodes/Network
 		if os.path.isfile(os.getcwd()+'/PoolData/NX/peerlist.txt'):
-			print '[*] Found peerlist'
+			# print '[*] Found peerlist'
 			peers = utils.swap(os.getcwd()+'/PoolData/NX/peerlist.txt',False)
 			for peer in peers:
 				pName = peer.split('\n')[0]
 				self.peers[pName] = {}
 		if os.path.isfile(os.getcwd()+'/PoolData/Local/settings_avatars.conf'):
-			print '[*] Loading GUI Configurations'
+			# print '[*] Loading GUI Configurations'
 			config = utils.swap(os.getcwd()+'/PoolData/Local/settings_avatars.conf',False)
 			for line in config:
 				peer = line.split(' ')[0]
@@ -42,7 +42,7 @@ class Settings:
 				
 				if os.path.isfile(os.getcwd()+'/templates/assets/'+avatar):
 					self.peers[peer]['avatar'] = avatar
-					print '%s has avatar %s' % (peer, avatar)
+					# print '%s has avatar %s' % (peer, avatar)
 		else:
 			# DEFAULT AVATAR
 			self.peers[peer]['avatar'] = 'Server.png'
@@ -104,14 +104,14 @@ def display_node_info(peer):
 	preferences = Settings()
 	poolpath = '/PoolParty/code/0.3'
 	if peer in preferences.peers.keys():
-		print '[*] Loading %s Peer Data' % (peer)
+		# print '[*] Loading %s Peer Data' % (peer)
 		hname, ip, pword, pk = setup.load_credentials(peer, False)
 		if hname == 'root':
 			rpath = '/root' + poolpath
 		else:
 			rpath = '/home/%s%s' % (hname,poolpath)
 		content, info = control.show_info(peer, False)
-		print '[*] Reply from %s: %s' % (ip,info)
+		# print '[*] Reply from %s: %s' % (ip,info)
 		hostname = ''
 		internal = ''
 		external = ''
@@ -130,12 +130,14 @@ def display_node_info(peer):
 							   current_date=locald,
 							   current_time=localt,
 							   avatar=preferences.peers[peer]['avatar'])
+
+
 @app.route('/Console/<peer>', methods=['GET','POST'])
 def remote_control(peer):
 	hname, addr, pw, pk = control.load_credentials(peer,False)
 	if request.method == 'POST':
 		cmd_data = request.form.get("cmd")
-		print '$ %s' % cmd_data
+		# print '$ %s' % cmd_data
 	if request.method == 'GET':
 		return render_template('console.html', peer=peer,
 											   hostname=hname,
@@ -195,6 +197,10 @@ def serve_speaker():
 @app.route('/gpu.png')
 def serve_gpu():
 	return open(os.getcwd()+'/templates/assets/gpu.png','rb').read()
+
+@app.route('/kali.png')
+def serve_kali():
+	return open(os.getcwd()+'/templates/assets/kali.png','rb').read()
 
 if __name__ == '__main__':
     app.run(port=80)

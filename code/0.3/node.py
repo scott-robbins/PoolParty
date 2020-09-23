@@ -15,7 +15,6 @@ class Node:
 	role = None
 
 	def __init__(self):
-		self.refresh()
 		# determine roles if not already determined
 		self.whoami()
 		# log data about self for faster future loading
@@ -67,6 +66,9 @@ def main():
 			if (ad == node.internal_ip):
 				print '[*] Found network name %s' % name
 		print node.show()
+
+	if '--refresh' in sys.argv:
+		node.refresh()
 
 if __name__ == '__main__':
 	main()
