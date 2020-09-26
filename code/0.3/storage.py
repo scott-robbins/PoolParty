@@ -30,16 +30,22 @@ class MasterRecord:
 
 	def distribute_assignments(self):
 		for peer in self.peers:
-			hostname, ip, pword, pk = setup.load_credentials(peer, False)
-			poolpath = '/PoolParty/code/0.3/PoolData/Shares'
-			if hostname == 'root':
-				rpath = '/root' + poolpath
-			else:
-				rpath = '/home/%s%s' % (hostname,poolpath)
-			local_file = os.getcwd()+'/PoolData/Shares/Resources/%s.shares' % peer
-			if os.path.isfile(local_file):
-				if utils.ssh_put_file(local_file, rpath, ip, hostname, pword):
-					print '[*] File Transfer Complete'	
+			Thread(target=self.send_assignment, args=(peer,)).start()
+	
+	def send_assignment(self, peer):
+		completed = False
+		hostname, ip, pword, pk = setup.load_credentials(peer, False)
+		poolpath = '/PoolParty/code/0.3/PoolData/Shares'
+		if hostname == 'root':
+			rpath = '/root' + poolpath
+		else:
+			rpath = '/home/%s%s' % (hostname,poolpath)
+		local_file = os.getcwd()+'/PoolData/Shares/Resources/%s.shares' % peer
+		if os.path.isfile(local_file):
+			if utils.ssh_put_file(local_file, rpath, ip, hostname, pword):
+				print '[*] File Transfer Complete'
+				completed = True
+		return completed
 
 	def dump_peer_shares(self, bpath, n, i, verbose):
 		share_data_file = '%s/%s.shares' % (bpath, n)

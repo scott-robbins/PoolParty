@@ -164,9 +164,12 @@ def ssh_put_file(localfile, rpath, ip, uname, password):
 	cmd1 = 'sshpass -p "%s" sftp %s@%s:%s' % (password,uname,ip,rpath)
 	cmd2 = " <<< $'put %s'" % (localfile)
 	getreq = cmd1+cmd2
-	open('tmp.sh','wb').write('#!/bin/bash\n%s\n#EOF'%getreq)
-	os.system('bash tmp.sh >> /dev/null')
-	os.remove('tmp.sh')
+	# If I randomize file names, I should be able to multithread this function?
+	token = base64.b64encode(get_random_bytes(4))
+	fname = 'tmp%s.sh' % token
+	open(fname,'wb').write('#!/bin/bash\n%s\n#EOF'%getreq)
+	os.system('bash %s >> /dev/null' % fname)
+	os.remove(fname)
 	return True
 
 # #################### CRYPTOGRAPHIC LAMBDA FUNCTIONS #################### #
@@ -221,7 +224,7 @@ def get_sha256_sum(file_name, verbose):
         sum_data = swap('out.txt', True).pop().split(' ')[0]
     if verbose:
         print sum_data
-     
+
     return sum_data
 
 def create_tcp_socket(verbose):
