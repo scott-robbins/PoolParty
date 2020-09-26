@@ -4,8 +4,8 @@ controlling each others remotely (command execution, file transfer, etc.). This 
 will try and build on that foundation, and create ways to have machines work together on common
 tasks. This should work better now that the fundamentals are more solid. 
 
-
-
+## Distributed File Sharing
+![distribution](https://raw.githubusercontent.com/scott-robbins/PoolParty/master/code/0.3/distribution.png)
 
 
 
