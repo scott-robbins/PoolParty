@@ -1,3 +1,4 @@
+from threading import Thread
 import numpy as np
 import hashlib
 import utils
@@ -17,22 +18,43 @@ class MasterRecord:
 		self.hashtable = self.determine_table_slots()
 		# [2] check in with registered files
 		shared_data = self.review_master_filelist()
-		# Check if an existing table extists
-		# If it does check whether new data has been added
-		# Else create the table for distributing
-		self.create_hashtable(shared_data) 
+		# If no share data is present, create the lists for distributed resources
+		if not os.path.isdir(os.getcwd()+'/PoolData/Shares/Resources'):
+			self.create_hashtable(shared_data) 
+		# else: # see if new data has been added
 		# [3] check in with nodes to see if they've updated files, and redistribute
-		# 	  accordingly
+		# 	  the hashtable at the sametime (if changes merge, else update)
 		
+
+	def dump_peer_shares(self, bpath, n, i, verbose):
+		share_data_file = '%s/%s.shares' % (bpath, n)
+		content = ''
+		for fdat in self.hashtable[self.peers[i]]:
+			if len(fdat.keys()) >1:
+				content += '%s %s\n' % (fdat['file'], fdat['hash'])
+		if len(content):
+			if verbose:
+				print '[*] Creating %s' % share_data_file
+			open(share_data_file, 'wb').write(content)
 
 	def create_hashtable(self, rawdata):
 		filenames = rawdata['file']
+		print '[*] Creating Distributed Hashtable'
 		for fname in self.hashes.keys():
 			uid = self.hashes[fname]
 			largest = self.find_largest_chunk(self.divide_hashsum(uid, self.n_nodes))[0]
-			self.hashtable[self.peers[largest]] = uid
-		# DEBUGGIN:
-		print self.hashtable
+			self.hashtable[self.peers[largest]].append({'file':fname.split('/')[-1].replace('"',''), 'hash': uid})
+		# Now Create assignments for distribution
+		basepath = os.getcwd()+'/PoolData/Shares/Resources'
+		if not os.path.isdir(basepath):
+			os.mkdir(basepath)
+		index = 0
+		print '[*] Dumping to hashdata to disk'
+		for peername in self.peers: 
+			self.dump_peer_shares(basepath, peername, index, False)
+			# Thread(target=self.dump_peer_shares, args=(basepath, peername, index, True)).start()
+			index += 1
+		print '[*] Assignments finished. Distributing Files'
 
 	def determine_table_slots(self):
 		hashtable = {}
@@ -45,7 +67,7 @@ class MasterRecord:
 			print '[!!] Unable to retrieve peerlist'
 			exit()
 		for node in nodes:
-			hashtable[node] = []
+			hashtable[node] = [{}]
 		return hashtable
 
 	def review_master_filelist(self):
@@ -92,17 +114,6 @@ class MasterRecord:
 			slots.append(int(section, 16))
 		# return the smallest bucket
 		return np.where(np.array(slots) == np.array(slots).min())
-
-# def is_mine(filename):
-	# 	save = false
-	# 	if os.path.isfile(filename):
-	# 		hashsum = file256sum(filename)
-	# 		chunks = divide_hashsum(hashsum)
-	# 		if choose_largest_chunk(chunks) == self.slot_id:
-	# 			save = True
-	# 	else:
-	# 		print '[!!] Cannot find %s' % filename
-	# 	return save
 
 def main():
 	table_data = MasterRecord()
