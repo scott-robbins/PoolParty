@@ -39,6 +39,8 @@ class Node:
 			os.mkdir(os.getcwd()+'/PoolData/NX')
 		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):
 			os.remove(os.getcwd()+'/PoolData/NX/self.txt')
+		if not os.path.isdir(os.getcwd()+'/PoolData/Shares'):
+			os.mkdir(os.getcwd()+'/PoolData/Shares')
 		else:
 			# self identify
 			self.identify()
