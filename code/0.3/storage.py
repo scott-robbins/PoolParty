@@ -14,12 +14,13 @@ class MasterRecord:
 	n_nodes = 0 # need to keep track in case table is shuffled on node exits
 	peers = [] # Save peer info, and which bucket they fill
 	hashtable = {}
+
 	def __init__(self):
-		# [1] First determine number of nodes in table 
-		# If no share data is present, create the lists for distributed resources
+		# Housekeeping and cleanup. Need to improve this but works for now
 		if os.path.isdir(os.getcwd()+'/PoolData/Shares/Resources'):
 			os.system('rm -rf PoolData/Shares/Resources') # for now just cleanin out every time?
 			os.mkdir('PoolData/Shares/Resources')	
+		# [1] First determine number of nodes in table 
 		self.hashtable = self.determine_table_slots()
 		# [2] check in with registered files
 		shared_data = self.review_master_filelist()
@@ -27,6 +28,47 @@ class MasterRecord:
 		# [3] check in with nodes to see if they've updated files, and redistribute
 		# 	  the hashtable at the sametime (if changes merge, else update)
 		self.distribute_assignments()
+		# How to efficiently distribute those resources now? 
+		self.package_assets()
+
+	def package_assets(self):
+
+		# Look at each nodes list of hashes
+		for node in self.hashtable.keys():
+			# Make a directory of the files for node 
+			os.mkdir('Shares%s' % node)
+			arc = 'arc%s.zip' % node
+			for entry in self.hashtable[node]:
+				if len(entry.keys())>1:
+					filename = '"' + entry['file'].replace('"','') + '"'
+					hashvalu = entry['hash']
+					if filename not in self.hashes.keys():
+						print '!! unable to find %s' % filename
+					else:
+						cmd = 'cp %s Shares%s/' % (filename, node)
+						os.system(cmd)
+			# zip up archive
+			os.system('zip -o %s -r Shares%s/ >> /dev/null' % (arc, node))
+			# why are these archives coming out so big??
+			os.system('rm -rf Shares%s/'%node)
+			# send to node 
+			Thread(target=self.send_archive, args=(node,)).start()
+
+	def send_archive(self, peer):
+		completed = False
+		hostname, ip, pword, pk = setup.load_credentials(peer, False)
+		poolpath = '/PoolParty/code/0.3/PoolData/Shares'
+		if hostname == 'root':
+			rpath = '/root' + poolpath
+		else:
+			rpath = '/home/%s%s' % (hostname,poolpath)
+		local_file = 'arc%s.zip' % peer
+		if os.path.isfile(local_file):
+			stat = os.stat(local_file)
+			if utils.ssh_put_file(local_file, rpath, ip, hostname, pword):
+				completed = True
+				print '[*] %s has recieved their portion of Shared Data [%dMB]' % (peer, (stat.st_size/(1028*1028)))
+		return completed
 
 	def distribute_assignments(self):
 		for peer in self.peers:
@@ -64,7 +106,7 @@ class MasterRecord:
 		for fname in self.hashes.keys():
 			uid = self.hashes[fname]
 			largest = self.find_largest_chunk(self.divide_hashsum(uid, self.n_nodes))[0]
-			self.hashtable[self.peers[largest]].append({'file':fname.split('/')[-1].replace('"',''), 'hash': uid})
+			self.hashtable[self.peers[largest]].append({'file':fname, 'hash': uid})
 		# Now Create assignments for distribution
 		basepath = os.getcwd()+'/PoolData/Shares/Resources'
 		if not os.path.isdir(basepath):

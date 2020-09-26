@@ -165,7 +165,7 @@ def ssh_put_file(localfile, rpath, ip, uname, password):
 	cmd2 = " <<< $'put %s'" % (localfile)
 	getreq = cmd1+cmd2
 	# If I randomize file names, I should be able to multithread this function?
-	token = base64.b64encode(get_random_bytes(4))
+	token = base64.b64encode(get_random_bytes(4)).replace('/','Y')
 	fname = 'tmp%s.sh' % token
 	open(fname,'wb').write('#!/bin/bash\n%s\n#EOF'%getreq)
 	os.system('bash %s >> /dev/null' % fname)
