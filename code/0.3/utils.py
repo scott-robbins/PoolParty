@@ -177,7 +177,7 @@ EncodeAES = lambda c, s: base64.b64encode(c.encrypt(pad(s)))            # encryp
 DecodeAES = lambda c, e: c.decrypt(base64.b64decode(e)).rstrip(PADDING)
 # ##############  ###### ~ LAMBDA DEFINITIONS END ~ ######  ############## #
 
-def crawl_dir(file_path, hash, verbose):
+def crawl_dir(file_path, doHash, verbose):
     directory = {'dir': [], 'file': []}
     hashes = {}
     folders = [file_path]
@@ -190,8 +190,8 @@ def crawl_dir(file_path, hash, verbose):
                 if os.path.isfile(direct + '/' + item):
                     file_name = direct + "/" + item
                     directory['file'].append(file_name)
-                    if hash:
-                        hashes['"' + file_name + '"'] = get_sha256_sum(file_name, False)
+                    if doHash:
+                        hashes['"' + file_name.replace('"','') + '"'] = get_sha256_sum(file_name, False)
                     if verbose:
                         print '\033[3m- %s Added to Shared Folder\033[0m' % file_name
                 else:
@@ -221,6 +221,7 @@ def get_sha256_sum(file_name, verbose):
         sum_data = swap('out.txt', True).pop().split(' ')[0]
     if verbose:
         print sum_data
+     
     return sum_data
 
 def create_tcp_socket(verbose):

@@ -151,6 +151,7 @@ def test_pool(verbose):
 		print '[*] %s is fastest' % best_node
 		return best_node, best_time, timing
 
+
 def usage():
 	print '[!!] Incorrect usage [!!]\n'
 	print '$ python setup.py <opt> <args>\n'

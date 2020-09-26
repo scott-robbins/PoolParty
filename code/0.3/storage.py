@@ -1,6 +1,7 @@
 from threading import Thread
 import numpy as np
 import hashlib
+import setup
 import utils
 import time 
 import sys 
@@ -15,16 +16,30 @@ class MasterRecord:
 	hashtable = {}
 	def __init__(self):
 		# [1] First determine number of nodes in table 
+		# If no share data is present, create the lists for distributed resources
+		if os.path.isdir(os.getcwd()+'/PoolData/Shares/Resources'):
+			os.system('rm -rf PoolData/Shares/Resources') # for now just cleanin out every time?
+			os.mkdir('PoolData/Shares/Resources')	
 		self.hashtable = self.determine_table_slots()
 		# [2] check in with registered files
 		shared_data = self.review_master_filelist()
-		# If no share data is present, create the lists for distributed resources
-		if not os.path.isdir(os.getcwd()+'/PoolData/Shares/Resources'):
-			self.create_hashtable(shared_data) 
-		# else: # see if new data has been added
+		self.create_hashtable(shared_data) 
 		# [3] check in with nodes to see if they've updated files, and redistribute
 		# 	  the hashtable at the sametime (if changes merge, else update)
-		
+		self.distribute_assignments()
+
+	def distribute_assignments(self):
+		for peer in self.peers:
+			hostname, ip, pword, pk = setup.load_credentials(peer, False)
+			poolpath = '/PoolParty/code/0.3/PoolData/Shares'
+			if hostname == 'root':
+				rpath = '/root' + poolpath
+			else:
+				rpath = '/home/%s%s' % (hostname,poolpath)
+			local_file = os.getcwd()+'/PoolData/Shares/Resources/%s.shares' % peer
+			if os.path.isfile(local_file):
+				if utils.ssh_put_file(local_file, rpath, ip, hostname, pword):
+					print '[*] File Transfer Complete'	
 
 	def dump_peer_shares(self, bpath, n, i, verbose):
 		share_data_file = '%s/%s.shares' % (bpath, n)

@@ -33,6 +33,8 @@ class Node:
 
 	
 	def whoami(self):
+		if not os.path.isdir(os.getcwd()+'/PoolData/'):
+			os.mkdir(os.getcwd()+'/PoolData')
 		if not os.path.isdir(os.getcwd()+'/PoolData/NX'):
 			os.mkdir(os.getcwd()+'/PoolData/NX')
 		if os.path.isfile(os.getcwd()+'/PoolData/NX/self.txt'):
