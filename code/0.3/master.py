@@ -203,4 +203,4 @@ def serve_kali():
 	return open(os.getcwd()+'/templates/assets/kali.png','rb').read()
 
 if __name__ == '__main__':
-    app.run(port=80)
+    app.run('0.0.0.0',port=80)
