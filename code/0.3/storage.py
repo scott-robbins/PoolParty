@@ -25,6 +25,8 @@ class MasterRecord:
 		# [2] check in with registered files
 		shared_data = self.review_master_filelist()
 		self.create_hashtable(shared_data) 
+	
+	def run(self):
 		# [3] check in with nodes to see if they've updated files, and redistribute
 		# 	  the hashtable at the sametime (if changes merge, else update)
 		self.distribute_assignments()
@@ -32,7 +34,6 @@ class MasterRecord:
 		self.package_assets()
 
 	def package_assets(self):
-
 		# Look at each nodes list of hashes
 		for node in self.hashtable.keys():
 			# Make a directory of the files for node 
@@ -53,6 +54,7 @@ class MasterRecord:
 			os.system('rm -rf Shares%s/'%node)
 			# send to node 
 			Thread(target=self.send_archive, args=(node,)).start()
+		os.system('rm arc*.zip')
 
 	def send_archive(self, peer):
 		completed = False
@@ -178,9 +180,23 @@ class MasterRecord:
 		# return the smallest bucket
 		return np.where(np.array(slots) == np.array(slots).min())
 
+	def display_file_tree(self, path):
+		tree = [path]
+		result = {}
+		while len(tree) > 0:
+			folder = tree.pop()
+			result[folder] = []
+			for item in os.listdir(folder):
+				if os.path.isfile(folder + '/' + item):
+					result[folder].append(item)
+				else:
+					tree.append(folder + '/' + item)
+		return result
+
+
 def main():
 	table_data = MasterRecord()
-
+	table_data.run()
 
 if __name__ == '__main__':
 	main()

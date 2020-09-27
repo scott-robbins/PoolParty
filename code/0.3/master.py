@@ -20,6 +20,7 @@ class Settings:
 
 	def __init__(self):
 		self.initialize()
+		self.database = storage.MasterRecord()
 
 	def initialize(self):
 		# Load info about self
@@ -39,13 +40,14 @@ class Settings:
 			for line in config:
 				peer = line.split(' ')[0]
 				avatar = line.split(' ')[1].replace('\n','')
-				
 				if os.path.isfile(os.getcwd()+'/templates/assets/'+avatar):
 					self.peers[peer]['avatar'] = avatar
 					# print '%s has avatar %s' % (peer, avatar)
 		else:
 			# DEFAULT AVATAR
 			self.peers[peer]['avatar'] = 'Server.png'
+		self.files, h = utils.crawl_dir(os.getcwd()+'/PoolData/Shares',False,False)
+
 
 @app.route('/')
 def load():
@@ -62,7 +64,7 @@ def home():
 	# * N Nodes Online
 	n_nodes = len(timing.keys())
 	# * N Files Shared
-	n_files = len(os.listdir('PoolData/Shares'))
+	n_files = len(preferences.files)
 	# * N Active Jobs
 	if not os.path.isdir(os.getcwd()+'/PoolData/Jobs/'):
 		n_jobs = 0
@@ -102,6 +104,7 @@ def node_list():
 @app.route('/Nodes/<peer>')
 def display_node_info(peer):
 	preferences = Settings()
+	database = preferences.database
 	poolpath = '/PoolParty/code/0.3'
 	if peer in preferences.peers.keys():
 		# print '[*] Loading %s Peer Data' % (peer)
@@ -127,6 +130,7 @@ def display_node_info(peer):
 							   hostname=hostname,
 							   internal=internal,
 							   external=external,
+							   n_files=len(database.hashtable[peer]),
 							   current_date=locald,
 							   current_time=localt,
 							   avatar=preferences.peers[peer]['avatar'])
@@ -156,7 +160,9 @@ def upload_file():
 
 @app.route('/Download')
 def download_file():
-	return render_template('download.html')
+	database = storage.MasterRecord()
+	shares = database.display_file_tree(os.getcwd()+'/PoolData/Shares')
+	return render_template('download.html', shared=shares)
 
 @app.route('/Jobs')
 def show_active_jobs():
