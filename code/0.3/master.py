@@ -15,6 +15,7 @@ class Settings:
 	default_name_color = 'blue';
 	default_name_font = 'Bungee Hairline'
 	default_dash_color = 'deaddd'
+	# default_dash_color = '00ababe'
 	default_tool_color = 'bbaaddd'
 	peers = {}
 
@@ -64,7 +65,7 @@ def home():
 	# * N Nodes Online
 	n_nodes = len(timing.keys())
 	# * N Files Shared
-	n_files = len(preferences.files)
+	n_files = len(preferences.files['file'])
 	# * N Active Jobs
 	if not os.path.isdir(os.getcwd()+'/PoolData/Jobs/'):
 		n_jobs = 0
@@ -107,14 +108,12 @@ def display_node_info(peer):
 	database = preferences.database
 	poolpath = '/PoolParty/code/0.3'
 	if peer in preferences.peers.keys():
-		# print '[*] Loading %s Peer Data' % (peer)
 		hname, ip, pword, pk = setup.load_credentials(peer, False)
 		if hname == 'root':
 			rpath = '/root' + poolpath
 		else:
 			rpath = '/home/%s%s' % (hname,poolpath)
 		content, info = control.show_info(peer, False)
-		# print '[*] Reply from %s: %s' % (ip,info)
 		hostname = ''
 		internal = ''
 		external = ''
@@ -141,7 +140,6 @@ def remote_control(peer):
 	hname, addr, pw, pk = control.load_credentials(peer,False)
 	if request.method == 'POST':
 		cmd_data = request.form.get("cmd")
-		# print '$ %s' % cmd_data
 	if request.method == 'GET':
 		return render_template('console.html', peer=peer,
 											   hostname=hname,
@@ -167,7 +165,7 @@ def download_file():
 	return render_template('download.html', shared=shares,
 											user_toolbar=preferences.default_tool_color,
 											current_date=locald,
-							   				current_time=localt,)
+							   				current_time=localt)
 
 @app.route('/Jobs')
 def show_active_jobs():

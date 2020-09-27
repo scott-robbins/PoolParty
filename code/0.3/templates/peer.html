@@ -3,6 +3,10 @@
 <title> {{ name }} </title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style type="text/css">
+  img.resize{
+  width: 50px;
+  height: 35px;
+}
 ul {
   list-style-type: none;
   margin: 0;
@@ -41,7 +45,7 @@ li a:hover:not(.active) {
   text-align: center;
 }
 
-.nav:hover :not(.active) {
+.nav li:hover :not(.active) {
   background-color: #0FADED; 
 }
 
@@ -96,7 +100,11 @@ body {  background-color: #f1f1f1; }
     <button class="w3-button w3-block w3-dark-grey">+ <a href="/Console/{{ name }}">Connect to Machine</a></button>
   </div>
 </div>
-
+<!-- Footer -->
+  <div class="footer">
+    <h4><i> PoolParty 2020 </i> <img class="resize" src="/icon.png"> </h4>
+  </div>
+</div>
 </body>
 
 </html>

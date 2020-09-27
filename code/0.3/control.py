@@ -260,7 +260,6 @@ def show_info(peer_name, verbose):
 				info['internal'] = line.split(':')[1].replace('\t', '')
 			if '-external ip' in line.replace('\t','').split(':'):
 				info['external'] = line.split(':')[1].replace('\t','')
-	print info
 	return result, info
 
 def main():
