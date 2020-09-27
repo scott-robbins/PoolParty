@@ -160,9 +160,14 @@ def upload_file():
 
 @app.route('/Download')
 def download_file():
+	preferences = Settings()
 	database = storage.MasterRecord()
 	shares = database.display_file_tree(os.getcwd()+'/PoolData/Shares')
-	return render_template('download.html', shared=shares)
+	localt, locald = utils.create_timestamp()
+	return render_template('download.html', shared=shares,
+											user_toolbar=preferences.default_tool_color,
+											current_date=locald,
+							   				current_time=localt,)
 
 @app.route('/Jobs')
 def show_active_jobs():
