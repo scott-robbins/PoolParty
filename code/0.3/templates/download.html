@@ -1,9 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title> Download </title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+ul, #myUL {
+  list-style-type: none;
+}
+
+#myUL {
+  margin: 0;
+  padding: 0;
+}
+
+.caret {
+  cursor: pointer;
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none;
+}
+
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.caret-down::before {
+  -ms-transform: rotate(90deg); /* IE 9 */
+  -webkit-transform: rotate(90deg); /* Safari */'
+  transform: rotate(90deg);  
+}
+
+.nested {
+  display: none;
+}
+
+.active {
+  display: block;
+}
+</style>
 </head>
 <body>
+
+<h2> Shared Files </h2>
+
+<ul id="myUL">
+	{% for folder in shared.keys() %}
+		{% if shared[folder] > 1 %}
+			<li><span class="caret"> {{ folder }} </span>
+			  <ul class="nested">
+			{% for fname in shared[folder] %}
+				<li> {{ fname }} </li>
+			{% endfor %}
+			  </ul>
+		{% else %}
+			<li><span class="caret"> {{ folder }} </span>
+		{% endif %}
+	{% endfor %}
+</ul>
+
+<script>
+var toggler = document.getElementsByClassName("caret");
+var i;
+
+for (i = 0; i < toggler.length; i++) {
+  toggler[i].addEventListener("click", function() {
+    this.parentElement.querySelector(".nested").classList.toggle("active");
+    this.classList.toggle("caret-down");
+  });
+}
+</script>
 
 </body>
 </html>
