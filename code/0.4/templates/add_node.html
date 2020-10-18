@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {
+  font-family: Arial;
+  background-color: #f1f1f1;
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+div.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+<body>
+
+<h3> Add Node </h3>
+<p>Complete form below to add node to Network:</p>
+
+<div class="container">
+  <form action="/createNode.html/">
+    <label for="fname">Peer Name</label>
+    <input type="text" id="pname" name="PeerName" placeholder="Enter name for network...">
+
+    <label for="hname">HostName</label>
+    <input type="text" id="hname" name="HostName" placeholder="Enter Hostname...">
+
+    <label for="ipaddr"> IP Address</label>
+    <input type="text" id="ipaddr" name="IPAddr" placeholder="Enter IP Address...">
+
+    <label for="pword"> Password </label>
+    <input type="hidden" name="pword" placeholder="Enter Password...">
+    <input type="text" id="pword" name="pword">
+
+    <label for="avatar">Avatar</label>
+    <select id="avatar" name="avatar">
+      <option value="work">Worker</option>
+      <option value="route">Router</option>
+      <option value="hoard">Hoarder</option>
+      <option value="cam">Camera</option>
+    </select>
+  
+    <input type="submit" value="Submit">
+  </form>
+</div>
+
+</body>
+</html>

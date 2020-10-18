@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request 
 from threading import Thread
+import storage
 import base64
 import master
 import utils
@@ -10,7 +11,7 @@ import os
 NETWORK = master.Master()
 app = Flask(__name__)
 
-
+# = = = = = = = = = Routes For Serving Main Pages  = = = = = = = = = # 
 @app.route('/')
 def load():
 	# Loading Screen gives 2s to prepare homepage data
@@ -48,6 +49,25 @@ def node_list():
 	return render_template('nodes.html', peers=preferences.peers,
 										 current_date=locald,
 							   			 current_time=localt)
+
+
+@app.route('/AddNode', methods=['GET','POST'])
+def create_node_form():
+	# localt, locald = utils.create_timestamp()
+	return render_template('add_node.html')
+
+@app.route('/Downloads')
+def view_sharefiles():
+	preferences = NETWORK.preferences
+	database = storage.MasterRecord()
+	shares = database.display_file_tree(os.getcwd()+'/PoolData/Shares')
+	localt, locald = utils.create_timestamp()
+	return render_template('downloads.html', shared=shares,
+											user_toolbar=preferences.default_tool_color,
+											current_date=locald,
+							   				current_time=localt)
+
+# = = = = = = = = = Routes For Serving Static Resources = = = = = = = = = # 
 
 @app.route('/favicon.ico')
 def icon():
