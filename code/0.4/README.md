@@ -3,5 +3,6 @@ The first two versions struggled because they tried to in essence reinvent SSH/S
 having a UI by running a local flask web server and rendering things in browser. 
 
 
-
+# TODO: 
+Create nodes from webpage, and use the option in core to create node from a configuration file.
 ====================== Last Updated October 2020 ======================
