@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Console </title>
+</head>
+<!--- Add CSS -->
+<style type="text/css">
+
+
+</style>
+
+<body>
+ <form action="/Interpreter/{{ peer}}/" id="usrform">
+  {{ hostname }}@{{ peer }}:~/$ <input type="text" name="cmd">
+  <input type="submit">
+  <textarea rows="4" cols="50" name="comment" form="usrform">
+  {{ hostname }}@{{ peer }}:~/$ {{ result }}
+  </textarea>
+</form>
+</body>
+</html>
