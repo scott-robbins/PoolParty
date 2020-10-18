@@ -61,9 +61,9 @@ def upload_local_shares():
 		rip   = creds[n][1]
 		pword = creds[n][2]
 		if rhost == 'root':
-			srcp = '/root/PoolParty/code/0.3'
+			srcp = '/root/PoolParty/code/0.4'
 		else:
-			srcp = '/home/%s/PoolParty/code/0.3' % rhost
+			srcp = '/home/%s/PoolParty/code/0.4' % rhost
 		print '%s [*] Uploading Local Shares to %s %s %s' % (core.Fb, core.FP, n, core.FE)
 		Thread(target=(exec_sync_put), args=(pword, rhost, rip, srcp)).start()
 
