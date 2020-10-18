@@ -1,0 +1,25 @@
+#!/bin/bash
+sudo python client.py >> /dev/null &
+progress="[==="
+add="="
+tip="=>]"
+clear
+for i in {1..15}; do
+	echo '[*] Starting PoolParty client'
+	echo "$progress$tip"
+	progress="$progress$add"
+	sleep 1
+	clear
+done
+
+# Open Browser and connect to client
+python -c "print '\033[1m\033[36m=\033[0m'*40"
+echo '[*] Opening Client'; sleep 1
+firefox http://localhost:80
+
+# Kill straggler processes when closing
+ps aux | grep client.py | while read n;do
+	pid=$(echo $n | cut -d ' ' -f 2);
+	sudo kill -9 $pid 2>&1 >> /dev/null;
+done
+#EOF

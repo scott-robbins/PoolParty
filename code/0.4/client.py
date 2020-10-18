@@ -76,6 +76,10 @@ def serve_speaker():
 def serve_gpu():
 	return open(os.getcwd()+'/templates/assets/gpu.png','rb').read()
 
+@app.route('/monitor.png')
+def serve_monitor():
+	return open(os.getcwd()+'/templates/assets/monitor.png', 'rb').read()
+
 @app.route('/kali.png')
 def serve_kali():
 	return open(os.getcwd()+'/templates/assets/kali.png','rb').read()

@@ -238,10 +238,10 @@ tr:nth-child(even) {
 		<h2> Network Latency </h2>
 	<table>
   	<tr>
-    	<th style="width:30;height: 30;%">Ping Sent </th>
-    	<th>Peers </th>
+    	<th style="width:30;height: 30;%">Avg. Response Time </th>
+    	<th> Peer </th>
   	</tr> {% for delay, peer in ping_data.items() %} <tr>
-    	<td>{{ delay }} ms </td>
+    	<td>{{ delay }} sec </td>
     	<td>{{ peer }} <i class="fa fa-check"></i></td>
   	</tr>  
  	{% endfor %} 
