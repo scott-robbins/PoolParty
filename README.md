@@ -19,6 +19,6 @@ I have a lot of projects I work on, and having a kind of "cloud" that I've creat
 * distributed file system/file syncing *(under development)*
 Distributed Computing Projects Attempted (![see v0.2](https://github.com/scott-robbins/PoolParty/tree/master/code/0.2))
 
-To see what the latest development is up to ![visit v0.3](https://github.com/scott-robbins/PoolParty/tree/master/code/0.3)
+To see what the latest development is up to ![visit v0.4](https://github.com/scott-robbins/PoolParty/tree/master/code/0.4)
 
-=========================== *Last Updated August 2020* ===========================
+=========================== *Last Updated October 2020* ===========================

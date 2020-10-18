@@ -113,7 +113,7 @@ def create_password():
 
 def create_credentials_from_file(credconfig):
 	'''
-	credetial config file should be the three following lines: 
+	credetial config file should be the four following lines: 
 	
 	IPAddress=10.10.10.10
 	Password=YourPassword
