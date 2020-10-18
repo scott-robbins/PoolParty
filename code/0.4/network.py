@@ -1,4 +1,5 @@
 from threading import Thread
+import numpy as np
 import random
 import utils 
 import time
@@ -66,6 +67,54 @@ def upload_local_shares():
 			srcp = '/home/%s/PoolParty/code/0.4' % rhost
 		print '%s [*] Uploading Local Shares to %s %s %s' % (core.Fb, core.FP, n, core.FE)
 		Thread(target=(exec_sync_put), args=(pword, rhost, rip, srcp)).start()
+
+def test_pool(verbose):
+	# Get All Nodes listed in creds
+		nodes = list(set(utils.cmd('ls PoolData/Creds/*.creds', False)))
+		timing = {}
+		# run a connection check for each
+		for name in nodes:
+			n = name.split('/').pop(-1).split('@')[0]
+			ping, cnx = test_cnx(n)
+			timing[ping] = n
+			if cnx and verbose:
+				# color the print out based on reply speed
+				if ping <= 0.75:
+					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.GREEN, ping,utils.FEND)
+				if 0.75 < ping < 1.5:
+					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.YELLOW, ping,utils.FEND)
+				if 1.5 < ping :
+					print '[*] %s is connected %s[%ss Delay]%s' % (n,utils.BOLD+utils.YELLOW, ping,utils.FEND)
+			
+		# also calculate fastest
+		best_time = np.min(list(set(timing.keys())))
+		best_node = timing[best_time]
+
+		# report connectivity
+		print '[*] %s is fastest' % best_node
+		return best_node, best_time, timing
+
+def show_info(peer_name, verbose):
+	hostname, ip, pword, pk = core.load_credentials(peer_name, False)
+	poolpath = '/PoolParty/code/0.4'
+	if hostname == 'root':
+		rpath = '/root' + poolpath
+	else:
+		rpath = '/home/%s%s' % (hostname,poolpath)
+	cmd = ('cd %s;'%rpath) + ' python node.py %s --dump-info ' % peer_name
+	result = utils.ssh_exec(cmd, ip, hostname, pword, verbose)
+	# Parse result 
+	info = {}
+	for line in result.split('\n'):
+		if len(line.split('\t'))>=2:
+			if '-name' in line.replace('\t','').split(':'):
+				info['hostname'] = line.split(':')[1].replace('\t','')
+			if '-internal ip' in line.replace('\t', '').split(':'):
+				info['internal'] = line.split(':')[1].replace('\t', '')
+			if '-external ip' in line.replace('\t','').split(':'):
+				info['external'] = line.split(':')[1].replace('\t','')
+	return result, info
+
 
 def main():
 
