@@ -43,7 +43,7 @@ div.container {
 <p>Complete form below to add node to Network:</p>
 
 <div class="container">
-  <form action="/createNode.html/">
+  <form action="/AddNode" method="post">
     <label for="fname">Peer Name</label>
     <input type="text" id="pname" name="PeerName" placeholder="Enter name for network...">
 
@@ -59,10 +59,10 @@ div.container {
 
     <label for="avatar">Avatar</label>
     <select id="avatar" name="avatar">
-      <option value="work">Worker</option>
-      <option value="route">Router</option>
-      <option value="hoard">Hoarder</option>
-      <option value="cam">Camera</option>
+      <option value="gpu.png">Worker</option>
+      <option value="server.png">Router</option>
+      <option value="ubuntu.png">Hoarder</option>
+      <option value="camera.png">Camera</option>
     </select>
   
     <input type="submit" value="Submit">

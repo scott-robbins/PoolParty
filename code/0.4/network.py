@@ -1,4 +1,5 @@
 from threading import Thread
+import multiprocessing
 import numpy as np
 import random
 import utils 
@@ -23,6 +24,15 @@ def multithreaded_cmd_exec(cmd):
 	open(rf,'wb').write('#!/bin/bash\n%s\n#EOF' % cmd)
 	os.system('bash %s >> /dev/null' % rf)
 	os.remove(rf)
+
+def command_all(cmd, nodes, verbose):
+	pool = multiprocessing.Pool(4)
+	results = {}
+	for p in nodes:
+		hname, ip, pw, pk = core.load_credentials(p, False)
+		event = pool.apply_async(func=utils.ssh_exec, args=(cmd, ip, hname, pw, verbose))
+		results[p] = event.get(timeout=30)
+	return results
 
 def exec_sync_get(pw,rh,ri,sp):
 	cmd_data = 'sshpass -p "%s" rsync -avz %s@%s:%s/PoolData/Shares PoolData/' % (pw, rh, ri, sp)
@@ -115,6 +125,14 @@ def show_info(peer_name, verbose):
 				info['external'] = line.split(':')[1].replace('\t','')
 	return result, info
 
+def check_listen():
+	listen = True
+	if not os.path.isfile(os.getcwd()+'/PoolData/listen.flag'):
+		return listen
+	else:
+		if len(open(os.getcwd()+'/PoolData/listen.flag','rb').read())>0:
+			listen = False
+	return listen
 
 def main():
 
@@ -132,6 +150,39 @@ def main():
 
 	if '--sync-put' in sys.argv:
 		upload_local_shares()
+
+	if '--update-all' in sys.argv:
+		command_all('cd ~/PoolParty/code/0.4/; git pull origin', core.get_node_names(), True)
+
+	if '-listen' in sys.argv:
+		default=54321
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		except socket.error:
+			print '[!!] Unable to create socket'
+			exit()
+		try:
+			s.bind(('0.0.0.0', default))
+			s.listen(5)
+		except socket.error:
+			print '[!!] Conection Broken'
+			pass
+
+
+		while check_listen():
+			# accept incoming connection from master
+			client, cinfo = s.accept()
+
+			query = client.recv(2048)
+			if query == 'KILL':
+				open(os.getcwd()+'/PoolData/listen.flag', 'wb').write(query)
+				client.send('KILLED')
+			client.close()
+		# shutdown server socket
+		s.close()
+
+
+
 
 if __name__ == '__main__':
 	main()

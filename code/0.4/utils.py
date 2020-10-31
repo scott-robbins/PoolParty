@@ -269,4 +269,3 @@ def refresh_peers():
 	open(os.getcwd()+'/PoolData/NX/peerlist.txt','wb').write(content)
 
 # ############################## RSYNC OPERATIONS ############################## #
-

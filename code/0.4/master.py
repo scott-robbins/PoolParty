@@ -1,7 +1,9 @@
 from threading import Thread
+import multiprocessing
 import settings
 import storage
 import network
+import socket
 import utils 
 import core
 import os
@@ -14,9 +16,9 @@ class Master:
 		self.nodes = core.get_node_names()
 		self.peers = self.initialize()
 		self.preferences = settings.Settings()
-		
 		self.database = storage.MasterRecord()
 		self.fastest, self.best_time, self.timing = network.test_pool(verbose=False)
+		self.build_pool()
 
 	def initialize(self):
 		# Create local data folder 
@@ -47,3 +49,11 @@ class Master:
 			peer_data[peer] = info
 		# This Peer Data will be used externall in UI
 		return peer_data
+
+	
+
+def main():
+	Master()
+
+if __name__ == '__main__':
+	main()

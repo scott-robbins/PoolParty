@@ -22,6 +22,9 @@ FC = '\033[36m' # Cyan
 FE = '\033[0m' 	# End 
 
 def get_cluster_creds(user_nodes, check_cnx):
+	"""
+	Also tests connection to nodes...
+	"""
 	node_creds = {}
 	ping = {}
 	# Get all the credentials for each node 

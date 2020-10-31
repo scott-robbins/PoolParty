@@ -14,6 +14,7 @@ app = Flask(__name__)
 # = = = = = = = = = Routes For Serving Main Pages  = = = = = = = = = # 
 @app.route('/')
 def load():
+	# NETWORK = master.Master()
 	# Loading Screen gives 2s to prepare homepage data
 	return render_template('loading.html')
 
@@ -54,7 +55,25 @@ def node_list():
 @app.route('/AddNode', methods=['GET','POST'])
 def create_node_form():
 	# localt, locald = utils.create_timestamp()
-	return render_template('add_node.html')
+	if request.method == 'POST':
+		print 'Adding Node with info:'
+		try:
+			pn = request.form['pname']
+			hn =  request.form['hname']
+			ip = request.form['ipaddr']
+			pw = request.form['pword']
+			av = request.form['avatar']
+			content = 'IPAddress=%s\nPassword=%s\n' % (ip,pw)
+			content+= 'Username=%s\nHostname=%s\n' % (pn, hn)
+			open('newhost.txt','wb').write(content)
+			open('PoolData/Local/settings_avatars.conf','a').write('%s %s' % (pn, av))
+			os.system('python core.py --add_configured newhost.txt')
+			NETWORK = master.Master()
+			return redirect(url_for('/'))
+		except:
+			pass
+	else:
+		return render_template('add_node.html')
 
 @app.route('/Downloads')
 def view_sharefiles():
@@ -82,6 +101,9 @@ def logo():
 def serve_camera():
 	return open(os.getcwd()+'/templates/assets/camera.png','rb').read()
 
+@app.route('/ubuntu.png')
+def serve_ubuntu():
+	return open(os.getcwd()+'/templates/assets/ubuntu.png', 'rb').read()
 
 @app.route('/server.png')
 def serve_server():
