@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from threading import Thread
 import network
 import random
@@ -7,7 +6,6 @@ import time
 import sys
 import os
 
-load_dotenv()
 
 class Backend():
 	inbound  = 4242
@@ -49,7 +47,7 @@ class Backend():
 				client, client_info = self.listener.accept()
 				print(client_info)
 				# check who the client is
-				
+
 				# move on 
 				client.close()
 		except KeyboardInterrupt:
