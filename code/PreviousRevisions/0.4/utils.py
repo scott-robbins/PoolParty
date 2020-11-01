@@ -71,8 +71,7 @@ def get_sha256_sum(file_name, verbose):
         os.system("sha256sum '%s' >> out.txt" % file_name)
         sum_data = swap('out.txt', True).pop().split(' ')[0]
     if verbose:
-        print sum_data
-
+        print(sum_data)
     return sum_data
 
 def crawl_dir(file_path, doHash, verbose):
