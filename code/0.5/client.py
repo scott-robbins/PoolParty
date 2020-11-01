@@ -1,9 +1,11 @@
 from dotenv import load_dotenv
+from threading import Thread
 import multiprocessing
 import network
 import random
 import utils 
 import time
+import pool
 import sys
 import os
 
@@ -124,6 +126,13 @@ def test_connections(debug):
 		peers[node] = peer
 	return peers
 
+def update_node_code(nodelist, verbose):
+	for  n in nodelist:
+		h = nodelist[n]['hname']
+		i = nodelist[n]['ip']
+		p = nodelist[n]['pword'] 
+		upCmd = 'cd /home/%s/PoolParty; git checkout origin' % h
+		Thread(target=utils.ssh_exec,args=(upCmd,i,h,p,verbose)).start()
 
 
 def main():
@@ -151,10 +160,14 @@ def main():
 	# TODO: Check Whether remote server should be updated
 	if remote_serve and not debug and len(os.listdir(os.getcwd()+'/PoolData/Creds')) > 1:
 		upload_opt = input('[*] Credentials Present. Upload to Server? [y/n]: ')
-			
+	
+	# Initialize the Pool of Workers now that things are setup
+	cluster = pool.Pool(nodes)
+
 	if '-update' in sys.argv:
 		# Update code on all nodes
 		print('[*] Updating code running on %d nodes' % len(nodes.keys()))
+		update_node_code(nodes, debug)
 
 if __name__ == '__main__':
 	main()

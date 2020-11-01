@@ -77,13 +77,14 @@ def arr2chr(content):
 
 def cmd(command, verbose):
 	tmp = create_random_filename('.sh')
+	tmp2 = create_random_filename('.txt')
 	data = '#!/bin/bash\n%s\n#EOF' % command
 	open(tmp, 'w').write(data)
-	os.system('bash %s >> cmd.txt' % tmp)
+	os.system('bash %s >> %s' % (tmp,tmp2))
 	os.remove(tmp)
 	if verbose:	
-		os.system('cat cmd.txt')
-	return swap('cmd.txt', True)
+		os.system('cat %s' % tmp2)
+	return swap(tmp2, True)
 
 def get_ext_ip():
 	return cmd('curl -s https://api.ipify.org',False).pop()
@@ -175,3 +176,20 @@ def load_credentials(peername, verbose):
 	password = raw_creds.split(':')[1].replace('\n','').split('MAC')[0]
 	macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
 	return hostname, ip_addr, password, macaddr
+
+	def create_tcp_listener(port):
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		except socket.error:
+			pass
+			print('[!!] Unable to create socket on 0.0.0.0:%d' % port)
+			return []
+		try:
+			s.bind(('0.0.0.0', port))
+			s.listen(5)
+		except socket.error:
+			pass
+			print('[!!] Connection Broken on 0.0.0.0:%d' % port)
+			return []
+		# Return the listening server socket on designated port
+		return s
