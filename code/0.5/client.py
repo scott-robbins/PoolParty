@@ -1,6 +1,9 @@
 from dotenv import load_dotenv
+import multiprocessing
 import network
+import random
 import utils 
+import time
 import sys
 import os
 
@@ -95,9 +98,36 @@ def add_nodes():
 					# can use NMAP and the MAC to "identify" previous peer has new IP
 					# and then update the config
 
+def test_connections(debug):
+	n_threads = 10;	peers = {}
+	pool = multiprocessing.Pool(n_threads)
+	# Load Peer Credentials 
+	peer_list = network.get_node_names()
+	random.shuffle(peer_list)
+	for node in peer_list:
+		n = node.split('/')[-1].split('.')[0]
+		host, host_ip, host_pass, host_mac = utils.load_credentials(n, debug)
+		# test_cnx = utils.ssh_exec('whoami', host_ip, host, host_pass, False).pop()
+		event = pool.apply_async(func=utils.ssh_exec, args=('whoami', host_ip, host, host_pass, False,))
+		test_cnx = event.get(timeout=10).pop()
+		peer = {'hname': host, 
+				'ip': host_ip,
+				'pword': host_pass,
+				'mac': host_mac,
+				'connected': False}
+		if test_cnx.replace('\n','') == host:
+			print('[*] Connected to %s' % node)
+			peer['connected'] = True
+		else:
+			print('[!] Unable to connect to %s' % node)
+			# TODO: Search for that MAC address on the network!
+		peers[node] = peer
+	return peers
+
+
 
 def main():
-	debug = True
+	debug = True; start = time.time()
 	# Setup This machine on network
 	initialize_folders()
 	hname, eip, iip, cserve = load_local_vars()
@@ -112,21 +142,19 @@ def main():
 		add_nodes()
 		exit()
 
-	# Load Peer Credentials 
-	for node in network.get_node_names():
-		n = node.split('/')[-1].split('.')[0]
-		host, host_ip, host_pass, host_mad = utils.load_credentials(n, debug)
-		test_cnx = utils.ssh_exec('whoami', host_ip, host, host_pass, False).pop()
-		if test_cnx.replace('\n','') == host:
-			print('[*] Connected to %s' % node)
-		else:
-			print('[!] Unable to connect to %s' % node)
-			# TODO: Search for that MAC address on the network!
+	# Check which nodes are connected to network
+	nodes = test_connections(debug)
+	if debug:
+		msg = '='*40+'\n[*] Initialization Finished. [%ss Elapsed]' % (time.time()-start)
+		print(msg)
 
 	# TODO: Check Whether remote server should be updated
 	if remote_serve and not debug and len(os.listdir(os.getcwd()+'/PoolData/Creds')) > 1:
 		upload_opt = input('[*] Credentials Present. Upload to Server? [y/n]: ')
 			
+	if '-update' in sys.argv:
+		# Update code on all nodes
+		print('[*] Updating code running on %d nodes' % len(nodes.keys()))
 
 if __name__ == '__main__':
 	main()
