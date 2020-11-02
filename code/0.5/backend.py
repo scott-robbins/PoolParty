@@ -67,7 +67,7 @@ class Backend():
 				# check who the client is
 				if client_ip == self.masterIP:
 					if not len(self.private_key):
-						self.private_key = RSA.importKey(enc_request)
+						self.private_key = RSA.importKey(enc_request.decode())
 					else:
 						req = PKCS1_OAEP.new(self.private_key).decrypt(enc_request).decode()
 						print(req)
