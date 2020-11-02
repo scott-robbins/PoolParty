@@ -63,7 +63,7 @@ class Backend():
 				client_ip = client_info[0]
 				client_port = client_info[1]
 				# recieves first (encrypted)
-				enc_request = s.recv(2048)
+				enc_request = client.recv(2048)
 				# check who the client is
 				if client_ip == self.masterIP:
 					if not len(self.private_key):
