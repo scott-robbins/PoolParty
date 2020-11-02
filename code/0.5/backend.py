@@ -42,9 +42,9 @@ class Backend():
 
 		try:
 			while self.running:
-				self.listener = utils.create_tcp_listener(self.inbound)
+				listener = utils.create_tcp_listener(self.inbound)
 				# accept inbound connection
-				client, client_info = self.listener.accept()
+				client, client_info = listener.accept()
 				print(client_info)
 				# check who the client is
 
