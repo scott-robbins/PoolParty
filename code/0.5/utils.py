@@ -177,19 +177,19 @@ def load_credentials(peername, verbose):
 	macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
 	return hostname, ip_addr, password, macaddr
 
-	def create_tcp_listener(port):
-		try:
-			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		except socket.error:
-			pass
-			print('[!!] Unable to create socket on 0.0.0.0:%d' % port)
-			return []
-		try:
-			s.bind(('0.0.0.0', port))
-			s.listen(5)
-		except socket.error:
-			pass
-			print('[!!] Connection Broken on 0.0.0.0:%d' % port)
-			return []
-		# Return the listening server socket on designated port
-		return s
+def create_tcp_listener(port):
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	except socket.error:
+		pass
+		print('[!!] Unable to create socket on 0.0.0.0:%d' % port)
+		return []
+	try:
+		s.bind(('0.0.0.0', port))
+		s.listen(5)
+	except socket.error:
+		pass
+		print('[!!] Connection Broken on 0.0.0.0:%d' % port)
+		return []
+	# Return the listening server socket on designated port
+	return s
