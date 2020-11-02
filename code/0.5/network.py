@@ -4,7 +4,7 @@ try:
 	from dotenv import load_dotenv
 	load_dotenv()
 	NO_DOT = False
-except importError:
+except ImportError:
 	NO_DOT = True
 	pass
 
