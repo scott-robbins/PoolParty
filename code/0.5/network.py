@@ -1,8 +1,12 @@
-from dotenv import load_dotenv
 import utils
 import os 
-
-load_dotenv()
+try:
+	from dotenv import load_dotenv
+	load_dotenv()
+	NO_DOT = False
+except importError:
+	NO_DOT = True
+	pass
 
 def autodiscover_local():
 	internal_addr = os.getenv('INTERNAL_IP1')
