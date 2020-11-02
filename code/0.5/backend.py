@@ -1,6 +1,10 @@
+from Crypto.Random import get_random_bytes
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.PublicKey import RSA
 from threading import Thread
 import network
 import random
+import socket
 import utils 
 import time
 import sys
@@ -12,8 +16,7 @@ class Backend():
 	outbound = 9999
 	running  = True
 	masterIP = ''
-	listener = []
-
+	session_key = ''
 	private_key = ''
 
 	def __init__(self, server):
@@ -39,15 +42,35 @@ class Backend():
 
 	def run(self):
 		start = time.time()
-
 		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		except socket.error:
+			pass
+			print('[!!] Unable to create socket on 0.0.0.0:%d' % self.inbound)
+			self.running = False
+		try:
+			s.bind(('0.0.0.0', self.inbound))
+			s.listen(5)
+		except socket.error:
+			pass
+			print('[!!] Connection Broken on 0.0.0.0:%d' % self.inbound)
+			self.running = False
+		try:
+			cipher  = [];
 			while self.running:
-				listener = utils.create_tcp_listener(self.inbound)
 				# accept inbound connection
-				client, client_info = listener.accept()
-				print(client_info)
+				client, client_info = s.accept()
+				client_ip = client_info[0]
+				client_port = client_info[1]
+				# recieves first (encrypted)
+				enc_request = s.recv(2048)
 				# check who the client is
-
+				if client_ip == self.masterIP:
+					if not len(self.private_key):
+						self.private_key = RSA.importKey(enc_request)
+					else:
+						req = PKCS1_OAEP.new(self.private_key).decrypt(enc_request).decode()
+						print(req)
 				# move on 
 				client.close()
 		except KeyboardInterrupt:
