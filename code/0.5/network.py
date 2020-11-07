@@ -38,8 +38,8 @@ def check_connected(host, ip, passwd):
 		return False
 
 def check_work_files(host, ip, password):
-	checkCmd = 'ls /home/%s/PoolParty/code/0.5/' % host
-	return utils.ssh_exec(checkCmd, ip, host, password, False)
+	checkCmd = 'file=/home/%s/Work/jobs.txt;[ ! -e $file ]; echo $?' % host
+	return int(utils.ssh_exec(checkCmd, ip, host, password, False))
 
 def main():
 	# Seek Potential Peers

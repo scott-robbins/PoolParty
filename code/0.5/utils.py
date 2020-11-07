@@ -3,12 +3,6 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from threading import Thread
 import numpy as np
-try:
-	import paramiko
-	MIKO = True
-except ImportError:
-	# print '[!!] Cannot use Paramiko'
-	MIKO = False
 import random
 import warnings
 import base64
@@ -193,3 +187,7 @@ def create_tcp_listener(port):
 		return []
 	# Return the listening server socket on designated port
 	return s
+
+def remote_file_exists(host, ip , passwd, path_to_file):
+	c = 'file=%s;[ ! -e $file ]; echo $?' % path_to_file
+	return int(ssh_exec(c, ip, host, passwd, False).pop())
