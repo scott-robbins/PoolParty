@@ -111,7 +111,14 @@ def test_connections(debug):
 		host, host_ip, host_pass, host_mac = utils.load_credentials(n, debug)
 		# test_cnx = utils.ssh_exec('whoami', host_ip, host, host_pass, False).pop()
 		event = pool.apply_async(func=utils.ssh_exec, args=('whoami', host_ip, host, host_pass, False,))
-		test_cnx = event.get(timeout=10).pop()
+		try:
+			test_cnx = event.get(timeout=10).pop()
+		except multiprocessing.context.TimeoutError:
+			test_cnx = ''
+			pass
+		except IndexError:
+			test_cnx = ''
+			pass
 		peer = {'hname': host, 
 				'ip': host_ip,
 				'pword': host_pass,
@@ -131,7 +138,7 @@ def update_node_code(nodelist, verbose):
 		h = nodelist[n]['hname']
 		i = nodelist[n]['ip']
 		p = nodelist[n]['pword'] 
-		upCmd = 'cd /home/%s/PoolParty; git checkout origin HEAD:master' % h
+		upCmd = 'cd /home/%s/PoolParty; git pull origin HEAD:master' % h
 		Thread(target=utils.ssh_exec,args=(upCmd,i,h,p,verbose)).start()
 
 
@@ -157,12 +164,18 @@ def main():
 		msg = '='*40+'\n[*] Initialization Finished. [%ss Elapsed]' % (time.time()-start)
 		print(msg)
 
-	# TODO: Check Whether remote server should be updated
+	# Check Whether remote server should be updated
 	if remote_serve and not debug and len(os.listdir(os.getcwd()+'/PoolData/Creds')) > 1:
 		upload_opt = input('[*] Credentials Present. Upload to Server? [y/n]: ')
 	
 	# Initialize the Pool of Workers now that things are setup
-	cluster = pool.Pool(nodes)
+	cluster = pool.Pool(nodes, debug)
+	try:
+		cluster.run()
+	except KeyboardInterrupt:
+		print('[!!] Killing Pool')
+		cluster.running = False
+		exit()
 
 	if '-update' in sys.argv:
 		# Update code on all nodes

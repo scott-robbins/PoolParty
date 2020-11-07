@@ -31,6 +31,15 @@ def autodiscover_local():
 def get_node_names():
 	return utils.cmd('ls PoolData/Creds/*.pem',False)
 
+def check_connected(host, ip, passwd):
+	if utils.ssh_exec('whoami',ip,host,passwd,False).pop() == host:
+		return True
+	else:
+		return False
+
+def check_work_files(host, ip, password):
+	checkCmd = 'ls /home/%s/PoolParty/code/0.5/' % host
+	return utils.ssh_exec(checkCmd, ip, host, password, False)
 
 def main():
 	# Seek Potential Peers
