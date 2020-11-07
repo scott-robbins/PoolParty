@@ -175,6 +175,7 @@ def main():
 	except KeyboardInterrupt:
 		print('[!!] Killing Pool')
 		cluster.running = False
+		os.system('rm *.txt *.sh')
 		exit()
 
 	if '-update' in sys.argv:

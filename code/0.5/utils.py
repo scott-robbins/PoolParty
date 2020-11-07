@@ -191,3 +191,20 @@ def create_tcp_listener(port):
 def remote_file_exists(host, ip , passwd, path_to_file):
 	c = 'file=%s;[ ! -e $file ]; echo $?' % path_to_file
 	return int(ssh_exec(c, ip, host, passwd, False).pop())
+
+def get_file(remote_file_path, host, ip, passwd, verbose):
+	c = 'sshpass -p "%s" sftp %s@%s:%s' % (passwd, host, ip, remote_file_path)
+	local_copy = remote_file_path.split('/')[-1]
+	reply = cmd(c, verbose)
+	if verbose and os.path.isfile(local_copy):
+		print('[*] %d bytes transferred' % os.path.getsize(local_copy))
+	return reply
+
+def put_file(local_file_path, remote_destination, host, ip, passwd, verbose):
+	c = 'sshpass -p "%s" sftp %s@%s:%s <<< $'% (passwd, host, ip,remote_destination)
+	c += "'put %s'" % local_file_path
+	reply = cmd(c, False)
+	if verbose and os.path.isfile(local_file_path):
+		print('[*] %d bytes transferred' % os.path.getsize(local_file_path))
+	return reply
+
