@@ -22,7 +22,7 @@ class Pool():
 
 	def run(self):
 		self.running = True
-		threads = multiprocessing.Pool(5)
+		threads = multiprocessing.Pool(10)
 		# Start iteratively running through nodes in pool
 		while self.running:
 			# check in on connected nodes
@@ -114,9 +114,9 @@ class Pool():
 	def disconnect_node_from_pool(self, name):
 		self.workers[name]['connected'] = False
 		if self.verbose:
-			print('[!] %s has left Pool' % name)
+			print('[!] %s has left Pool' % name.split('/')[-1].split('.')[0])
 
 	def connect_node_to_pool(self, name):
 		self.workers[name]['connected'] = True
 		if self.verbose:
-			print('[!] %s has joined Pool' % name)		
+			print('[!] %s has joined Pool' % name.split('/')[-1].split('.')[0])		
