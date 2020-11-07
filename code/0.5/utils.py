@@ -90,9 +90,8 @@ def get_internal_addr():
 
 def ssh_exec(c, ip_address, uname, password, verbose):
 	comm = 'sshpass -p "%s" ssh %s@%s %s' % (password, uname, ip_address, c)
-	reply = cmd(comm, verbose)
-	return reply
-
+	return cmd(comm, verbose)
+	
 def create_password():
 	matched = False
 	password = ''

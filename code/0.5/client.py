@@ -170,6 +170,12 @@ def main():
 	
 	# Initialize the Pool of Workers now that things are setup
 	cluster = pool.Pool(nodes, debug)
+
+	if '-update' in sys.argv:
+		# Update code on all nodes
+		print('[*] Updating code running on %d nodes' % len(nodes.keys()))
+		update_node_code(nodes, debug)
+
 	try:
 		cluster.run()
 	except KeyboardInterrupt:
@@ -178,10 +184,6 @@ def main():
 		os.system('rm *.txt *.sh')
 		exit()
 
-	if '-update' in sys.argv:
-		# Update code on all nodes
-		print('[*] Updating code running on %d nodes' % len(nodes.keys()))
-		update_node_code(nodes, debug)
 
 if __name__ == '__main__':
 	main()

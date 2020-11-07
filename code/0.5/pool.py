@@ -22,9 +22,10 @@ class Pool():
 
 	def run(self):
 		self.running = True
-		threads = multiprocessing.Pool(10)
+		threads = multiprocessing.Pool(12)
 		# Start iteratively running through nodes in pool
 		while self.running:
+			pool_cycle_start = time.time()
 			# check in on connected nodes
 			try:
 				for node_name in self.workers.keys():
@@ -45,6 +46,9 @@ class Pool():
 				job = self.task_list.pop()
 				job_creator = job[0]
 				job_actions = job[1]
+			# How long does this inner loop take? it's basically refresh rate for pool
+			cycle_time = time.time() - pool_cycle_start  # right now, this is about 7 Seconds
+			# print('[%ss Elapsed]' % str(cycle_time))  
 
 	def check_for_node_work(self, threadpool, name):
 		p = self.workers[name]
@@ -54,7 +58,7 @@ class Pool():
 		loc = '/home/%s/Work/' % h
 		e = threadpool.apply_async(func=utils.remote_file_exists, args=(h,i,p,loc))
 		try:
-			exists = e.get(timeout=10)
+			exists = e.get(timeout=5)
 			if exists == 1:
 				# make the folder
 				show = 'ls /home/%s/Work' % h
@@ -64,7 +68,7 @@ class Pool():
 				show = 'mkdir /home/%s/Work' % h
 				e2 = threadpool.apply_async(func=utils.ssh_exec, args=(show, i,h,p, False))
 				try:
-					e2.get(timeout=10)
+					e2.get(timeout=5)
 				except multiprocessing.context.TimeoutError:
 					self.disconnect_node_from_pool(name)	
 					result = 0
@@ -84,7 +88,7 @@ class Pool():
 				h, i, p, m = utils.load_credentials(node, False)
 				e = threadpool.apply_async(func=network.check_connected, args=(h,i,p,))
 				try:
-					self.workers[node]['connected'] = e.get(timeout=10)
+					self.workers[node]['connected'] = e.get(timeout=5)
 				except multiprocessing.context.TimeoutError:
 					self.disconnect_node_from_pool(node)
 					pass
@@ -100,7 +104,7 @@ class Pool():
 				p = self.workers[node]['pword']
 				e = threadpool.apply_async(func=network.check_connected, args=(h,i,p,))
 				try:
-					self.workers[node]['connected'] = e.get(timeout=10)
+					self.workers[node]['connected'] = e.get(timeout=5)
 				except multiprocessing.context.TimeoutError:
 					self.disconnect_node_from_pool(node)
 					pass
