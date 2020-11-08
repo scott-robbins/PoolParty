@@ -67,11 +67,9 @@ class Backend():
 				print(enc_request)
 				# check who the client is
 				if client_ip == self.masterIP:
-					if not len(self.private_key):
-						self.private_key = RSA.importKey(enc_request.decode())
-					else:
-						req = PKCS1_OAEP.new(self.private_key).decrypt(enc_request).decode()
-						print(req)
+					print('[*] Master Machine [%s] Has connected' % self.masterIP)
+				else:
+					print('[*] %s has connected' % client_ip)
 				# move on 
 				client.close()
 		except KeyboardInterrupt:

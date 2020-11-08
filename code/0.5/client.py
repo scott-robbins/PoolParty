@@ -140,7 +140,7 @@ def update_node_code(nodelist, verbose):
 		h = nodelist[n]['hname']
 		i = nodelist[n]['ip']
 		p = nodelist[n]['pword'] 
-		upCmd = 'cd /home/%s/PoolParty; git pull origin HEAD:master' % h
+		upCmd = 'cd /home/%s/PoolParty/code; git pull origin' % h
 		Thread(target=utils.ssh_exec,args=(upCmd,i,h,p,verbose)).start()
 
 
