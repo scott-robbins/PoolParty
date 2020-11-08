@@ -188,7 +188,7 @@ def create_tcp_listener(port):
 	return s
 
 def remote_file_exists(host, ip , passwd, path_to_file):
-	c = 'file=%s;[ ! -e $file ]; echo $?' % path_to_file
+	c = '[ ! -e %s ]; echo $?' % path_to_file
 	return int(ssh_exec(c, ip, host, passwd, False).pop())
 
 def get_file(remote_file_path, host, ip, passwd, verbose):

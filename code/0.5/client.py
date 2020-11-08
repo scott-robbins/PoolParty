@@ -56,7 +56,7 @@ def load_local_vars():
 	return hostname, ext_ip, int_ip, server
 
 def ping_server(server):
-	ping = utils.cmd('ping -c 1 %s' % server, True)
+	ping = utils.cmd('ping -c 1 %s' % server, False)
 	if 'bytes' in (ping[1].split(' ')):
 		delay = int(ping[1].split(' ')[-2].split('=')[1])
 		print('[*] Can reach Server [%dms ping]' % delay)

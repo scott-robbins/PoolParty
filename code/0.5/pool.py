@@ -72,7 +72,6 @@ class Pool():
 				show = 'ls /home/%s/Work' % h
 				e2 = threadpool.apply_async(func=utils.ssh_exec, args=(show, i,h,p,False)) 
 				result = e2.get(timeout=10)
-				print(result)
 			elif exists == 0:
 				show = 'mkdir /home/%s/Work' % h
 				e2 = threadpool.apply_async(func=utils.ssh_exec, args=(show, i,h,p, False))
@@ -86,7 +85,6 @@ class Pool():
 			self.disconnect_node_from_pool(name)	
 			result = 0
 			pass
-		
 		return result
 
 
