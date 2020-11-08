@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from threading import Thread
 import multiprocessing
+import storage
 import network
 import random
 import utils 
@@ -23,6 +24,8 @@ class Pool():
 	def run(self):
 		self.running = True
 		threads = multiprocessing.Pool(12)
+		n_cycles = 0; start = time.time()
+		shared_data = storage.MasterRecord(self.workers.keys())
 		# Start iteratively running through nodes in pool
 		while self.running:
 			pool_cycle_start = time.time()
@@ -33,6 +36,7 @@ class Pool():
 					if peer['connected']:	# check in on worker
 						# see if they have jobs finished (populates self.task_list)
 						n_jobs = self.check_for_node_work(threads, node_name)
+						# check shared folders for changes
 			except RuntimeError:
 				# hmm how to handle this correctly???
 				pass
@@ -46,9 +50,13 @@ class Pool():
 				job = self.task_list.pop()
 				job_creator = job[0]
 				job_actions = job[1]
+
 			# How long does this inner loop take? it's basically refresh rate for pool
 			cycle_time = time.time() - pool_cycle_start  # right now, this is about 7 Seconds
-			# print('[%ss Elapsed]' % str(cycle_time))  
+			n_cycles += 1
+			if n_cycles % 3 == 0:
+				avg = float(time.time() - start)/n_cycles
+				print('[%ss Cycle, %d Cycles Run - %fs/cyc. on avg]' % (str(cycle_time), n_cycles, avg)) 
 
 	def check_for_node_work(self, threadpool, name):
 		p = self.workers[name]
@@ -63,7 +71,8 @@ class Pool():
 				# make the folder
 				show = 'ls /home/%s/Work' % h
 				e2 = threadpool.apply_async(func=utils.ssh_exec, args=(show, i,h,p,False)) 
-				result = len(e2.get(timeout=10))
+				result = e2.get(timeout=10)
+				print(result)
 			elif exists == 0:
 				show = 'mkdir /home/%s/Work' % h
 				e2 = threadpool.apply_async(func=utils.ssh_exec, args=(show, i,h,p, False))
@@ -124,3 +133,4 @@ class Pool():
 		self.workers[name]['connected'] = True
 		if self.verbose:
 			print('[!] %s has joined Pool' % name.split('/')[-1].split('.')[0])		
+

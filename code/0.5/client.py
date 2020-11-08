@@ -41,6 +41,8 @@ def initialize_folders():
 		setup_env()
 	if not os.path.isdir(os.getcwd()+'/PoolData/Creds'):
 		os.mkdir(os.getcwd()+'/PoolData/Creds')
+	if not os.path.isdir(os.getcwd()+'/Shares'):
+		os.mkdir(os.getcwd()+'/Shares')
 
 def load_local_vars():
 	hostname = os.getenv('HOSTNAME')
@@ -54,7 +56,7 @@ def load_local_vars():
 	return hostname, ext_ip, int_ip, server
 
 def ping_server(server):
-	ping = utils.cmd('ping -c 1 %s' % server, False)
+	ping = utils.cmd('ping -c 1 %s' % server, True)
 	if 'bytes' in (ping[1].split(' ')):
 		delay = int(ping[1].split(' ')[-2].split('=')[1])
 		print('[*] Can reach Server [%dms ping]' % delay)

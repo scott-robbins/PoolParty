@@ -206,4 +206,3 @@ def put_file(local_file_path, remote_destination, host, ip, passwd, verbose):
 	if verbose and os.path.isfile(local_file_path):
 		print('[*] %d bytes transferred' % os.path.getsize(local_file_path))
 	return reply
-
