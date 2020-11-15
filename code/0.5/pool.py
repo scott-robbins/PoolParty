@@ -38,33 +38,11 @@ class Pool():
 					peer =  self.workers[node_name]
 					if peer['connected']:	# check in on worker
 						# see if they have jobs finished (populates self.task_list)
-						job_names = self.check_for_node_work(threads, node_name)
+						jobs = self.check_for_node_work(threads, node_name)
 						# work on jobs 
-						if len(job_names):
-							print('[*] %d New Job(s) added by %s' % (len(job_names), node_name))
-							# Process node work
-							exes = ['sh', 'bash', 'py', 'class']
-							opco = {'sh': 'sh',
-									'bash': 'bash',
-									'py':	'python',
-									'class': 'java'}
-							for job_title in job_names:
-								fun = job_title.split('.')[0]
-								ext = job_title.split('.')[1]
-								if ext in exes:
-									p = self.workers[node_name]
-									h = self.workers[node_name]['hname']
-									i = self.workers[node_name]['ip']
-									p = self.workers[node_name]['pword']
-									print('[*] Executing %s on peer %s' % (job_title, node_name))
-									# cmd = 'cd /home/%s/Work/;' % h
-									cmd = '%s /home/%s/Work/%s' % (opco[ext], h, job_title)
-									w = threads.apply_async(func=utils.ssh_exec, args=(cmd,i,h,p,True))
-									w_ans = w.get(timeout=5)
-									# Now remove the job
-									rmcmd = 'rm /home/%s/Work/%s' % (h,job_title)
-									w = threads.apply_async(func=utils.ssh_exec, args=(rmcmd,i,h,p,False))
-									w_ans = w.get(timeout=5)
+						if jobs != 0 and len(jobs):
+							print('[*] %d New Job(s) added by %s' % (len(jobs), node_name))
+							results = self.execute_node_work(threads, node_name, jobs)
 
 						# check shared folders for changes
 
@@ -89,6 +67,34 @@ class Pool():
 				avg = float(time.time() - start)/n_cycles
 				print('[%ss Cycle, %d Cycles Run - %fs/cyc. on avg]' % (str(cycle_time), n_cycles, avg)) 
 				# shared_data.distribute()
+
+	def execute_node_work(self,threadpool, node_name, job_names):
+		# Process node work
+		exes = ['sh', 'bash', 'py', 'class']
+		opco = {'sh': 'sh',
+				'bash': 'bash',
+				'py':	'python',
+				'class': 'java'}
+		results = {}
+		for job_title in job_names:
+			fun = job_title.split('.')[0]
+			ext = job_title.split('.')[1]
+			p = self.workers[node_name]
+			h = self.workers[node_name]['hname']
+			i = self.workers[node_name]['ip']
+			p = self.workers[node_name]['pword']
+			print('[*] Executing %s on peer %s' % (job_title, node_name))
+			
+			if ext in exes and ext !='c':
+				cmd = '%s /home/%s/Work/%s' % (opco[ext], h, job_title)
+				w = threadpool.apply_async(func=utils.ssh_exec, args=(cmd,i,h,p,True))
+				results[job_title] = w.get(timeout=5)
+				# Now remove the job
+				rmcmd = 'rm /home/%s/Work/%s' % (h,job_title)
+				w = threadpool.apply_async(func=utils.ssh_exec, args=(rmcmd,i,h,p,False))
+				w.get(timeout=5)
+
+		return results
 
 	def check_for_node_work(self, threadpool, name):
 		p = self.workers[name]
