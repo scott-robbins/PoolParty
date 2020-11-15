@@ -16,9 +16,10 @@ class MasterRecord:
 
 	def __init__(self, nodes):
 		# create some buckets for thoe peers available
-		self.setup(nodes)
+		self.distro = self.setup(nodes)
 		# Look at Shared Folder(s)
-		
+		# self.distribute()
+
 	def setup(self, names):
 		for name in names:
 			self.peers.append(name.split('/')[-1].split('.')[0])
@@ -28,8 +29,10 @@ class MasterRecord:
 			share_distro = {}
 		else:
 			share_distro = self.create_distribution()
-		
+		return share_distro
+
 		# print(share_distro)
+	def distribute(self):
 		# now make sure all remote hosts have share folders for receiving
 		for peer in self.peers:
 			h, i, p, k = utils.load_credentials(peer, False)
@@ -40,15 +43,15 @@ class MasterRecord:
 				# distribute this peers files too
 				# for fs in share_distro[peer]:
 				for fs in os.listdir('PoolData/Shares'):
-					recipient = share_distro[fs]
+					recipient = self.distro[fs]
 					rh, ri, rp, rk = utils.load_credentials(recipient, False)
 					f = 'PoolData/Shares/'+fs
 					rf = '/home/%s/PoolParty/code/0.5/PoolData/Shares/' % rh
-					if utils.remote_file_exists(h, i, p, rf+'/'+fs) == 0:
-						print('Giving %s file: %s' % (recipient, fs))
+					if recipient == peer and utils.remote_file_exists(h, i, p, rf+fs) == 0:
+						# print('Giving %s file: %s' % (recipient, fs))
 						utils.put_file(f,rf,rh,ri,rp,True)
-					else:
-						print('%s has file %s' % (recipient, fs))
+					# else:
+					# 	print('%s has file %s' % (recipient, fs))
 			else:
 				if utils.remote_file_exists(h, i, p, '/home/%s/PoolParty/code/0.5/PoolData' % h) == 0:
 					utils.ssh_exec('mkdir /home/%s/PoolParty/code/0.5/PoolData' % h, i, h, p, False)	

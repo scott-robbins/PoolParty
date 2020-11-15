@@ -25,7 +25,10 @@ class Pool():
 		self.running = True
 		threads = multiprocessing.Pool(12)
 		n_cycles = 0; start = time.time()
-		shared_data = storage.MasterRecord(self.workers.keys())
+		# TODO: This works ok, but it doesnt know when to stop (continually distributes)
+		# shared_data = storage.MasterRecord(self.workers.keys())
+		# shared_data.distribute()
+
 		# Start iteratively running through nodes in pool
 		while self.running:
 			pool_cycle_start = time.time()
@@ -35,8 +38,36 @@ class Pool():
 					peer =  self.workers[node_name]
 					if peer['connected']:	# check in on worker
 						# see if they have jobs finished (populates self.task_list)
-						n_jobs = self.check_for_node_work(threads, node_name)
+						job_names = self.check_for_node_work(threads, node_name)
+						# work on jobs 
+						if len(job_names):
+							print('[*] %d New Job(s) added by %s' % (len(job_names), node_name))
+							# Process node work
+							exes = ['sh', 'bash', 'py', 'class']
+							opco = {'sh': 'sh',
+									'bash': 'bash',
+									'py':	'python',
+									'class': 'java'}
+							for job_title in job_names:
+								fun = job_title.split('.')[0]
+								ext = job_title.split('.')[1]
+								if ext in exes:
+									p = self.workers[node_name]
+									h = self.workers[node_name]['hname']
+									i = self.workers[node_name]['ip']
+									p = self.workers[node_name]['pword']
+									print('[*] Executing %s on peer %s' % (job_title, node_name))
+									# cmd = 'cd /home/%s/Work/;' % h
+									cmd = '%s /home/%s/Work/%s' % (opco[ext], h, job_title)
+									w = threads.apply_async(func=utils.ssh_exec, args=(cmd,i,h,p,True))
+									w_ans = w.get(timeout=5)
+									# Now remove the job
+									rmcmd = 'rm /home/%s/Work/%s' % (h,job_title)
+									w = threads.apply_async(func=utils.ssh_exec, args=(rmcmd,i,h,p,False))
+									w_ans = w.get(timeout=5)
+
 						# check shared folders for changes
+
 			except RuntimeError:
 				# hmm how to handle this correctly???
 				pass
@@ -57,6 +88,7 @@ class Pool():
 			if n_cycles % 3 == 0:
 				avg = float(time.time() - start)/n_cycles
 				print('[%ss Cycle, %d Cycles Run - %fs/cyc. on avg]' % (str(cycle_time), n_cycles, avg)) 
+				# shared_data.distribute()
 
 	def check_for_node_work(self, threadpool, name):
 		p = self.workers[name]
@@ -64,6 +96,7 @@ class Pool():
 		i = self.workers[name]['ip']
 		p = self.workers[name]['pword']
 		loc = '/home/%s/Work/' % h
+		# Check whether NODE has any new files in WORK folder
 		e = threadpool.apply_async(func=utils.remote_file_exists, args=(h,i,p,loc))
 		try:
 			exists = e.get(timeout=5)

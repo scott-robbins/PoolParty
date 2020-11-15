@@ -178,6 +178,8 @@ def main():
 		print('[*] Updating code running on %d nodes' % len(nodes.keys()))
 		update_node_code(nodes, debug)
 
+	# finally, cycle through every node and run some distributed operations
+	# on the machines available as a pool of nodes in a "cluster"
 	try:
 		cluster.run()
 	except KeyboardInterrupt:
