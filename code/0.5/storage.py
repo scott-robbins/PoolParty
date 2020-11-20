@@ -47,8 +47,10 @@ class MasterRecord:
 					rh, ri, rp, rk = utils.load_credentials(recipient, False)
 					f = 'PoolData/Shares/'+fs
 					rf = '/home/%s/PoolParty/code/0.5/PoolData/Shares/' % rh
+					
 					if recipient == peer and utils.remote_file_exists(h, i, p, rf+fs) == 0:
-						# print('Giving %s file: %s' % (recipient, fs))
+						print('Giving %s file: %s' % (recipient, fs))
+						# print(rf+fs)
 						utils.put_file(f,rf,rh,ri,rp,True)
 					# else:
 					# 	print('%s has file %s' % (recipient, fs))

@@ -26,8 +26,8 @@ class Pool():
 		threads = multiprocessing.Pool(12)
 		n_cycles = 0; start = time.time()
 		# TODO: This works ok, but it doesnt know when to stop (continually distributes)
-		# shared_data = storage.MasterRecord(self.workers.keys())
-		# shared_data.distribute()
+		shared_data = storage.MasterRecord(self.workers.keys())
+		shared_data.distribute()
 
 		# Start iteratively running through nodes in pool
 		while self.running:
@@ -45,7 +45,12 @@ class Pool():
 							results = self.execute_node_work(threads, node_name, jobs)
 
 						# check shared folders for changes
-
+						if n_cycles > 1:
+							# This works okay, but adding new files while running will break it
+							# if the file you add has a new name (key will be missing from pool)
+							# so add in a pop/insert mechanism for the file keys!
+							print('\033[1m\033[32mChecking Node Shares\033[0m')
+							shared_data.distribute()
 			except RuntimeError:
 				# hmm how to handle this correctly???
 				pass
