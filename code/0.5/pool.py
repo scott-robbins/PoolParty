@@ -26,9 +26,12 @@ class Pool():
 		threads = multiprocessing.Pool(12)
 		n_cycles = 0; start = time.time()
 		# TODO: This works ok, but it doesnt know when to stop (continually distributes)
-		shared_data = storage.MasterRecord(self.workers.keys())
-		shared_data.distribute()
+		# shared_data = storage.MasterRecord(self.workers.keys())
+		# shared_data.distribute()
 
+		# check whether previously disconnected nodes are now connected
+		self.check_disconnected_nodes(threads, self.verbose)
+		
 		# Start iteratively running through nodes in pool
 		while self.running:
 			pool_cycle_start = time.time()
@@ -50,7 +53,7 @@ class Pool():
 							# if the file you add has a new name (key will be missing from pool)
 							# so add in a pop/insert mechanism for the file keys!
 							print('\033[1m\033[32mChecking Node Shares\033[0m')
-							shared_data.distribute()
+							# shared_data.distribute()
 			except RuntimeError:
 				# hmm how to handle this correctly???
 				pass
@@ -107,6 +110,7 @@ class Pool():
 		i = self.workers[name]['ip']
 		p = self.workers[name]['pword']
 		loc = '/home/%s/Work/' % h
+		result = 0
 		# Check whether NODE has any new files in WORK folder
 		e = threadpool.apply_async(func=utils.remote_file_exists, args=(h,i,p,loc))
 		try:
@@ -153,6 +157,8 @@ class Pool():
 				h = self.workers[node]['hname']
 				i = self.workers[node]['ip']
 				p = self.workers[node]['pword']
+				m = self.workers[node]['mac']
+				print('[!!] checking if %s [%s] might have a new ip...' % (h,m))
 				e = threadpool.apply_async(func=network.check_connected, args=(h,i,p,))
 				try:
 					self.workers[node]['connected'] = e.get(timeout=5)
@@ -164,7 +170,10 @@ class Pool():
 					pass
 				if self.workers[node]['connected']:
 					self.connect_node_to_pool(node)	
-
+				else:
+					# check if mac matches another ip in LAN
+					updated_client_table = network.find_missing_nodes()
+					# TODO: UPDATE THIS CLIENTS NEW IP NOW THAT IT WAS FOUND!
 
 	def disconnect_node_from_pool(self, name):
 		self.workers[name]['connected'] = False

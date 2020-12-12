@@ -155,7 +155,7 @@ def load_credentials(peername, verbose):
 				found = True
 	if not found:
 		print('[!!] Unable to find username %s' % peername)
-		exit()
+		return '','','',''
 
 	cred_file  = os.getcwd()+'/PoolData/Creds/'+peername+'@'+host+'.creds'
 	with open(os.getcwd()+'/PoolData/Creds/%s' % key_name, 'rb') as key_file:
@@ -206,3 +206,29 @@ def put_file(local_file_path, remote_destination, host, ip, passwd, verbose):
 	if verbose and os.path.isfile(local_file_path):
 		print('[*] %d bytes transferred' % os.path.getsize(local_file_path))
 	return reply
+
+def get_node_list():
+	names = []
+	for i in os.listdir(os.getcwd()+'/PoolData/Creds'):
+		names.append(i.split('/')[-1].split('.')[0].split('@')[0])
+	return list(set(names))
+
+def check_node_reachable(ip):
+	c = 'ping -c 2 %s >> /dev/null; echo $?' % ip
+	connected = False
+	try:
+		status = int(cmd(c,False).pop())
+	except:
+		pass
+	if status == 0:
+		connected = True
+	return status
+
+def get_fresh_macs():
+	data = []
+	os.system("nmap -T5 192.168.0/24")
+	for line in cmd('arp -a',False):
+		ip = line.split(')')[0].split('(')[1]
+		mac = line.split(' at ')[1].split(' ')[0]
+		data.append([ip, mac])
+	return data 

@@ -58,8 +58,8 @@ def load_local_vars():
 def ping_server(server):
 	ping = utils.cmd('ping -c 1 %s' % server, False)
 	if 'bytes' in (ping[1].split(' ')):
-		delay = int(ping[1].split(' ')[-2].split('=')[1])
-		print('[*] Can reach Server [%dms ping]' % delay)
+		delay = float(ping[1].split(' ')[-2].split('=')[1])
+		print('[*] Can reach Server [%fms ping]' % delay)
 	else:
 		delay = -1
 	return delay
