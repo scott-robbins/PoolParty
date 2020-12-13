@@ -103,6 +103,21 @@ def getenv(field):
 		print('%s Was NOT Found' % field)
 	return result
 
+def create_timestamp():
+    date = time.localtime(time.time())
+    mo = str(date.tm_mon)
+    day = str(date.tm_mday)
+    yr = str(date.tm_year)
+
+    hr = str(date.tm_hour)
+    min = str(date.tm_min)
+    sec = str(date.tm_sec)
+
+    date = mo + '/' + day + '/' + yr
+    timestamp = hr + ':' + min + ':' + sec
+    return date, timestamp
+
+
 def create_password():
 	matched = False
 	password = ''
@@ -181,3 +196,10 @@ def load_credentials(peername, verbose):
 	macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
 	return hostname, ip_addr, password, macaddr
 
+def kill_process(pname):
+	h = cmd('hostname',False).pop()
+	c = "ps aux | grep %s" % pname
+	for line in cmd(c,False):
+		row = line.split(h)[1].split(' ')
+		pid = int(filter(len, row).pop(0))
+		os.system('sudo kill -9 %s >> /dev/null' % pid)
