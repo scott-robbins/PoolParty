@@ -46,7 +46,7 @@ class Backend():
 				# Wait for incoming requests 
 				client, caddr = self.serve.accept()
 				# handle incoming request
-				event = handler.apply_async(self.client_handler, (client, caddr,))
+				event = handler.apply_async(func=client_handler, args=(client, caddr,))
 				status = event.get(timeout=10)
 		except KeyboardInterrupt:
 			self.RUNNING = False
@@ -55,30 +55,7 @@ class Backend():
 		# Shutdown the server
 		return self.shutdown()
 
-	def client_handler(self, s, info):
-		result = ''; unhandled = True
-		try:
-			while unhandled:
-				# get the api request
-				raw_req = s.recv(2048)
-				# check for valid request
-				if len(raw_req.split(' :::: '))<2:
-					s.send('[!!] Invalid API Request')
-					unhandled = False
-				# parse the request 
-				api_fcn = raw_req.split(' :::: ')[0]
-				api_var = raw_req.split(' :::: ')[1]
-				if api_fcn in self.actions.keys():
-					result = self.actions[api_fcn](s, info, api_var)
-					unhandled = False
-				else:
-					s.send('[!!] Invalid API Request')
-					unhandled = False
-			# when finished close the socket
-			s.close()
-		except socket.error as e:
-			pass
-		return result
+	
 
 	def uptime(self, csock, caddr, api_req):
 		up = time.time - self.start_time
@@ -94,6 +71,32 @@ class Backend():
 			pass
 		print('[*] %s - %s: Shutting Down Server [Uptime: %ds]' %(ldate, ltime))
 		return uptime
+
+def client_handler(s, info):
+	result = ''; unhandled = True
+	try:
+		while unhandled:
+			# get the api request
+			raw_req = s.recv(2048)
+			# check for valid request
+			if len(raw_req.split(' :::: '))<2:
+				s.send('[!!] Invalid API Request')
+				unhandled = False
+			# parse the request 
+			api_fcn = raw_req.split(' :::: ')[0]
+			api_var = raw_req.split(' :::: ')[1]
+			if api_fcn in self.actions.keys():
+				result = self.actions[api_fcn](s, info, api_var)
+				unhandled = False
+			else:
+				s.send('[!!] Invalid API Request')
+				unhandled = False
+		result = s.recv(2048)
+		# when finished close the socket
+		s.close()
+	except socket.error as e:
+		pass
+	return result
 
 
 def main():

@@ -14,6 +14,7 @@ def main():
 		s.connect((rmt, 54123))
 		s.send(('UPTIME :::: Test?'))
 		print(s.recv(2048))
+		print(s.send('Thanks! :D'))
 		s.close()
 
 
