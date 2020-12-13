@@ -33,12 +33,20 @@ class Backend():
 		# Define Server Actions 
 		self.actions = {'UPTIME': self.uptime,
 						'PEERS': self.query_peerlist}
-
 		# Start Background Tasks
 		# Create Listener 
 		print('\033[1m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
 		# Start listening for API Requests
 		self.run()
+
+	def setup_folders(self):
+		if not os.path.isdir(os.getcwd()+'/.PoolData'):
+			os.mkdir('.PoolData')
+		if not os.path.idir(os.getcwd()+'/.PoolData/Shares'):
+			os.mkdir('.PoolData/Shares')
+		if not os.path.idir(os.getcwd()+'/.PoolData/Work'):
+			os.mkdir('.PoolData/Work')
+
 
 	def run(self):
 		self.start = time.time()
@@ -97,6 +105,13 @@ class Backend():
 		msg += utils.arr2str(self.peers)
 		csock.send(msg)
 		return csock
+
+	def query_nshares(self. csock, caddr, api_req):
+		n_files = len(os.listdir(os.getcwd()+'/.PoolData/Shares'))
+		msg = '[*] %d shares available' % n_files
+		csock.send(msg)
+		return csock
+
 
 	def shutdown(self):
 		ldate, ltime = utils.create_time_stamp()
