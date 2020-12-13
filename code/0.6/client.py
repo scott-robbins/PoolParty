@@ -17,7 +17,7 @@ def main():
 		print(s.send('Thanks! :D'))
 		s.close()
 
-	if '-test' in sys.argv and len(sys.arv) > 3:
+	if '-test' in sys.argv and len(sys.argv) > 3:
 		api_fcn = sys.argv[2]
 		rmt = sys.argv[3]
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
