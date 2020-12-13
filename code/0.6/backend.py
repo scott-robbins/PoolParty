@@ -29,6 +29,7 @@ class Backend():
 		self.actions = {'UPTIME': self.uptime,
 						'PEERS': self.query_peerlist,
 						'SHARES': self.query_shares,
+						'FILE?': self.query_file,
 						'NSHARES': self.query_nshares,
 						}
 		# Start Background Tasks
@@ -128,6 +129,22 @@ class Backend():
 		msg = 'Shared Files on %s@%s:\n' % (self.info['host'], self.info['internal'])
 		msg += utils.arr2str(file_list)
 		csock.send(msg)
+		return csock
+
+	def query_file(self, csock, caddr, api_req):
+		if len(api_req.split('?')) > 1:
+			file_name = api_req.split('?')[0]
+			req = api_req.split('?')[1]
+		# make sure file exists
+		try:
+			if req == 'SIZE':
+				sz = os.path.getsize(os.getcwd()+'/.PoolData/Shares/%s' % file_name)
+				csock.send('%s is %d bytes' % (file_name, sz))
+			if req == 'DATA':
+				csock.send(open(os.getcwd()+'/.PoolData/Shares/%s' % file_name,'rb').read())
+		except OSError:
+			csock.send('Sorry, something went wrong handling <%s>' % api_req)
+
 		return csock
 
 

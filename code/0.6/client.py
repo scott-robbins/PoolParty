@@ -26,6 +26,16 @@ def main():
 		print(s.recv(2048))
 		s.close()
 
+	if '-file' in sys.argv and len(sys.argv) > 4:
+		fname = sys.argv[2]
+		flag = sys.argv[3]
+		rmt = sys.argv[4]
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((rmt, 54123))
+		s.send(('FILE? :::: %s?%s' % (fname,flag)))
+		print(s.recv(2048))
+		s.close()
+
 
 if __name__ == '__main__':
 	main()
