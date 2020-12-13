@@ -10,7 +10,7 @@ import socket
 import time
 import sys 
 import os
-                                       # SUPRESSING PARAMIKO WARNINGS!
+							# SUPRESSING PARAMIKO WARNINGS!
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
 lowers = ['a','b','c','d','e','f','g','h','i','j',
@@ -91,7 +91,18 @@ def get_internal_addr():
 def ssh_exec(c, ip_address, uname, password, verbose):
 	comm = 'sshpass -p "%s" ssh %s@%s %s' % (password, uname, ip_address, c)
 	return cmd(comm, verbose)
-	
+
+def getenv(field):
+	result = ''; found = False
+	for line in swap(os.getcwd()+'/.env',False):
+		if len(line.split(field)) > 1:
+			result = line.split('=')[1]
+			found = True
+			break
+	if not found:
+		print('%s Was NOT Found' % field)
+	return result
+
 def create_password():
 	matched = False
 	password = ''
@@ -141,20 +152,20 @@ def load_credentials(peername, verbose):
 	found = False
 	key_name = peername+'.pem'
 	if not os.path.isdir(os.getcwd()+'/PoolData/Creds'):
-		print('[!!] Missing Credential Folder')
+		print('\033[1m\033[31m[!!] Missing Credential Folder\033[0m')
 	if not os.path.isfile(os.getcwd()+'/PoolData/Creds/%s' % key_name):
-		print('[!!] Credentials not found')
+		print('\033[1m\033[31m[!!] Credentials not found\033[0m')
 	
 	for name in os.listdir('PoolData/Creds'):
 		if len(name.split('@'))==2:
 			if peername == name.split('@')[0]:
 				if verbose:
-					print('[*] Found Credentials for %s' % peername)
+					print('\033[1m\033[32m[*] Found Credentials for %s\033[0m' % peername)
 				
 				host = name.split('@')[1].split('.creds')[0]
 				found = True
 	if not found:
-		print('[!!] Unable to find username %s' % peername)
+		print('\033[1m\033[31m[!!] Unable to find username %s\033[0m' % peername)
 		return '','','',''
 
 	cred_file  = os.getcwd()+'/PoolData/Creds/'+peername+'@'+host+'.creds'
@@ -170,65 +181,3 @@ def load_credentials(peername, verbose):
 	macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
 	return hostname, ip_addr, password, macaddr
 
-def create_tcp_listener(port):
-	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	except socket.error:
-		pass
-		print('[!!] Unable to create socket on 0.0.0.0:%d' % port)
-		return []
-	try:
-		s.bind(('0.0.0.0', port))
-		s.listen(5)
-	except socket.error:
-		pass
-		print('[!!] Connection Broken on 0.0.0.0:%d' % port)
-		return []
-	# Return the listening server socket on designated port
-	return s
-
-def remote_file_exists(host, ip , passwd, path_to_file):
-	c = '[ ! -e %s ]; echo $?' % path_to_file
-	return int(ssh_exec(c, ip, host, passwd, False).pop())
-
-def get_file(remote_file_path, host, ip, passwd, verbose):
-	c = 'sshpass -p "%s" sftp %s@%s:%s' % (passwd, host, ip, remote_file_path)
-	local_copy = remote_file_path.split('/')[-1]
-	reply = cmd(c, verbose)
-	if verbose and os.path.isfile(local_copy):
-		print('[*] %d bytes transferred' % os.path.getsize(local_copy))
-	return reply
-
-def put_file(local_file_path, remote_destination, host, ip, passwd, verbose):
-	c = 'sshpass -p "%s" sftp %s@%s:%s <<< $'% (passwd, host, ip,remote_destination)
-	c += "'put %s'" % local_file_path
-	reply = cmd(c, False)
-	if verbose and os.path.isfile(local_file_path):
-		print('[*] %d bytes transferred' % os.path.getsize(local_file_path))
-	return reply
-
-def get_node_list():
-	names = []
-	for i in os.listdir(os.getcwd()+'/PoolData/Creds'):
-		names.append(i.split('/')[-1].split('.')[0].split('@')[0])
-	return list(set(names))
-
-def check_node_reachable(ip):
-	c = 'ping -c 2 %s >> /dev/null; echo $?' % ip
-	connected = False
-	try:
-		status = int(cmd(c,False).pop())
-	except:
-		pass
-	if status == 0:
-		connected = True
-	return status
-
-def get_fresh_macs():
-	data = []
-	os.system("nmap -T5 192.168.0/24")
-	for line in cmd('arp -a',False):
-		ip = line.split(')')[0].split('(')[1]
-		mac = line.split(' at ')[1].split(' ')[0]
-		data.append([ip, mac])
-	return data 

@@ -1,15 +1,9 @@
 import utils
 import os 
-try:
-	from dotenv import load_dotenv
-	load_dotenv()
-	NO_DOT = False
-except ImportError:
-	NO_DOT = True
-	pass
+
 
 def autodiscover_local():
-	internal_addr = os.getenv('INTERNAL_IP1')
+	internal_addr = utils.getenv('INTERNAL_IP1')
 	subnet = '.'.join(internal_addr.split('.')[0:-1])+'.0/24'
 	cmd = 'sudo nmap -T5 -p 22 %s' % subnet
 	reporting_on = ''; current_mac = '' 
@@ -88,12 +82,12 @@ def find_missing_nodes():
 
 	return corrected
 
+def ping_server(server):
+	ping = utils.cmd('ping -c 1 %s' % server, False)
+	if 'bytes' in (ping[1].split(' ')):
+		delay = float(ping[1].split(' ')[-2].split('=')[1])
+		print('[*] Can reach Server [%fms ping]' % delay)
+	else:
+		delay = -1
+	return delay
 
-
-
-def main():
-	# Seek Potential Peers
-	potential_peers = autodiscover_local()
-
-if __name__ == '__main__':
-	main()
