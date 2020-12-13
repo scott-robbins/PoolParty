@@ -1,6 +1,7 @@
-import multiprocessing
+from threading import Thread
 import network
 import random
+import socket
 import setup
 import utils
 import time
@@ -39,15 +40,14 @@ class Backend():
 
 	def run(self):
 		self.start = time.time()
-		handler = multiprocessing.Pool(5) # 5 thread handler should be plenty
 		self.serve = utils.create_tcp_listener(self.INBOUND)
 		try:
 			while self.RUNNING:
 				# Wait for incoming requests 
 				client, caddr = self.serve.accept()
 				# handle incoming request
-				event = handler.apply_async(func=client_handler, args=(client, caddr,))
-				status = event.get(timeout=10)
+				status = self.client_handler( client, caddr)
+				
 		except KeyboardInterrupt:
 			self.RUNNING = False
 			pass
@@ -55,12 +55,38 @@ class Backend():
 		# Shutdown the server
 		return self.shutdown()
 
-	
+	def client_handler(self,s, info):
+		result = ''; unhandled = True
+		try:
+			while unhandled:
+				# get the api request
+				raw_req = s.recv(2048)
+				# check for valid request
+				if len(raw_req.split(' :::: '))<2:
+					s.send('[!!] Invalid API Request')
+					unhandled = False
+				# parse the request 
+				api_fcn = raw_req.split(' :::: ')[0]
+				api_var = raw_req.split(' :::: ')[1]
+				if api_fcn in self.actions.keys():
+					print('[*] %s is making a %s request' % (info[0], api_fcn))
+					s = self.actions[api_fcn](s, info, api_var)
+					unhandled = False
+				else:
+					s.send('[!!] Invalid API Request')
+					unhandled = False
+			result = s.recv(2048)
+			# when finished close the socket
+			s.close()
+		except socket.error as e:
+			pass
+		return result
 
 	def uptime(self, csock, caddr, api_req):
-		up = time.time - self.start_time
+		up = time.time() - self.start
 		msg = 'Starting at %s - %s, uptime is %d seconds.' % (self.start_date,self.start_time,up)
-		s.send(msg)
+		csock.send(msg)
+		return csock
 
 	def shutdown(self):
 		ldate, ltime = utils.create_time_stamp()
@@ -72,31 +98,7 @@ class Backend():
 		print('[*] %s - %s: Shutting Down Server [Uptime: %ds]' %(ldate, ltime))
 		return uptime
 
-def client_handler(s, info):
-	result = ''; unhandled = True
-	try:
-		while unhandled:
-			# get the api request
-			raw_req = s.recv(2048)
-			# check for valid request
-			if len(raw_req.split(' :::: '))<2:
-				s.send('[!!] Invalid API Request')
-				unhandled = False
-			# parse the request 
-			api_fcn = raw_req.split(' :::: ')[0]
-			api_var = raw_req.split(' :::: ')[1]
-			if api_fcn in self.actions.keys():
-				result = self.actions[api_fcn](s, info, api_var)
-				unhandled = False
-			else:
-				s.send('[!!] Invalid API Request')
-				unhandled = False
-		result = s.recv(2048)
-		# when finished close the socket
-		s.close()
-	except socket.error as e:
-		pass
-	return result
+
 
 
 def main():
