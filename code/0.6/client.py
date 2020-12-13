@@ -17,6 +17,15 @@ def main():
 		print(s.send('Thanks! :D'))
 		s.close()
 
+	if '-test' in sys.argv and len(sys.arv) > 2:
+		api_fcn = sys.argv[1]
+		rmt = sys.argv[2]
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((rmt, 54123))
+		s.send(('%s :::: Test?' % api_fcn))
+		print(s.recv(2048))
+		s.close()
+
 
 if __name__ == '__main__':
 	main()

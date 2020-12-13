@@ -15,7 +15,7 @@ class Backend():
 	start_date = ''
 	start_time = ''
 	start  = 0.0
-	peers = {}
+	peers = []
 	info = {}
 	actions = {}
 
@@ -31,7 +31,9 @@ class Backend():
 		# Setup Folders/Files 
 		self.serve = []
 		# Define Server Actions 
-		self.actions = {'UPTIME': self.uptime}
+		self.actions = {'UPTIME': self.uptime,
+						'PEERS': self.query_peerlist}
+
 		# Start Background Tasks
 		# Create Listener 
 		print('\033[1m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
@@ -45,6 +47,8 @@ class Backend():
 			while self.RUNNING:
 				# Wait for incoming requests 
 				client, caddr = self.serve.accept()
+				if caddr[0] not in self.peers:
+					self.peers.append(caddr[0])
 				# handle incoming request
 				status = self.client_handler( client, caddr)
 				
@@ -85,6 +89,12 @@ class Backend():
 	def uptime(self, csock, caddr, api_req):
 		up = time.time() - self.start
 		msg = 'Starting at %s - %s, uptime is %d seconds.' % (self.start_date,self.start_time,up)
+		csock.send(msg)
+		return csock
+
+	def query_peerlist(self,csock,caddr,api_req):
+		msg = 'Peer List:\n'
+		msg += utils.arr2str(self.peers)
 		csock.send(msg)
 		return csock
 
