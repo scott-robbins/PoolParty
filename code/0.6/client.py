@@ -1,3 +1,4 @@
+import multiprocessing
 import network
 import base64
 import socket
@@ -7,35 +8,51 @@ import sys
 import os 
 
 
+def count_connected(pdict):
+	c = 0
+	for pn in pdict.keys():
+		if pdict[pn]['connected']:
+			c += 1
+	return c
+
+
+def cmd_all(peers, cmd):
+	replies = {}
+	for p in peers.keys():
+		ip = peers[p]['ip']
+		mac = peers[p]['mac']
+		hname = peers[p]['hname']
+		pword = peers[p]['pword']
+		connected = peers[p]['connected']
+		replies[p] = utils.ssh_exec(cmd, ip,hname, pword, True)
+	return replies
+
+def update_all(peers):
+	results = {}
+	for p in peers.keys():
+		ip = peers[p]['ip']
+		mac = peers[p]['mac']
+		hname = peers[p]['hname']
+		pword = peers[p]['pword']
+		connected = peers[p]['connected']
+		update = 'cd /home/%s/Documents/PoolParty/; git pull origin master' % hname
+		results[p] = utils.ssh_exec(update, ip, hname, pword, True)
+	return results
+
+
 def main():
-	if '-test' not in sys.argv and 3 >len(sys.argv) > 1:
-		rmt = sys.argv[1]
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((rmt, 54123))
-		s.send(('UPTIME :::: Test?'))
-		print(s.recv(2048))
-		print(s.send('Thanks! :D'))
-		s.close()
+	if os.path.isfile('.env'):
+		h,e,i,s = setup.load_local_vars()
 
-	if '-test' in sys.argv and len(sys.argv) > 3:
-		api_fcn = sys.argv[2]
-		rmt = sys.argv[3]
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((rmt, 54123))
-		s.send(('%s :::: Test?' % api_fcn))
-		print(s.recv(2048))
-		s.close()
+	peers = setup.test_connections(True)
+	print('[*] %d Peers Connected' % count_connected(peers))
 
-	if '-file' in sys.argv and len(sys.argv) > 4:
-		fname = sys.argv[2]
-		flag = sys.argv[3]
-		rmt = sys.argv[4]
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((rmt, 54123))
-		s.send(('FILE? :::: %s?%s' % (fname,flag)))
-		print(s.recv(2048))
-		s.close()
 
+	if '--cmd-all' in sys.argv:
+		replies = cmd_all(peers, utils.arr2chr(sys.argv[2:]))
+
+	if '--update' in sys.argv:
+		update_all(peers)
 
 if __name__ == '__main__':
 	main()
