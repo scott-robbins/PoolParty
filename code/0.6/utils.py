@@ -203,3 +203,15 @@ def kill_process(pname):
 		row = line.split(h)[1].split(' ')
 		pid = int(filter(len, row).pop(0))
 		os.system('sudo kill -9 %s >> /dev/null' % pid)
+
+def create_tcp_listener(port):
+	s = []
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		s.bind(('0.0.0.0', port))
+		s.listen(5)
+	except socket.error:
+		print('[!!] Unable to Create Socket')
+		pass
+	return s
