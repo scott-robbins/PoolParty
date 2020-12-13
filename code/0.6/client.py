@@ -8,7 +8,7 @@ import os
 
 
 def main():
-	if len(sys.argv) > 1:
+	if '-test' not in sys.argv and 3 >len(sys.argv) > 1:
 		rmt = sys.argv[1]
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((rmt, 54123))
