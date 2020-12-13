@@ -29,10 +29,12 @@ class Backend():
 		self.RUNNING = True
 		self.start_date, self.start_time = utils.create_timestamp()
 		# Setup Folders/Files 
+		self.setup_folders()
 		self.serve = []
 		# Define Server Actions 
 		self.actions = {'UPTIME': self.uptime,
-						'PEERS': self.query_peerlist}
+						'PEERS': self.query_peerlist,
+						'NSHARES': self.query_nshares}
 		# Start Background Tasks
 		# Create Listener 
 		print('\033[1m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
@@ -42,9 +44,9 @@ class Backend():
 	def setup_folders(self):
 		if not os.path.isdir(os.getcwd()+'/.PoolData'):
 			os.mkdir('.PoolData')
-		if not os.path.idir(os.getcwd()+'/.PoolData/Shares'):
+		if not os.path.isdir(os.getcwd()+'/.PoolData/Shares'):
 			os.mkdir('.PoolData/Shares')
-		if not os.path.idir(os.getcwd()+'/.PoolData/Work'):
+		if not os.path.isdir(os.getcwd()+'/.PoolData/Work'):
 			os.mkdir('.PoolData/Work')
 
 
@@ -106,7 +108,7 @@ class Backend():
 		csock.send(msg)
 		return csock
 
-	def query_nshares(self. csock, caddr, api_req):
+	def query_nshares(self, csock, caddr, api_req):
 		n_files = len(os.listdir(os.getcwd()+'/.PoolData/Shares'))
 		msg = '[*] %d shares available' % n_files
 		csock.send(msg)
@@ -114,7 +116,7 @@ class Backend():
 
 
 	def shutdown(self):
-		ldate, ltime = utils.create_time_stamp()
+		ldate, ltime = utils.create_timestamp()
 		uptime = time.time() - self.start
 		try:
 			self.serve.close()
