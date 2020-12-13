@@ -21,6 +21,23 @@ class Backend():
 
 	def __init__(self):
 		# Load Local Variables 
+		self.initialize()
+		# Setup Folders/Files 
+		self.setup_folders()
+		self.serve = []
+		# Define Server Actions 
+		self.actions = {'UPTIME': self.uptime,
+						'PEERS': self.query_peerlist,
+						'SHARES': self.query_shares,
+						'NSHARES': self.query_nshares,
+						}
+		# Start Background Tasks
+		# Create Listener 
+		print('\033[1m\033[33m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
+		# Start listening for API Requests
+		self.run()
+
+	def initialize(self):
 		h,e,i,s = setup.load_local_vars()
 		self.info['host'] 		= h
 		self.info['external'] 	= e
@@ -28,18 +45,6 @@ class Backend():
 		self.info['server']		= s
 		self.RUNNING = True
 		self.start_date, self.start_time = utils.create_timestamp()
-		# Setup Folders/Files 
-		self.setup_folders()
-		self.serve = []
-		# Define Server Actions 
-		self.actions = {'UPTIME': self.uptime,
-						'PEERS': self.query_peerlist,
-						'NSHARES': self.query_nshares}
-		# Start Background Tasks
-		# Create Listener 
-		print('\033[1m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
-		# Start listening for API Requests
-		self.run()
 
 	def setup_folders(self):
 		if not os.path.isdir(os.getcwd()+'/.PoolData'):
@@ -82,14 +87,18 @@ class Backend():
 				# parse the request 
 				api_fcn = raw_req.split(' :::: ')[0]
 				api_var = raw_req.split(' :::: ')[1]
+				# handle the request
 				if api_fcn in self.actions.keys():
-					print('[*] %s is making a %s request' % (info[0], api_fcn))
+					log = '\033[1m\033[35m[*]\033[0m\033[1m' 
+					log += '\033[36m %s \033[0m\033[1m\033[35mis making ' % (info[0])
+					log += '\033[37m%s \033[0m\033[1m\033[35mrequest\033[0m' % api_fcn
+					print(log)
 					s = self.actions[api_fcn](s, info, api_var)
 					unhandled = False
 				else:
-					s.send('[!!] Invalid API Request')
+					s.send('\033[31m\033[1m[!!] Invalid API Request\033[0m')
 					unhandled = False
-			result = s.recv(2048)
+
 			# when finished close the socket
 			s.close()
 		except socket.error as e:
@@ -114,6 +123,13 @@ class Backend():
 		csock.send(msg)
 		return csock
 
+	def query_shares(self, csock, caddr, api_req):
+		file_list = os.listdir(os.getcwd()+'/.PoolData/Shares')
+		msg = 'Shared Files on %s@%s:\n' % (self.info['host'], self.info['internal'])
+		msg += utils.arr2str(file_list)
+		csock.send(msg)
+		return csock
+
 
 	def shutdown(self):
 		ldate, ltime = utils.create_timestamp()
@@ -122,7 +138,7 @@ class Backend():
 			self.serve.close()
 		except socket.error:
 			pass
-		print('[*] %s - %s: Shutting Down Server [Uptime: %ds]' %(ldate, ltime))
+		print('\033[1m\033[31m\n[*] %s - %s: Shutting Down Server [Uptime: %fs]\033[0m' %(ldate, ltime, uptime))
 		return uptime
 
 
