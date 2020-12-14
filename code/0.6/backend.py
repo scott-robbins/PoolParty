@@ -139,7 +139,8 @@ class Backend():
 		try:
 			if req == 'SIZE':
 				sz = os.path.getsize(os.getcwd()+'/.PoolData/Shares/%s' % file_name)
-				csock.send('%s is %d bytes' % (file_name, sz))
+				reply = '%s is %d bytes, and was last modified %s'
+				csock.send(reply % (file_name, sz, utils.cmd('date -r '+os.getcwd()+'/.PoolData/Shares/%s' % file_name)))
 			if req == 'DATA':
 				csock.send(open(os.getcwd()+'/.PoolData/Shares/%s' % file_name,'rb').read())
 		except OSError:

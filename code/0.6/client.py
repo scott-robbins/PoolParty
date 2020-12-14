@@ -15,7 +15,6 @@ def count_connected(pdict):
 			c += 1
 	return c
 
-
 def cmd_all(peers, cmd):
 	replies = {}
 	for p in peers.keys():
@@ -35,9 +34,68 @@ def update_all(peers):
 		hname = peers[p]['hname']
 		pword = peers[p]['pword']
 		connected = peers[p]['connected']
-		update = 'cd /home/%s/Documents/PoolParty/; git pull origin master' % hname
+		update = 'cd /home/%s/Documents/PoolParty/; git pull origin ' % hname
 		results[p] = utils.ssh_exec(update, ip, hname, pword, True)
 	return results
+
+def dump_peers(node, peers):
+	result = ''
+	ip,m,hname,connected = get_creds(node, peers)
+	if connected:
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.connect((ip, 54123))
+			s.send(('PEERS :::: Dump!'))
+			result = s.recv(65535)
+			s.close()
+		except socket.error:
+			print('[!!] Connection Error')
+			return ''
+	else:
+		print('[!!} Peer %s is not online' % node)
+		return ''
+	return result
+
+def dump_shares(node, peers):
+	result = ''
+	ip,m,hname,connected = get_creds(node, peers)
+	if connected:
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.connect((ip, 54123))
+			s.send(('SHARES :::: Dump!'))
+			result = s.recv(65535)
+			s.close()
+		except socket.error:
+			print('[!!] Connection Error')
+			return ''
+	else:
+		print('[!!} Peer %s is not online' % node)
+		return ''
+	return result	
+
+def get_creds(n,pool):
+	# maybe be able to handle ip or a hostname
+	if node in peers.keys():
+		p = peers[node]
+	else:
+		found = False
+		for n in peers.keys():
+			# print(peers[n])
+			if node in peers[n].values():
+				found = True
+				p = peers[n]
+				break
+		if not found:
+			print('[!!] cannot find %s' % node)
+			return ''
+	
+	ip = p['ip']
+	mac = p['mac']
+	hname = p['hname']
+	pword = p['pword']
+	connected = p['connected']
+	return ip, mac, hname, pword, connected
 
 
 def main():
@@ -50,9 +108,19 @@ def main():
 
 	if '--cmd-all' in sys.argv:
 		replies = cmd_all(peers, utils.arr2chr(sys.argv[2:]))
+		exit()
 
 	if '--update' in sys.argv:
 		update_all(peers)
+		exit()
+
+	if '--check-peers' in sys.argv and len(sys.argv) > 1:
+		print(dump_peers(sys.argv[2], peers))
+
+	if '--check-shares' in sys.argv and len(sys.argv) > 2:
+
+
+
 
 if __name__ == '__main__':
 	main()
