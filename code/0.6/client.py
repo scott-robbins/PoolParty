@@ -34,7 +34,7 @@ def update_all(peers):
 		hname = peers[p]['hname']
 		pword = peers[p]['pword']
 		connected = peers[p]['connected']
-		update = 'cd /home/%s/Documents/PoolParty/; git pull origin ' % hname
+		update = 'cd /home/%s/Documents/PoolParty/code; bash update.sh' % hname
 		results[p] = utils.ssh_exec(update, ip, hname, pword, True)
 	return results
 
@@ -118,7 +118,7 @@ def main():
 		print(dump_peers(sys.argv[2], peers))
 
 	if '--check-shares' in sys.argv and len(sys.argv) > 2:
-
+		print(dump_shares(sys.argv[2], peers))
 
 
 
