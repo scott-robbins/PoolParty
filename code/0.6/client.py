@@ -34,7 +34,7 @@ def update_all(peers):
 		hname = peers[p]['hname']
 		pword = peers[p]['pword']
 		connected = peers[p]['connected']
-		update = 'cd /home/%s/Documents/PoolParty/code; bash update.sh' % hname
+		update = 'cd Documents/PoolParty/code; bash update.sh'
 		results[p] = utils.ssh_exec(update, ip, hname, pword, True)
 	return results
 
