@@ -31,7 +31,7 @@ class Backend():
 						'SHARES': self.query_shares,
 						'FILE?': self.query_file,
 						'NSHARES': self.query_nshares,
-						}
+						'CODEUPDATE': self.update_code}
 		# Start Background Tasks
 		# Create Listener 
 		print('\033[1m\033[33m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
@@ -146,6 +146,11 @@ class Backend():
 		except OSError:
 			csock.send('Sorry, something went wrong handling <%s>' % api_req)
 
+		return csock
+
+	def update_code(self, csock,caddr, api_req):
+		update_cmd = 'cd ..; bash update.sh'
+		os.system(update_cmd)
 		return csock
 
 
