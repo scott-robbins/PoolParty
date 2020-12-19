@@ -169,7 +169,7 @@ class Backend():
 		op_cmd = api_req[0].split(' :::: ')[1]
 		
 		try:
-			payload = utils.arr2char(api_req[0].split(op_cmd)[1:])
+			payload = utils.arr2chr(api_req[0].split(op_cmd)[1:])
 		except IndexError:
 			payload = ''
 			pass
