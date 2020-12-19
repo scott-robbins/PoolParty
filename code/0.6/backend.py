@@ -180,7 +180,7 @@ class Backend():
 			# print('Executing %s%s' % (op_cmd, payload))
 			if op_cmd == 'bash':
 				c = 'bash %s' % payload
-				print('Executing:%s\n$%s' % (c))
+				print('Executing:\n$%s' % c)
 				os.system(c)
 				csock.send(result)
 		else:
