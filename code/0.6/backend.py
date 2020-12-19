@@ -90,7 +90,7 @@ class Backend():
 				# parse the request 
 				api_fcn = raw_req.split(' :::: ')[0]
 				try:
-					api_var = raw_req.split(api_fcn)[1:]
+					api_var = raw_req.split(api_fcn)[1]
 				except IndexError:
 					print('Unparsable request: %s' % raw_req)
 					unhandled = False
@@ -144,7 +144,7 @@ class Backend():
 		return csock
 
 	def query_file(self, csock, caddr, api_req):
-		api_req = api_req.pop()
+		api_req = api_req.pop().split(' :::: ')
 		print(api_req)
 		if len(api_req.split('?')) > 1:
 			file_name = api_req.split('?')[0]

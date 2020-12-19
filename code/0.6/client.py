@@ -218,8 +218,8 @@ def main():
 		used = True
 		print(reply)
 
-	if '--file-op' in sys.argv and len(sys.argv) > 3:
-		result = query_file(sys.argv[1], peers, sys.argv[2], sys.argv[3])
+	if '--file-op' in sys.argv and len(sys.argv) > 4:
+		result = query_file(sys.argv[1], peers, sys.argv[3], sys.argv[4])
 		used = True
 		print(result)
 
