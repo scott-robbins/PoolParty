@@ -145,6 +145,7 @@ class Backend():
 
 	def query_file(self, csock, caddr, api_req):
 		api_req = api_req.pop()
+		print(api_req)
 		if len(api_req.split('?')) > 1:
 			file_name = api_req.split('?')[0]
 			req = api_req.split('?')[1]
