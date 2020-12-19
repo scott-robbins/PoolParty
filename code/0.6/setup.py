@@ -6,6 +6,7 @@ import time
 import sys 
 import os
 
+PYVER = int(sys.version.split(' ')[0].split('.')[0])
 
 def create_env():
 	if os.path.isfile(os.getcwd()+'.env'):
@@ -24,7 +25,10 @@ def create_env():
 	for addr in intip:
 		env_data += ('INTERNAL_IP%d=%s\n' % (i+1,intip[0]))
 		i += 1
-	opt = str(raw_input('Enter Server IP: '))
+	if PYVER == 2:
+		opt = str(raw_input('Enter Server IP: '))
+	elif PYVER == 3:
+		opt = str(input('Enter Server IP: '))
 	env_data += ('CENTRAL_SERVER=%s\n' % opt)
 	open('.env','wb').write(env_data)
 
@@ -53,8 +57,12 @@ def load_local_vars():
 
 def register_commandline(ip, mac):
 	msg = 'That Peername is already taken, please choose another. (Enter N to exit)'
-	pname = raw_input('Enter Peer Name: ') # should these be unique? 
-	hname = raw_input('Enter Hostname: ')
+	if PYVER == 2:
+		pname = raw_input('Enter Peer Name: ') # should these be unique? 
+		hname = raw_input('Enter Hostname: ')
+	elif PYVER == 3:
+		pname = input('Enter Peer Name: ') # should these be unique? 
+		hname = input('Enter Hostname: ')
 	null, pword = utils.create_password()
 	added = False
 	while not added:
@@ -78,7 +86,11 @@ def add_nodes():
 	possible_nodes = network.autodiscover_local()
 	for ip_addr, MAC in possible_nodes:
 		prompt = ('[?] Would you like to add %s as a Peer? [y/n]: ' % ip_addr)
-		if raw_input(prompt).upper() == 'Y':
+		if PYVER == 2:
+			choice = raw_input(prompt).upper()
+		elif PYVER == 3:
+			choice = input(prompt).upper()
+		if choice == 'Y':
 			clientAdded, newPeer = register_commandline(ip_addr, MAC)
 			if clientAdded:
 				print('[*] Adding %s:%s' % (ip_addr, MAC))
