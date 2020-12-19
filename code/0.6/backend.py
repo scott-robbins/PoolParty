@@ -174,19 +174,23 @@ class Backend():
 			pass
 		allowed_ops = {'python', 'java', 'bash'}
 		if op_cmd in allowed_ops:
-			# TODO: Create something to handle each op type 
-			# execute the function/program and monitor it's 
-			# status and completion.
-			# print('Executing %s%s' % (op_cmd, payload))
+			# TODO: Add logging
+			# TODO: process monitoring
 			if op_cmd == 'bash':
 				c = '%s >> ans.txt;' % payload
 				print('Executing:\n$%s' % c)
-				os.system(c)
-				csock.send(open('ans.txt','r').read())
-				os.remove('ans.txt')
-		else:
+			elif op_cmd == 'python':
+				c = 'python %s >> ans.txt' % payload
+			elif op_cmd == 'java':
+				c = 'java %s >> ans.txt' % payload
+			# Now Execute command, and send the result
+			os.system(c)
+			csock.send(open('ans.txt','r').read())
+			os.remove('ans.txt')
+		else: # Unknown/Unrecognized Execution request
 			print('Got OP: %s' % op_cmd)
 			print('Got Payload: %s' % payload)
+			csock.send('[!!] Unrecognized or Unknown Execution Request')
 		return csock
 
 	def shutdown(self):
