@@ -109,7 +109,9 @@ def exec_rmt(node, peers, payload):
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((i, 54123))
 			s.send('EXEC :::: %s')
-			result = s.recv(65535)
+			reply = s.recv(65535)
+			# Should have told us they were executing... 
+			result = s.recv(128000)
 			s.close()
 		except socket.error:
 			print('[!!] Connection Error')
@@ -151,7 +153,7 @@ def main():
 
 	if '--exec' in sys.argv and len(sys.argv) > 3:
 		reply = exec_rmt(sys.argv[2], peers, utils.arr2chr(sys.argv[3:]))
-
+		print(reply)
 
 if __name__ == '__main__':
 	main()
