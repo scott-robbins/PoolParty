@@ -177,7 +177,7 @@ class Backend():
 			# TODO: Create something to handle each op type 
 			# execute the function/program and monitor it's 
 			# status and completion.
-			csock.send('Executing %s %s' % (op_cmd, payload))
+			print('Executing %s %s' % (op_cmd, payload))
 			result = utils.arr2str(utils.cmd('%s %s'% (op_cmd, payload), True))
 			csock.send(result)
 		else:

@@ -111,8 +111,8 @@ def exec_rmt(node, peers, payload):
 			s.send('EXEC :::: %s' % payload)
 			# Should have told us they were executing... 
 			result = s.recv(65535)
-			print(reply)
 			s.close()
+			print(result)
 		except socket.error:
 			print('[!!] Connection Error')
 			pass
