@@ -131,13 +131,13 @@ class Backend():
 		return csock
 
 	def query_nshares(self, csock, caddr, api_req):
-		n_files = len(os.listdir(os.getcwd()+'/.PoolData/Shares'))
+		n_files = len(os.listdir(os.getcwd()+'/PoolData/Shares'))
 		msg = '[*] %d shares available' % n_files
 		csock.send(msg)
 		return csock
 
 	def query_shares(self, csock, caddr, api_req):
-		file_list = os.listdir(os.getcwd()+'/.PoolData/Shares')
+		file_list = os.listdir(os.getcwd()+'/PoolData/Shares')
 		msg = 'Shared Files on %s@%s:\n' % (self.info['host'], self.info['internal'])
 		msg += utils.arr2str(file_list)
 		csock.send(msg)

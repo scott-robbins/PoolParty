@@ -121,7 +121,6 @@ def exec_rmt(node, peers, payload):
 def list_commands(node, peers):
 	result = ''
 	i, m, h, p, c = get_creds(node, peers)
-	print('[*] Executing following on %s\n$ %s' % (node, payload))
 	if c:
 		try:
 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -136,9 +135,17 @@ def list_commands(node, peers):
 	return result
 
 
+def help():
+	print('\t\t\t~ P O O L  P A R T Y ~ ')
+	print('\t[*] - Check Peers with \t$ python client.py --check-peers <ip> ')
+	print('\t[*] - Check Shares with \t$ python client.py --check-shares <ip>')
+	print('\t[*] - Check Commands with \t$ python client.py --show-commands <ip>')
+	print('\t[*] - Execute Cmd/Program with  $ python client.py --exec <ip> <payload>')
+
+
 def main():
 	verbose = True
-	peers = []
+	peers = []; used = False
 	if os.path.isfile('.env'):
 		h,e,i,s = setup.load_local_vars()
 
@@ -152,27 +159,36 @@ def main():
 			exit()
 		else:
 			print('[!!] No peers to command (need creds)')
-
+		used = True
 	if '--update' in sys.argv:
 		update_all(peers)
+		used = True
 		exit()
 
 	if '--check-peers' in sys.argv and len(sys.argv) > 1:
 		rps = dump_peers(sys.argv[2], peers)
+		used = True
 		if verbose:
 			print(rps)
+
 	if '--check-shares' in sys.argv and len(sys.argv) > 2:
 		shares = dump_shares(sys.argv[2], peers)
+		used = True
 		if verbose:
 			print(shares)
 
 	if '--exec' in sys.argv and len(sys.argv) > 3:
 		reply = exec_rmt(sys.argv[2], peers, utils.arr2chr(sys.argv[3:]))
+		used = True
 		print(reply)
 
 	if '--show-commands' in sys.argv and len(sys.argv) > 2:
+		reply = list_commands(sys.argv[2], peers)
+		used = True
+		print(reply)
 
-
+	if not used:
+		help()
 
 if __name__ == '__main__':
 	main()
