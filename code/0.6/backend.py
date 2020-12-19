@@ -167,6 +167,7 @@ class Backend():
 
 	def execute(self, csock, caddr, api_req):
 		op_cmd = api_req.split(' ')[0]
+		print(api_req.split(' '))
 		try:
 			payload = api_req.split(' ')[1]
 		except IndexError:
@@ -180,8 +181,6 @@ class Backend():
 			csock.send('Executing %s %s' % (op_cmd, payload))
 			result = utils.arr2str(utils.cmd('%s %s'% (op_cmd, payload), False))
 			csock.send(result)
-		else:
-			print(api_req)
 		return csock
 
 	def shutdown(self):
