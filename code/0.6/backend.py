@@ -166,7 +166,11 @@ class Backend():
 
 	def execute(self, csock, caddr, api_req):
 		op_cmd = api_req.split(' ')[0]
-		payload = api_req.split(' ')[1]
+		try:
+			payload = api_req.split(' ')[1]
+		except IndexError:
+			payload = ''
+			pass
 		allowed_ops = {'python', 'java', 'bash'}
 		if op_cmd in allowed_ops:
 			# TODO: Create something to handle each op type 
