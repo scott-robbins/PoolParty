@@ -90,7 +90,7 @@ class Backend():
 				# parse the request 
 				api_fcn = raw_req.split(' :::: ')[0]
 				try:
-					api_var = raw_req.split(' :::: ')[1]
+					api_var = raw_req.split(api_fcn)[1]
 				except IndexError:
 					print('Unparsable request: %s' % raw_req)
 					unhandled = False
