@@ -53,7 +53,6 @@ def dump_peers(node, peers):
 			return ''
 	else:
 		print('[!!] Peer %s is not online' % node)
-		return ''
 	return result
 
 def dump_shares(node, peers):
@@ -101,6 +100,24 @@ def get_creds(n,peers):
 	connected = p['connected']
 	return ip, mac, hname, pword, connected
 
+def exec_rmt(node, peers, payload):
+	result = ''
+	i, m, h, p, c = get_creds(node, peers)
+	print('[*] Executing following on %s\n$ %s' % (node, payload))
+	if c:
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.connect((i, 54123))
+			s.send('EXEC :::: %s')
+			result = s.recv(65535)
+			s.close()
+		except socket.error:
+			print('[!!] Connection Error')
+			pass
+	else:
+		print('[!!] %s Does not appear to be online' % i)
+	return result
+
 
 def main():
 	verbose = True
@@ -132,6 +149,8 @@ def main():
 		if verbose:
 			print(shares)
 
+	if '--exec' in sys.argv and len(sys.argv) > 3:
+		reply = exec_rmt(sys.argv[2], peers, utils.arr2chr(sys.argv[3:]))
 
 
 if __name__ == '__main__':

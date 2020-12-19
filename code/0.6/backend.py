@@ -89,7 +89,11 @@ class Backend():
 					unhandled = False
 				# parse the request 
 				api_fcn = raw_req.split(' :::: ')[0]
-				api_var = raw_req.split(' :::: ')[1]
+				try:
+					api_var = raw_req.split(' :::: ')[1]
+				except IndexError:
+					api_var = ''
+					pass
 				# handle the request
 				if api_fcn in self.actions.keys():
 					log = '\033[1m\033[35m[*]\033[0m\033[1m' 
