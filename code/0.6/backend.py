@@ -92,8 +92,9 @@ class Backend():
 				try:
 					api_var = raw_req.split(' :::: ')[1]
 				except IndexError:
-					api_var = ''
-					pass
+					print('Unparsable request: %s' % raw_req)
+					unhandled = False
+					break
 				# handle the request
 				if api_fcn in self.actions.keys():
 					log = '\033[1m\033[35m[*]\033[0m\033[1m' 
