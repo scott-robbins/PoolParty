@@ -166,8 +166,7 @@ class Backend():
 		return csock
 
 	def execute(self, csock, caddr, api_req):
-		op_cmd = api_req[0].split(' :::: ')[1]
-		
+		op_cmd = api_req[0].split(' :::: ')[1].split(' ')[0]
 		try:
 			payload = utils.arr2chr(api_req[0].split(op_cmd)[1:])
 		except IndexError:
