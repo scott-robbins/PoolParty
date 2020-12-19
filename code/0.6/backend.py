@@ -181,6 +181,9 @@ class Backend():
 			csock.send('Executing %s %s' % (op_cmd, payload))
 			result = utils.arr2str(utils.cmd('%s %s'% (op_cmd, payload), False))
 			csock.send(result)
+		else:
+			print('Got OP: %s' % op_cmd)
+			print('Got Payload: %s' % payload)
 		return csock
 
 	def shutdown(self):
