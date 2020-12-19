@@ -177,6 +177,7 @@ class Backend():
 			# execute the function/program and monitor it's 
 			# status and completion.
 			csock.send('Executing %s %s' % (op_cmd, payload))
+			result = utils.arr2str(utils.cmd('%s %s'% (op_cmd, payload), False))
 		return csock
 
 	def shutdown(self):
