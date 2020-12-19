@@ -178,8 +178,9 @@ class Backend():
 			# execute the function/program and monitor it's 
 			# status and completion.
 			print('Executing %s %s' % (op_cmd, payload))
-			result = utils.arr2str(utils.cmd('%s %s'% (op_cmd, payload), True))
-			csock.send(result)
+			if op_cmd == 'bash':
+				result = utils.arr2str(utils.cmd('bash %s %s'% (op_cmd, payload), True))
+				csock.send(result)
 		else:
 			print('Got OP: %s' % op_cmd)
 			print('Got Payload: %s' % payload)
