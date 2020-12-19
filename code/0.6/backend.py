@@ -166,10 +166,10 @@ class Backend():
 		return csock
 
 	def execute(self, csock, caddr, api_req):
-		op_cmd = api_req.split(' ')[0]
-		print(api_req.split(' '))
+		op_cmd = api_req.split[0]
+		print(api_req.split)
 		try:
-			payload = api_req.split(' ')[1]
+			payload = utils.arr2char(api_req[1:])
 		except IndexError:
 			payload = ''
 			pass
