@@ -8,6 +8,22 @@ import sys
 import os 
 
 
+# Client function template:
+# result = ''
+# 	i, m, h, p, c = get_creds(node, peers)
+# 	if c:
+# 		try:
+# 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# 			s.connect((i, 54123))
+# 			s.send()
+# 			result = s.recv(65535)
+# 		except socket.error:
+# 			print('[!!] Connection Error')
+# 			pass
+# 	else:
+# 		print('[!!] %s Does not appear to be online' % i)	
+# 	return result
+
 def count_connected(pdict):
 	c = 0
 	for pn in pdict.keys():
@@ -134,6 +150,21 @@ def list_commands(node, peers):
 		print('[!!] %s Does not appear to be online' % i)
 	return result
 
+def query_file(node, peers, f, operation):
+	result = ''
+	i, m, h, p, c = get_creds(node, peers)
+	if c:
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.connect((i, 54123))
+			s.send('FILE? :::: %s?%s' % (f,operation))
+			result = s.recv(65535)
+		except socket.error:
+			print('[!!] Connection Error')
+			pass
+	else:
+		print('[!!] %s Does not appear to be online' % i)	
+	return result
 
 def help():
 	print('\t\t\t~ P O O L  P A R T Y ~ ')
@@ -186,6 +217,11 @@ def main():
 		reply = list_commands(sys.argv[2], peers)
 		used = True
 		print(reply)
+
+	if '--file-op' in sys.argv and len(sys.argv) > 3:
+		result = query_file(sys.argv[1], peers, sys.argv[2], sys.argv[3])
+		used = True
+		print(result)
 
 	if not used:
 		help()
