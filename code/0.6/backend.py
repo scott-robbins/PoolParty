@@ -179,7 +179,7 @@ class Backend():
 			# status and completion.
 			# print('Executing %s%s' % (op_cmd, payload))
 			if op_cmd == 'bash':
-				c = 'bash %s' % payload
+				c = '%s' % payload
 				print('Executing:\n$%s' % c)
 				os.system(c)
 				csock.send(result)
