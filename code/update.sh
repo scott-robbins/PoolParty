@@ -1,6 +1,5 @@
 #!/bin/bash
-h=$(hostname)
-wd=$(/home/$h/Documents/PoolParty/)
-cd $wd
-git pull origin
+h=$(whoami)
+cd /home/$h/Documents/PoolParty/
+git pull origin  
 #EOF

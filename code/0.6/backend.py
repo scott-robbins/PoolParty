@@ -31,7 +31,9 @@ class Backend():
 						'SHARES': self.query_shares,
 						'FILE?': self.query_file,
 						'NSHARES': self.query_nshares,
-						'CODEUPDATE': self.update_code}
+						'CODEUPDATE': self.update_code,
+						'COMMANDS': self.list_commands,
+						'EXEC':	self.execute}
 		# Start Background Tasks
 		# Create Listener 
 		print('\033[1m\033[33m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
@@ -54,7 +56,7 @@ class Backend():
 			os.mkdir('.PoolData/Shares')
 		if not os.path.isdir(os.getcwd()+'/.PoolData/Work'):
 			os.mkdir('.PoolData/Work')
-
+		# TODO: Backend Should do logging on requests made by clients
 
 	def run(self):
 		self.start = time.time()
@@ -112,6 +114,11 @@ class Backend():
 		csock.send(msg)
 		return csock
 
+	def list_commands(self, csock, caddr, api_req):
+		cmds = self.actions.keys()
+		csock.send('Commands:\n%s' % utils.arr2str(cmds))
+		return csock
+
 	def query_peerlist(self,csock,caddr,api_req):
 		msg = 'Peer List:\n'
 		msg += utils.arr2str(self.peers)
@@ -153,6 +160,16 @@ class Backend():
 		os.system(update_cmd)
 		return csock
 
+	def execute(self, csock, caddr, api_req):
+		op_cmd = api_req.split(' ')[0]
+		payload = api_req.split(' ')[1]
+		allowed_ops = {'python', 'java', 'bash'}
+		if op_cmd in allowed_ops:
+			# TODO: Create something to handle each op type 
+			# execute the function/program and monitor it's 
+			# status and completion.
+			csock.send('Executing %s %s' % (op_cmd, payload))
+		return csock
 
 	def shutdown(self):
 		ldate, ltime = utils.create_timestamp()
