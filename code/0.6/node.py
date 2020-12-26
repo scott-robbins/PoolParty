@@ -37,8 +37,8 @@ class Node:
 	def load_node_info(self):
 		if os.path.isfile(os.getcwd()+'/PoolData/Status/node.py'):
 			return utils.parse_status_file(os.getcwd()+'/PoolData/Status/node.py')
-			
 
+	
 	def setup_folders(self):
 		if not os.path.isdir(os.getcwd()+'/PoolData'):
 			os.mkdir('PoolData')
@@ -80,8 +80,12 @@ class Node:
 		ldate, ltime = utils.create_timestamp()
 		self.info['START'] = ldate
 		self.info['NSHARES'] = len(local_files.keys())
-		previous_info = self.load_node_info
+		previous_info = self.load_node_info()
 		# TODO: Update as needed
+		if 'START' in previous_info.keys():
+			if ldate != previous_info['START']:
+				self.info['LAST_RUN'] = previous_info['START']
+		self.info['RUNNING'] = True
 
 
 	def log_work(self, process_name, completed, workdict):
@@ -100,8 +104,39 @@ class Node:
 		open(fpath, 'w').write(content)
 
 
+	def shutdown(self):
+		ldate, ltime = utils.create_timestamp()
+		if 'RUNNING' in self.info.keys():
+			self.info['RUNNING'] = False
+		self.log_work('node.py', True, self.info)
+
+	def create_job(self, process_name):
+		# Create Job Method 
+		ldate, ltime = utils.create_timestamp()
+		job = {}
+		job['NAME'] = process_name
+		job['COMPLETE'] = False
+		job['START'] = ldate
+		job['RUNNING'] = False
+		self.log_work(process_name, False, job)
+	
+	def update_job(self,name, field, value):
+		# Update Job Status
+		if os.path.isfile(os.getcwd()+'/PoolData/Status/%s' % name):
+			j = utils.parse_status_file(os.getcwd()+'/PoolData/Status/%s' % name)
+			if field in j.keys():
+				j[field] = value
+				self.log_work(name, j['COMPLETE'], j)
+		else:
+			print('[!!] Cannot find %s' % name)
+
+	# TODO: Start Work Method 
+	# TODO: Log/Report Work Data
+	
+
 def main():
-	Node()
+	cell = Node()
+	cell.shutdown()
 
 if __name__ == '__main__':
 	main()
