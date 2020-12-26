@@ -7,23 +7,6 @@ import utils
 import sys 
 import os 
 
-
-# Client function template:
-# result = ''
-# 	i, m, h, p, c = get_creds(node, peers)
-# 	if c:
-# 		try:
-# 			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# 			s.connect((i, 54123))
-# 			s.send()
-# 			result = s.recv(65535)
-# 		except socket.error:
-# 			print('[!!] Connection Error')
-# 			pass
-# 	else:
-# 		print('[!!] %s Does not appear to be online' % i)	
-# 	return result
-
 def count_connected(pdict):
 	c = 0
 	for pn in pdict.keys():
@@ -91,20 +74,24 @@ def dump_shares(node, peers):
 
 def get_creds(n,peers):
 	# maybe be able to handle ip or a hostname
-	if n in peers.keys():
+	if n in peers.values():
 		p = peers[n]
 	else:
 		found = False
-		for n in peers.keys():
-			# print(peers[n])
-			if n in peers[n].values():
-				found = True
-				p = peers[n]
-				break
-		if os.path.isfile(os.getcwd()+'/'+n):
-			h, i, p, m = utils.load_credentials(n.split('/')[-1].split('.')[0],False)
+		nc = 'PoolData/Creds/%s.pem' % n
+		if os.path.isfile(os.getcwd()+'/'+nc):
+			h, i, p, m = utils.load_credentials(nc.split('/')[-1].split('.')[0],False)
 			p = {'hname':h,'ip':i,'pword':p,'mac':m,'connected':True}
 			found = True
+		else:
+			for creds in os.listdir(os.getcwd()+'/PoolData/Creds'):
+				cf = os.getcwd()+'/PoolData/Creds/%s' % creds
+				if os.path.isfile(cf):
+					h,i,p,m = utils.load_credentials(cf.split('/')[-1].split('.')[0],False)
+					if i == n:
+						p = {'hname':h,'ip':i,'pword':p,'mac':m,'connected':True}
+						found = True
+						break
 		if not found:
 			print('[!!] cannot find %s' % n)
 			return '','','','',''
@@ -214,6 +201,7 @@ def main():
 		print(reply)
 
 	if '--show-commands' in sys.argv and len(sys.argv) > 2:
+		print(sys.argv[2])
 		reply = list_commands(sys.argv[2], peers)
 		used = True
 		print(reply)

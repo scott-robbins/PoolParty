@@ -50,11 +50,11 @@ class Backend():
 		self.start_date, self.start_time = utils.create_timestamp()
 
 	def setup_folders(self):
-		if not os.path.isdir(os.getcwd()+'/.PoolData'):
+		if not os.path.isdir(os.getcwd()+'/PoolData'):
 			os.mkdir('.PoolData')
-		if not os.path.isdir(os.getcwd()+'/.PoolData/Shares'):
+		if not os.path.isdir(os.getcwd()+'/PoolData/Shares'):
 			os.mkdir('.PoolData/Shares')
-		if not os.path.isdir(os.getcwd()+'/.PoolData/Work'):
+		if not os.path.isdir(os.getcwd()+'/PoolData/Work'):
 			os.mkdir('.PoolData/Work')
 		# TODO: Backend Should do logging on requests made by clients
 
@@ -156,7 +156,7 @@ class Backend():
 				reply = '%s is %d bytes, and was last modified %s'
 				csock.send(reply % (file_name, sz, utils.cmd('date -r '+os.getcwd()+'/PoolData/Shares/%s' % file_name,False).pop()))
 			if req == 'DATA':
-				csock.send(open(os.getcwd()+'/PoolData/Shares/%s' % file_name,'rb').read())
+				csock.send(open(os.getcwd()+'/PoolData/Shares/%s' % file_name,'r').read())
 		except OSError:
 			csock.send('Sorry, something went wrong handling <%s>' % api_req)
 

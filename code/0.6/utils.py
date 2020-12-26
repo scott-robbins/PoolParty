@@ -168,7 +168,7 @@ def load_credentials(peername, verbose):
 	key_name = peername+'.pem'
 	if not os.path.isdir(os.getcwd()+'/PoolData/Creds'):
 		print('\033[1m\033[31m[!!] Missing Credential Folder\033[0m')
-	if not os.path.isfile(os.getcwd()+'/PoolData/Creds/%s' % key_name):
+	if not os.path.isfile(os.getcwd()+'/PoolData/Creds/%s' % key_name) and verbose:
 		print('\033[1m\033[31m[!!] Credentials not found\033[0m')
 	
 	for name in os.listdir('PoolData/Creds'):
@@ -179,21 +179,22 @@ def load_credentials(peername, verbose):
 				
 				host = name.split('@')[1].split('.creds')[0]
 				found = True
-	if not found:
+	if not found and verbose:
 		print('\033[1m\033[31m[!!] Unable to find username %s\033[0m' % peername)
+	if not found:
 		return '','','',''
-
-	cred_file  = os.getcwd()+'/PoolData/Creds/'+peername+'@'+host+'.creds'
-	with open(os.getcwd()+'/PoolData/Creds/%s' % key_name, 'rb') as key_file:
-		private_key = RSA.importKey(key_file.read().decode())
-	with open(cred_file,'rb') as cfile:
-		enc_dat = cfile.read()
-	# Now decrypt them with private key
-	raw_creds = PKCS1_OAEP.new(private_key).decrypt(enc_dat).decode()
-	hostname = raw_creds.split('@')[0]
-	ip_addr = raw_creds.split('@')[1].split(':')[0]
-	password = raw_creds.split(':')[1].replace('\n','').split('MAC')[0]
-	macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
+	else:
+		cred_file  = os.getcwd()+'/PoolData/Creds/'+peername+'@'+host+'.creds'
+		with open(os.getcwd()+'/PoolData/Creds/%s' % key_name, 'rb') as key_file:
+			private_key = RSA.importKey(key_file.read().decode())
+		with open(cred_file,'rb') as cfile:
+			enc_dat = cfile.read()
+		# Now decrypt them with private key
+		raw_creds = PKCS1_OAEP.new(private_key).decrypt(enc_dat).decode()
+		hostname = raw_creds.split('@')[0]
+		ip_addr = raw_creds.split('@')[1].split(':')[0]
+		password = raw_creds.split(':')[1].replace('\n','').split('MAC')[0]
+		macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
 	return hostname, ip_addr, password, macaddr
 
 def kill_process(pname):
