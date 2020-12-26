@@ -216,3 +216,15 @@ def create_tcp_listener(port):
 		print('[!!] Unable to Create Socket')
 		pass
 	return s
+
+def parse_status_file(fname):
+	state = {}
+	for line in swap(fname, False):
+		try:
+			field = line.split('=')[0]
+			value = line.split('=')[1]
+			state[field] = value
+		except IndexError:
+			print('[!!] Incorrectly Formatted Status File')
+			pass
+	return state
