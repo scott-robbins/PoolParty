@@ -174,10 +174,12 @@ def main():
 	if '--cmd-all' in sys.argv:
 		if len(peers):
 			replies = cmd_all(peers, utils.arr2chr(sys.argv[2:]))
+			
 			exit()
 		else:
 			print('[!!] No peers to command (need creds)')
 		used = True
+
 	if '--update' in sys.argv:
 		update_all(peers)
 		used = True

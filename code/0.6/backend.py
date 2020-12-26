@@ -51,11 +51,11 @@ class Backend():
 
 	def setup_folders(self):
 		if not os.path.isdir(os.getcwd()+'/PoolData'):
-			os.mkdir('.PoolData')
+			os.mkdir('PoolData')
 		if not os.path.isdir(os.getcwd()+'/PoolData/Shares'):
-			os.mkdir('.PoolData/Shares')
+			os.mkdir('PoolData/Shares')
 		if not os.path.isdir(os.getcwd()+'/PoolData/Work'):
-			os.mkdir('.PoolData/Work')
+			os.mkdir('PoolData/Work')
 		# TODO: Backend Should do logging on requests made by clients
 
 	def run(self):
