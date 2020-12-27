@@ -4,6 +4,7 @@ import random
 import socket
 import setup
 import utils
+import node
 import time
 import sys 
 import os
@@ -35,6 +36,9 @@ class Backend():
 						'COMMANDS': self.list_commands,
 						'EXEC':	self.execute}
 		# Start Background Tasks
+		self.manager = node.Node()
+		self.manager = Thread(target=manager.run, args=( ),daemon=True)
+		self.manager.start()
 		# Create Listener 
 		print('\033[1m\033[33m[*] %s - %s: Starting Server\033[0m' % (self.start_date, self.start_time))
 		# Start listening for API Requests

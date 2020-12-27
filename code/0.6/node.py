@@ -19,6 +19,7 @@ class Node:
 	outbound_tx = 5678	# outbound request port (initial)
 	current_sig = 4242	# inbound signaling listener port (initial)
 	op_status = 'None'
+	local_shares = {}
 	info = {}
 
 	def __init__(self):
@@ -27,12 +28,45 @@ class Node:
 		# keep track of running jobs
 		self.job_data = self.synchronize_workload(verbose=self.DEBUG)
 		# check local shared files 
-		lfs = self.index_local_shares()
+		self.local_shares = self.index_local_shares()
 		# notify that node is running 
-		self.populate_info(lfs)
+		self.populate_info()
 		self.log_work('node.py', False, self.info)
 		# Start main loop to continuously monitor states
+		# self.run()
+
+	def run(self):
+		if 'RUNNING' in self.info.keys():
+			self.info['RUNNING'] = True
 		
+
+		try:	# NODE internal state chcecklist to go through 
+			while self.info['RUNNING']:
+				# [1] check for new shares
+				shares = self.index_local_shares()
+				for kreal in shares.keys():
+					if kreal not in self.local_shares.keys():
+						print('[*] %s added to /Shares' % shares[kreal])
+						self.local_shares[kreal] = shares[kreal]
+
+				# [2] check/update signals 
+				for sig_file in os.listdir(os.getcwd()+'/PoolData/Signals'):
+					for line in open(os.getcwd()+'/PoolData/Signals/' + sig_file,'r' ).readlines():
+						if len(line.split('='))>1:
+							k = line.split('=')[0]
+							v = line.split('=')[1]
+
+				# [3] check/update status
+
+				# [4] check if any work has completed
+				work = self.synchronize_workload(False)
+				# 	-if yes: transmit completed work, request new work
+				#   -else: log work status (level of completion, comp. usage, etc)
+				# [5] check update signals
+		except KeyboardInterrupt:
+			self.info['RUNNING'] = False
+			self.shutdown()
+			pass
 
 	def load_node_info(self):
 		if os.path.isfile(os.getcwd()+'/PoolData/Status/node.py'):
@@ -76,10 +110,10 @@ class Node:
 		return files
 
 
-	def populate_info(self, local_files):
+	def populate_info(self):
 		ldate, ltime = utils.create_timestamp()
 		self.info['START'] = ldate
-		self.info['NSHARES'] = len(local_files.keys())
+		self.info['NSHARES'] = len(self.local_shares.keys())
 		previous_info = self.load_node_info()
 		# TODO: Update as needed
 		if 'START' in previous_info.keys():
