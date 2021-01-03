@@ -91,15 +91,20 @@ class Node:
 		for job in os.listdir(os.getcwd()+'/PoolData/Status'):
 			job_state = utils.parse_status_file(os.getcwd()+'/PoolData/Status/'+job)
 			jobs[job] = job_state
+			running, ps = utils.is_process_running(job)
 			# Check if job is COMPLETE
 			if 'COMPLETE' in job_state.keys() and verbose:
 				completed = job_state['COMPLETE'].upper()
 				if completed == 'TRUE':
 					print('[*] %s has completed' % job)
+			elif running:
+				job_state['RUNNING'] = True
+
 			if verbose:	# else (if verbose) report Job properties
 				print('[*] %s SUMMARY' % job)
 				for k in job_state.keys():
 					print('%s: %s' % (k, job_state[k]))
+
 		return jobs
 
 	def index_local_shares(self):

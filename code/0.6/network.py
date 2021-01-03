@@ -26,7 +26,12 @@ def get_node_names():
 	return utils.cmd('ls PoolData/Creds/*.pem',False)
 
 def check_connected(host, ip, passwd):
-	if utils.ssh_exec('whoami',ip,host,passwd,False).pop() == host:
+	try:
+		 reply = utils.ssh_exec('whoami',ip,host,passwd,False).pop()
+	except IndexError:
+		return False
+
+	if reply == host:
 		return True
 	else:
 		return False
