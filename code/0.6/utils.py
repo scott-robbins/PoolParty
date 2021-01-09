@@ -1,25 +1,18 @@
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
-from threading import Thread
-import numpy as np
 import random
 import warnings
 import base64
 import socket
 import time
-import sys 
 import os
-							# SUPRESSING PARAMIKO WARNINGS!
-warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+# warnings.filterwarnings(action='ignore',module='.*paramiko.*')		# SUPPRESSING PARAMIKO WARNINGS!
 
-lowers = ['a','b','c','d','e','f','g','h','i','j',
-		  'k','l','m','n','o','p','q','r','s','t',
-		  'u','v','w','x','y','z']
-uppers = ['A','B','C','D','E','F','G','H','I','J',
-		  'K','L','M','N','O','P','Q','R','S','T',
-		  'U','V','W','X','Y','Z']
+lowers = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+uppers = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 alphas = ['0', '1','2','3','4','5','6','7','8','9']
+
 
 def swap(filename, destroy):
 	data = []
@@ -28,6 +21,7 @@ def swap(filename, destroy):
 	if destroy:
 		os.remove(filename)
 	return data
+
 
 def create_random_filename(ext):
 	"""
@@ -46,6 +40,7 @@ def create_random_filename(ext):
 	random_file = basename +ext
 	return random_file
 
+
 def arr2str(content):
 	"""
 	param: 	content		(list - text content in list per line)
@@ -59,6 +54,7 @@ def arr2str(content):
 			result += element
 	return result
 
+
 def arr2chr(content):
 	"""
 	param: 	content		(list - text content in list per word)
@@ -68,6 +64,7 @@ def arr2chr(content):
 	for element in content:
 		result += (element + ' ')
 	return result
+
 
 def cmd(command, verbose):
 	tmp = create_random_filename('.sh')
@@ -80,17 +77,21 @@ def cmd(command, verbose):
 		os.system('cat %s' % tmp2)
 	return swap(tmp2, True)
 
+
 def get_ext_ip():
 	return cmd('curl -s https://api.ipify.org',False).pop()
+
 
 def get_internal_addr():
 	addrs = cmd('hostname -I',False).pop().split(' ')
 	addrs.pop(-1)
 	return addrs
 
+
 def ssh_exec(c, ip_address, uname, password, verbose):
 	comm = 'sshpass -p "%s" ssh %s@%s %s' % (password, uname, ip_address, c)
-	return cmd(comm, verbose)
+	return
+
 
 def getenv(field):
 	result = ''; found = False
@@ -103,19 +104,20 @@ def getenv(field):
 		print('%s Was NOT Found' % field)
 	return result
 
+
 def create_timestamp():
-    date = time.localtime(time.time())
-    mo = str(date.tm_mon)
-    day = str(date.tm_mday)
-    yr = str(date.tm_year)
+	date = time.localtime(time.time())
+	mo = str(date.tm_mon)
+	day = str(date.tm_mday)
+	yr = str(date.tm_year)
 
-    hr = str(date.tm_hour)
-    min = str(date.tm_min)
-    sec = str(date.tm_sec)
+	hr = str(date.tm_hour)
+	min = str(date.tm_min)
+	sec = str(date.tm_sec)
 
-    date = mo + '/' + day + '/' + yr
-    timestamp = hr + ':' + min + ':' + sec
-    return date, timestamp
+	date = mo + '/' + day + '/' + yr
+	timestamp = hr + ':' + min + ':' + sec
+	return date, timestamp
 
 
 def create_password():
@@ -142,6 +144,7 @@ def create_password():
 		attempts += 1
 	return matched, password
 
+
 def create_keys(creds):
 	# Create this peers private key
 	success = False
@@ -162,6 +165,7 @@ def create_keys(creds):
 	file_out.close()
 	print ('[*] Credentials created for %s' % creds['pname'])
 	return success
+
 
 def load_credentials(peername, verbose):
 	found = False
@@ -197,6 +201,7 @@ def load_credentials(peername, verbose):
 		macaddr = raw_creds.split('\n')[1].split('MAC:')[1]
 	return hostname, ip_addr, password, macaddr
 
+
 def kill_process(pname):
 	h = cmd('hostname',False).pop()
 	c = "ps aux | grep %s" % pname
@@ -204,6 +209,7 @@ def kill_process(pname):
 		row = line.split(h)[1].split(' ')
 		pid = int(filter(len, row).pop(0))
 		os.system('sudo kill -9 %s >> /dev/null' % pid)
+
 
 def create_tcp_listener(port):
 	s = []
@@ -217,6 +223,7 @@ def create_tcp_listener(port):
 		pass
 	return s
 
+
 def parse_status_file(fname):
 	state = {}
 	for line in swap(fname, False):
@@ -229,6 +236,7 @@ def parse_status_file(fname):
 			pass
 	return state
 
+
 def is_process_running(process):
 	procs = cmd('ps aux | grep %s' % process, False)
 	procs.pop(-1)
@@ -237,9 +245,11 @@ def is_process_running(process):
 	else:
 		return False, procs
 
+
 def remote_file_exists(host, ip , passwd, path_to_file):
 	c = '[ ! -e %s ]; echo $?' % path_to_file
 	return int(ssh_exec(c, ip, host, passwd, False).pop())
+
 
 def get_file(remote_file_path, host, ip, passwd, verbose):
 	c = 'sshpass -p "%s" sftp %s@%s:%s > /dev/null 2>&1' % (passwd, host, ip, remote_file_path)
@@ -248,6 +258,7 @@ def get_file(remote_file_path, host, ip, passwd, verbose):
 	if verbose and os.path.isfile(local_copy):
 		print('[*] %d bytes transferred' % os.path.getsize(local_copy))
 	return reply
+
 
 def put_file(local_file_path, remote_destination, host, ip, passwd, verbose):
 	c = 'sshpass -p "%s" sftp %s@%s:%s <<< $'% (passwd, host, ip,remote_destination)
