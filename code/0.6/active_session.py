@@ -7,12 +7,14 @@ import utils
 import sys 
 import os 
 
+
 def count_connected(pdict):
 	c = 0
 	for pn in pdict.keys():
 		if pdict[pn]['connected']:
 			c += 1
 	return c
+
 
 def cmd_all(peers, cmd):
 	replies = {}
@@ -25,6 +27,7 @@ def cmd_all(peers, cmd):
 		replies[p] = utils.ssh_exec(cmd, ip,hname, pword, True)
 	return replies
 
+
 def update_all(peers):
 	results = {}
 	for p in peers.keys():
@@ -36,6 +39,7 @@ def update_all(peers):
 		update = 'cd Documents/PoolParty/code; bash update.sh'
 		results[p] = utils.ssh_exec(update, ip, hname, pword, True)
 	return results
+
 
 def dump_peers(node, peers):
 	result = ''
@@ -54,6 +58,7 @@ def dump_peers(node, peers):
 		print('[!!] Peer %s is not online' % node)
 	return result
 
+
 def dump_shares(node, peers):
 	result = ''
 	ip,mac,hname,pword,connected = get_creds(node, peers)
@@ -71,6 +76,7 @@ def dump_shares(node, peers):
 		print('[!!] Peer %s is not online' % node)
 		return ''
 	return result	
+
 
 def get_creds(n,peers):
 	# maybe be able to handle ip or a hostname
@@ -103,6 +109,7 @@ def get_creds(n,peers):
 	connected = p['connected']
 	return ip, mac, hname, pword, connected
 
+
 def exec_rmt(node, peers, payload):
 	result = ''
 	i, m, h, p, c = get_creds(node, peers)
@@ -121,6 +128,7 @@ def exec_rmt(node, peers, payload):
 		print('[!!] %s Does not appear to be online' % i)
 	return result
 
+
 def list_commands(node, peers):
 	result = ''
 	i, m, h, p, c = get_creds(node, peers)
@@ -136,6 +144,7 @@ def list_commands(node, peers):
 	else:
 		print('[!!] %s Does not appear to be online' % i)
 	return result
+
 
 def query_file(node, peers, f, operation):
 	result = ''
@@ -153,6 +162,7 @@ def query_file(node, peers, f, operation):
 		print('[!!] %s Does not appear to be online' % i)	
 	return result
 
+
 def help():
 	print('\t\t\t~ P O O L  P A R T Y ~ ')
 	print('\t[*] - Check Peers with \t$ python client.py --check-peers <ip> ')
@@ -169,7 +179,6 @@ def main():
 
 		peers = setup.test_connections(True)
 		print('[*] %d Peers Connected' % count_connected(peers))
-
 
 	if '--cmd-all' in sys.argv:
 		if len(peers):
