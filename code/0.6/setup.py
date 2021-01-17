@@ -114,7 +114,7 @@ def test_connections(debug):
 		event = pool.apply_async(func=utils.ssh_exec, args=('whoami', host_ip, host, host_pass, False,))
 		try:
 			test_cnx = event.get(timeout=10).pop()
-		except multiprocessing.context.TimeoutError:
+		except Exception:
 			test_cnx = ''
 			pass
 		except IndexError:

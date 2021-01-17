@@ -213,6 +213,12 @@ def main():
 		used = True
 		print(result)
 
+	if '--list-local-peers' in sys.argv:
+		for p in peers:
+			n = p.split('/')[-1].split('.')[0]
+			[h,i,p,m] = utils.load_credentials(n,False)
+			print('%s \t %s \t %s' % (n, h, m))
+
 	if not used:
 		help()
 
