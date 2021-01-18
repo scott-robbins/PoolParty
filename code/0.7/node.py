@@ -70,6 +70,8 @@ class Node():
 				for op in self.raw_state.keys():
 					self.check_channel_fields(op, self.DEBUG)
 					time.sleep(10) # FOR DEBUGGING
+					# check for changes in master node/brokers
+					self.check_messaging_nodes()
 					# check n_cycles
 					# if self.raw_state[op]['cycle']%200:
 					# 	print('[*] %s has run %d cycles' % (op, self.raw_state[op]['cycle']))
