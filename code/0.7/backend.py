@@ -1,4 +1,4 @@
-import multiprocessing
+from threading import Thread
 import base64
 import socket
 import utils
@@ -40,8 +40,10 @@ class Messager:
 				# handle their request
 				succeeded = False
 				try:
-					event = pool.apply_async(client_handler, (self, client, cinfo))
-					client = event.get(timeout=10)
+					# event = pool.apply_async(self.client_handler, (client, cinfo))
+					handler = Thread(target=self.client_handler, args=(client, cinfo))
+					handler.start()
+					
 					succeeded = True
 				except multiprocessing.TimeoutError:
 					print('[!!] Connection Error with %s' % cinfo[0])
@@ -57,45 +59,46 @@ class Messager:
 			pass
 		s.close()
 
+	def client_handler(self, csock, caddr):
+		try:
+			# Get a raw request
+			raw_req = csock.recv(1025)
+			api_fun = raw_req.split(' ???? ')[0]
+			api_req = raw_req.split(' ???? ')[1]
+			# Determine if this is a valid request
+			if api_fun not in self.actions.keys():
+				csock.send(base64.b64encode('[!!] Unrecognized API Request'))
+			else:
+				# Handle the API request if it is known
+				csock = self.actions[api_fun](csock, caddr, api_req)
+		except SocketError:
+			pass
+		return csock
 
 	def show_methods(self, cs, ca, req):
 		result = uitls.arr2str('-'.join(self.actions.keys()))
 		cs.send(result)
-		return cs
+		cs.close()
 
 	def kill(self, cs, ca, req):
 		print('\033[1m\033[31m[!!] Killing Backend Server\033[0m')
 		self.running = False
 		cs.send('[*] OK. Shutting Down Server')
-		return cs
+		cs.close()
 
 	def add_master(self, cs, ca, req):
 		if self.master != '':
 			print('[!!] %s is replacing %s as Master Node' % (req, self.master))
 		self.master = req
-		return cs
+		cs.close()
 
 	def dump_messenging_rules(self):
 		rules = {'master': self.master,
 				 'brokers': self.brokers}
 		# dump this into /Config/Channels/Self/messaging.json
+		cs.close()
 
 
-def client_handler(node, csock, caddr):
-	try:
-		# Get a raw request
-		raw_req = csock.recv(1025)
-		api_fun = raw_req.split(' ???? ')[0]
-		api_req = raw_req.split(' ???? ')[1]
-		# Determine if this is a valid request
-		if api_fun not in node.actions.keys():
-			csock.send(base64.b64encode('[!!] Unrecognized API Request'))
-		else:
-			# Handle the API request if it is known
-			csock = node.actions[api_fun](csock, caddr, api_req)
-	except SocketError:
-		pass
-	return csock
 
 def main():
 	if len(sys.argv) > 1:
