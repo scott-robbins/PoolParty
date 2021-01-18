@@ -20,7 +20,8 @@ class Messager:
 		# Declare API Methods in the actions dict
 		self.actions = {'SHUTDOWN': self.kill,
 						'SET_MASTER': self.add_master,
-						'LIST_API': self.show_methods}
+						'LIST_API': self.show_methods,
+						'DUMP_TBL': self.dump_messenging_rules}
 		# start the server
 		self.run()
 
