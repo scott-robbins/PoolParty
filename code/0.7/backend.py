@@ -97,13 +97,11 @@ class Messager:
 	def kill(self, cs, ca, req):
 		print('\033[1m\033[31m[!!] Killing Backend Server\033[0m')
 		self.running = False
-		cs.send('[*] OK. Shutting Down Server')
 		cs.close()
 
 	def add_master(self, cs, ca, req):
 		print('[!!] %s is replacing %s as Master Node' % (req, self.master_node))
 		self.master_node = req
-		cs.send('[*] Master Node Changed')
 		cs.close()
 
 	def dump_messenging_rules(self, cs, ca, req):
@@ -114,7 +112,7 @@ class Messager:
 		with open('PoolData/Config/Channels/Self/messaging.json','w') as c:
 					json.dump(rules, c)
 		print('[*] Messaging rules saved')
-		cs.send('[*] Messaging rules updated')
+		# cs.send('[*] Messaging rules updated')
 		cs.close()
 
 

@@ -12,7 +12,6 @@ def set_node_master(node):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((node, 54123))
 		s.send((command1))
-		print(s.recv(1023))
 		s.close()
 	except socket.error:
 		print('[!!] Cannot Connect to %s' % node)
@@ -22,7 +21,6 @@ def set_node_master(node):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((node, 54123))
 		s.send(command2)
-		print(s.recv(1023))
 		s.close()
 	except socket.error:
 		print('[!!] Cannot Connect to %s' % node)
@@ -30,16 +28,18 @@ def set_node_master(node):
 
 
 def kill_node(node):
-	command = 'SHUTDOWN ???? Go to sleep buddy!'
-	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((node, 54123))
-		s.send(command)
-		print(s.recv(1023))
-		s.close()
-	except socket.error:
-		print('[!!] Cannot connect to %s' % node)
-		pass
+	for i in range(2):
+		try:
+			command = 'SHUTDOWN ???? Go to sleep buddy!'
+			try:
+				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				s.connect((node, 54123))
+				s.send(command)
+				s.close()
+			except socket.error:
+				pass
+		except socket.error:
+			pass
 
 
 def show_node_methods(node):
@@ -48,7 +48,7 @@ def show_node_methods(node):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((node, 54123))
 		s.send(command)
-		print(s.recv(1023))
+		print(s.recv(1024))
 		s.close()
 	except socket.error:
 		print('[!!] Cannot connect to %s' % node)
