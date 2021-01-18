@@ -57,21 +57,6 @@ class Messager:
 			pass
 		s.close()
 
-	def client_handler(self, csock, caddr):
-		try:
-			# Get a raw request
-			raw_req = csock.recv(1025)
-			api_fun = raw_req.split(' ???? ')[0]
-			api_req = raw_req.split(' ???? ')[1]
-			# Determine if this is a valid request
-			if api_fun not in self.actions.keys():
-				csock.send(base64.b64encode('[!!] Unrecognized API Request'))
-			else:
-				# Handle the API request if it is known
-				csock = self.actions[api_fun](csock, caddr, api_req)
-		except SocketError:
-			pass
-		return csock
 
 	def show_methods(self, cs, ca, req):
 		result = uitls.arr2str('-'.join(self.actions.keys()))
@@ -96,7 +81,21 @@ class Messager:
 		# dump this into /Config/Channels/Self/messaging.json
 
 
-
+def client_handler(node, csock, caddr):
+	try:
+		# Get a raw request
+		raw_req = csock.recv(1025)
+		api_fun = raw_req.split(' ???? ')[0]
+		api_req = raw_req.split(' ???? ')[1]
+		# Determine if this is a valid request
+		if api_fun not in node.actions.keys():
+			csock.send(base64.b64encode('[!!] Unrecognized API Request'))
+		else:
+			# Handle the API request if it is known
+			csock = node.actions[api_fun](csock, caddr, api_req)
+	except SocketError:
+		pass
+	return csock
 
 def main():
 	if len(sys.argv) > 1:
