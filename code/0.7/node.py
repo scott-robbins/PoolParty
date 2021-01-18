@@ -88,7 +88,7 @@ class Node():
 
 	def check_messaging_nodes(self):
 		fn = 'PoolData/Config/Channels/Self/messaging.json'
-		if not os.path.isfile(fn):
+		if os.path.isfile(fn):
 			with open('PoolData/Config/Channels/Self/messaging.json', 'r') as f:
 				messaging = json.load(f)
 				if 'master' in messaging.keys():
