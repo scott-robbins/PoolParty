@@ -1,4 +1,5 @@
 import multiprocessing
+import socket
 import random
 import utils
 import sys
@@ -25,6 +26,32 @@ def set_node_master(node):
 		s.close()
 	except socket.error:
 		print('[!!] Cannot Connect to %s' % node)
+		pass
+
+
+def kill_node(node):
+	command = 'SHUTDOWN ???? Go to sleep buddy!'
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((node, 54123))
+		s.send(command)
+		print(s.recv(1023))
+		s.close()
+	except socket.error:
+		print('[!!] Cannot connect to %s' % node)
+		pass
+
+
+def show_node_methods(node):
+	command = 'LIST_API ???? Show Me What You GOT!'
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((node, 54123))
+		s.send(command)
+		print(s.recv(1023))
+		s.close()
+	except socket.error:
+		print('[!!] Cannot connect to %s' % node)
 		pass
 
 
@@ -75,7 +102,6 @@ def test_connections(debug):
 			print('\033[1m\033[31m[!] Unable to connect to %s\033[0m' % node)
 		peers[n] = peer
 	return peers
-
 
 
 def main():

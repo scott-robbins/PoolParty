@@ -44,7 +44,6 @@ class Messager:
 					# event = pool.apply_async(self.client_handler, (client, cinfo))
 					handler = Thread(target=self.client_handler, args=(client, cinfo))
 					handler.start()
-
 					succeeded = True
 				except multiprocessing.TimeoutError:
 					print('[!!] Connection Error with %s' % cinfo[0])
