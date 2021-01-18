@@ -29,6 +29,12 @@ class Messager:
 		self.running = True
 		self.runtime = time.time()
 		sdate, stime = utils.create_timestamp()
+		rules = {'master': self.master_node,
+				 'brokers': self.brokers,
+				 'listening': self.running}
+		# dump this into /Config/Channels/Self/messaging.json
+		with open('PoolData/Config/Channels/Self/messaging.json','w') as c:
+					json.dump(rules, c)
 		try:
 			# create a socket 
 			s = utils.create_tcp_listener(self.inbound)
@@ -65,7 +71,7 @@ class Messager:
 		with open('PoolData/Config/Channels/Self/messaging.json','w') as c:
 					json.dump(rules, c)
 		print('[*] Messaging rules saved')
-		
+
 
 	def client_handler(self, csock, caddr):
 		try:
