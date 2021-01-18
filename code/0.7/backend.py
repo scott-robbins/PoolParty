@@ -70,7 +70,7 @@ class Messager:
 			else:
 				# Handle the API request if it is known
 				csock = self.actions[api_fun](csock, caddr, api_req)
-		except SocketError:
+		except socket.error:
 			pass
 		return csock
 
