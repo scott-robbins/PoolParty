@@ -58,6 +58,14 @@ class Messager:
 			print('[*] Shutting Down Backend Messager')
 			pass
 		s.close()
+		rules = {'master': self.master_node,
+				 'brokers': self.brokers,
+				 'listening': self.running}
+		# dump this into /Config/Channels/Self/messaging.json
+		with open('PoolData/Config/Channels/Self/messaging.json','w') as c:
+					json.dump(rules, c)
+		print('[*] Messaging rules saved')
+		
 
 	def client_handler(self, csock, caddr):
 		try:
@@ -94,7 +102,8 @@ class Messager:
 
 	def dump_messenging_rules(self, cs, ca, req):
 		rules = {'master': self.master_node,
-				 'brokers': self.brokers}
+				 'brokers': self.brokers,
+				 'listening': self.running}
 		# dump this into /Config/Channels/Self/messaging.json
 		with open('PoolData/Config/Channels/Self/messaging.json','w') as c:
 					json.dump(rules, c)

@@ -77,6 +77,8 @@ class Node():
 					# 	print('[*] %s has run %d cycles' % (op, self.raw_state[op]['cycle']))
 					# update the tic of channels clock
 					self.toggle_channel_status(op,'cycle',cycle)
+					# Check whether node backend was killed
+
 				cycle += 1
 
 		except KeyboardInterrupt:
@@ -95,6 +97,9 @@ class Node():
 					print('[*] Master node is: %s' % messaging['master'])
 				if 'brokers' in messaging.keys():
 					print('[*] Brokers are:\n%s' % utils.arr2str('-'.join(messaging['brokers'])))
+				# check if backend was killed 
+				if 'listening' in messaging.keys():
+					self.running = messaging['listening']
 
 	def update_channels(self):
 		# make sure these folders are present
@@ -118,6 +123,8 @@ class Node():
 				c.close()
 			# check whether anything is running
 			self.check_channel_fields(chname,self.DEBUG)
+
+
 
 	def check_channel_fields(self, channel, verbose):
 		data = []
