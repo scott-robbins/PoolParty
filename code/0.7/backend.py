@@ -19,7 +19,8 @@ class Messager:
 		self.nx_name = name
 		# Declare API Methods in the actions dict
 		self.actions = {'SHUTDOWN': self.kill,
-						'SET_MASTER': self.add_master}
+						'SET_MASTER': self.add_master,
+						'LIST_API': self.show_methods}
 		# start the server
 		self.run()
 
