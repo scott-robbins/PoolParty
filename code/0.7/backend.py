@@ -30,11 +30,12 @@ class Messager:
 		self.runtime = time.time()
 		sdate, stime = utils.create_timestamp()
 		try:
+			# create a socket 
+			s = utils.create_tcp_listener(self.inbound)
 			print('[*] Server Started [%s - %s]' % (sdate, stime))
 			# Start Listening for Commands 
 			while self.running:
-				# create a socket 
-				s = utils.create_tcp_listener(self.inbound)
+				
 				# accept a client
 				client, cinfo = s.accept()
 				# handle their request
