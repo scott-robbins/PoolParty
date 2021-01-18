@@ -86,15 +86,18 @@ class Messager:
 		cs.close()
 
 	def add_master(self, cs, ca, req):
-		if self.master != '':
+		if self.master_node != '':
 			print('[!!] %s is replacing %s as Master Node' % (req, self.master))
 		self.master = req
 		cs.close()
 
 	def dump_messenging_rules(self):
-		rules = {'master': self.master,
+		rules = {'master': self.master_node,
 				 'brokers': self.brokers}
 		# dump this into /Config/Channels/Self/messaging.json
+		with open('PoolData/Config/Channels/Self/messaging.json','w') as c:
+					json.dump(rules, c)
+		print('[*] Messaging rules saved')
 		cs.close()
 
 
