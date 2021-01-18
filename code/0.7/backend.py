@@ -77,7 +77,7 @@ class Messager:
 		return csock
 
 	def show_methods(self, cs, ca, req):
-		result = uitls.arr2str('-'.join(self.actions.keys()))
+		result = utils.arr2str('-'.join(self.actions.keys()))
 		cs.send(result)
 		cs.close()
 
@@ -88,8 +88,7 @@ class Messager:
 		cs.close()
 
 	def add_master(self, cs, ca, req):
-		if self.master_node != '':
-			print('[!!] %s is replacing %s as Master Node' % (req, self.master))
+		print('[!!] %s is replacing %s as Master Node' % (req, self.master))
 		self.master = req
 		cs.close()
 
