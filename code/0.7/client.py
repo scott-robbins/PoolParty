@@ -4,8 +4,28 @@ import utils
 import sys
 
 
-CHANNELS = ['BTC', 'Security', 'Music']
-
+def set_node_master(node):
+	command1 = 'SET_MASTER ???? %s' % utils.get_internal_addr()[0]
+	command2 = 'DUMP_TBL ???? please :D'
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((node, 54123))
+		s.send((command1))
+		print(s.recv(1023))
+		s.close()
+	except socket.error:
+		print('[!!] Cannot Connect to %s' % node)
+		pass
+	# Now instruct node to update their routing table
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((node, 54123))
+		s.send(command2)
+		print(s.recv(1023))
+		s.close()
+	except socket.error:
+		print('[!!] Cannot Connect to %s' % node)
+		pass
 
 
 def check_for_messages(nodes, channels):
@@ -22,8 +42,6 @@ def check_for_messages(nodes, channels):
 		for ch in channels.keys():
 			if n in channels[ch]:
 				print('[*] Checking if %s has %s data' % (n, ch))
-
-
 
 
 def test_connections(debug):
