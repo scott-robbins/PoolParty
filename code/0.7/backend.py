@@ -27,7 +27,6 @@ class Messager:
 	def run(self):
 		self.running = True
 		self.runtime = time.time()
-		pool = multiprocessing.Pool(3)
 		sdate, stime = utils.create_timestamp()
 		try:
 			print('[*] Server Started [%s - %s]' % (sdate, stime))
@@ -43,7 +42,7 @@ class Messager:
 					# event = pool.apply_async(self.client_handler, (client, cinfo))
 					handler = Thread(target=self.client_handler, args=(client, cinfo))
 					handler.start()
-					
+
 					succeeded = True
 				except multiprocessing.TimeoutError:
 					print('[!!] Connection Error with %s' % cinfo[0])
