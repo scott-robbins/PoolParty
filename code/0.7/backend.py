@@ -88,8 +88,8 @@ class Messager:
 		cs.close()
 
 	def add_master(self, cs, ca, req):
-		print('[!!] %s is replacing %s as Master Node' % (req, self.master))
-		self.master = req
+		print('[!!] %s is replacing %s as Master Node' % (req, self.master_node))
+		self.master_node = req
 		cs.close()
 
 	def dump_messenging_rules(self, cs, ca, req):
