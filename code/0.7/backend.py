@@ -2,6 +2,7 @@ import multiprocessing
 import base64
 import socket
 import utils
+import json
 import time
 import sys 
 import os
@@ -17,7 +18,8 @@ class Messager:
 	def __init__(self, name):
 		self.nx_name = name
 		# Declare API Methods in the actions dict
-		self.actions = {'SHUTDOWN': self.kill}
+		self.actions = {'SHUTDOWN': self.kill,
+						'SET_MASTER': self.add_master}
 		# start the server
 		self.run()
 
@@ -35,14 +37,19 @@ class Messager:
 				# accept a client
 				client, cinfo = s.accept()
 				# handle their request
+				succeeded = False
 				try:
 					event = pool.apply_async(target=self.client_handler, args=(client, cinfo))
 					client = event.get(timeout=10)
+					succeeded = True
 				except multiprocessing.TimeoutError:
 					print('[!!] Connection Error with %s' % cinfo[0])
 					pass
 				# close everything
 				client.close()
+				# all incoming messages are from brokers 
+				if succeeded and cinfo[0] not in self.brokers:
+					self.brokers.append(cinfo[0])
 		except KeyboardInterrupt:
 			self.running = False
 			print('[*] Shutting Down Backend Messager')
@@ -65,11 +72,28 @@ class Messager:
 			pass
 		return csock
 
+	def show_methods(self, cs, ca, req):
+		result = uitls.arr2str('-'.join(self.actions.keys()))
+		cs.send(result)
+		return cs
+
 	def kill(self, cs, ca, req):
 		print('\033[1m\033[31m[!!] Killing Backend Server\033[0m')
 		self.running = False
 		cs.send('[*] OK. Shutting Down Server')
 		return cs
+
+	def add_master(self, cs, ca, req):
+		if self.master != '':
+			print('[!!] %s is replacing %s as Master Node' % (req, self.master))
+		self.master = req
+		return cs
+
+	def dump_messenging_rules(self):
+		rules = {'master': self.master,
+				 'brokers': self.brokers}
+		# dump this into /Config/Channels/Self/messaging.json
+
 
 
 
