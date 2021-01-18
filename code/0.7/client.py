@@ -2,6 +2,7 @@ import multiprocessing
 import socket
 import random
 import utils
+import time
 import sys
 
 
@@ -36,7 +37,7 @@ def kill_node(node):
 				s.connect((node, 54123))
 				s.send(command)
 				s.close()
-				time.sleep(1)
+				time.sleep(0.5)
 			except socket.error:
 				pass
 		except socket.error:

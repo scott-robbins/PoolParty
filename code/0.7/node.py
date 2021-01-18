@@ -66,7 +66,7 @@ class Node():
 			while self.running:
 				for op in self.raw_state.keys():
 					self.check_channel_fields(op, self.DEBUG)
-					time.sleep(10) # FOR DEBUGGING
+					time.sleep(3) # FOR DEBUGGING
 					# check for changes in master node/brokers
 					self.check_messaging_nodes()
 					# check n_cycles
@@ -141,7 +141,7 @@ class Node():
 					if 'published.json' in utils.cmd('ls PoolData/Config/Channels/%s' % channel,False):
 						print('[*] New %s Data Available' % channel)
 				# TODO: Handle what happens if node is a CONSUMER of channel
-				
+
 
 	def update_config(self):
 		"""
