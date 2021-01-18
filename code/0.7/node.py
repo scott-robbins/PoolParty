@@ -44,13 +44,10 @@ class Node():
 			self.update_config()
 		# Check local structure
 		self.update_channels()
-		# TODO: Nodes need to be able to be given master(s)
-		# Should start a thread to listen for messages from master or BROKERS
-		# self.backend = backend.Messager(self.node_name)
+		# Start a thread to listen for messages from master or BROKERS
 		self.backend = threading.Thread(target=backend.Messager, args=(self.node_name,))
 		self.backend.setDaemon(True)
 		self.backend.start()
-	
 		# TODO: Nodes need to be able to be deemed BROKERS of messages from master(s)
 		# Run the Node
 		self.run()
@@ -77,7 +74,7 @@ class Node():
 					# 	print('[*] %s has run %d cycles' % (op, self.raw_state[op]['cycle']))
 					# update the tic of channels clock
 					self.toggle_channel_status(op,'cycle',cycle)
-					# Check whether node backend was killed
+					
 
 				cycle += 1
 
@@ -102,6 +99,7 @@ class Node():
 					self.running = messaging['listening']
 					if not self.running:
 						print('[!!] Triggering Shutdown from Backend')
+
 
 	def update_channels(self):
 		# make sure these folders are present
@@ -137,9 +135,13 @@ class Node():
 			if 'running' in self.raw_state[channel].keys() and self.raw_state[channel]['running']:
 				if verbose:
 					print('[*] %s Process is \033[32m\033[1mRunning\033[0m' % channel)
-			# TODO: Handle what happens if node is a SUBSCRIBER of channel
-			# TODO: Handle what happens if node is a CONSUMER of channel
-
+				# TODO: Handle what happens if node is a SUBSCRIBER of channel
+				if self.raw_state[channel]['subscriber']:
+					# chceck if node has new data to publish 
+					if 'published.json' in utils.cmd('ls PoolData/Config/Channels/%s' % channel,False):
+						print('[*] New %s Data Available' % channel)
+				# TODO: Handle what happens if node is a CONSUMER of channel
+				
 
 	def update_config(self):
 		"""
