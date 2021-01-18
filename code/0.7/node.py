@@ -84,6 +84,15 @@ class Node():
 			self.toggle_channel_status('Self','running',False)
 			pass
 
+	def check_messaging_nodes(self):
+		fn = 'PoolData/Config/Channels/Self/messaging.json'
+		if not os.path.isfile(fn):
+			with open('PoolData/Config/Channels/Self/messaging.json', 'r') as f:
+				messaging = json.load(f)
+				if 'master' in messaging.keys():
+					print('[*] Master node is: %s' messaging['master'])
+				if 'brokers' in messaging.keys():
+					print('[*] Brokers are:\n%s' % utils.arr2str('-'.join(messaging['brokers'])))
 
 	def update_channels(self):
 		# make sure these folders are present
