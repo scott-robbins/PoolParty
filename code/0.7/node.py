@@ -100,6 +100,8 @@ class Node():
 				# check if backend was killed 
 				if 'listening' in messaging.keys():
 					self.running = messaging['listening']
+					if not self.running:
+						print('[!!] Triggering Shutdown from Backend')
 
 	def update_channels(self):
 		# make sure these folders are present
