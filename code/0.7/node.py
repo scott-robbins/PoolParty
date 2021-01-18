@@ -90,7 +90,7 @@ class Node():
 			with open('PoolData/Config/Channels/Self/messaging.json', 'r') as f:
 				messaging = json.load(f)
 				if 'master' in messaging.keys():
-					print('[*] Master node is: %s' messaging['master'])
+					print('[*] Master node is: %s' % messaging['master'])
 				if 'brokers' in messaging.keys():
 					print('[*] Brokers are:\n%s' % utils.arr2str('-'.join(messaging['brokers'])))
 
