@@ -40,7 +40,7 @@ class Messager:
 				# handle their request
 				succeeded = False
 				try:
-					event = pool.apply_async(self.client_handler, (client, cinfo))
+					event = pool.apply_async(client_handler, (self, client, cinfo))
 					client = event.get(timeout=10)
 					succeeded = True
 				except multiprocessing.TimeoutError:
