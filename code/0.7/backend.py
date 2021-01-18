@@ -93,7 +93,7 @@ class Messager:
 		self.master = req
 		cs.close()
 
-	def dump_messenging_rules(self):
+	def dump_messenging_rules(self, cs, ca, req):
 		rules = {'master': self.master_node,
 				 'brokers': self.brokers}
 		# dump this into /Config/Channels/Self/messaging.json

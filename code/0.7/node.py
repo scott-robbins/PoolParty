@@ -26,6 +26,8 @@ class Node():
 		self.running = True
 		self.DEBUG = False
 		# If config file doesnt exist, make one based on what is present
+		if not os.path.isdir('PoolData'):
+			os.mkdir('PoolData')
 		if not os.path.isdir('PoolData/Config'):
 			os.mkdir('PoolData/Config')
 		if not os.path.isfile('PoolData/Config/config.json'):
